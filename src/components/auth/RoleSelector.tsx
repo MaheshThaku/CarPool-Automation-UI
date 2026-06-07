@@ -15,14 +15,14 @@ interface RoleSelectorProps {
 
 const roles = [
   {
-    value: "PASSENGER" as const,
+    value: "ROLE_PASSENGER" as const,
     title: "Passenger",
     description:
       "Book rides and travel affordably",
     icon: User,
   },
   {
-    value: "RIDER" as const,
+    value: "ROLE_RIDER" as const,
     title: "Rider",
     description:
       "Offer rides and earn money",
