@@ -6,3 +6,8 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+console.log(
+  "BASE URL:",
+  process.env.NEXT_PUBLIC_API_BASE_URL
+);

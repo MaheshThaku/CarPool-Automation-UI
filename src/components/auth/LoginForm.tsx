@@ -17,6 +17,15 @@ import {
   LoginSchemaType,
 } from "@/schemas/login.schema";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { authService } from "@/services/auth.service";
+import {
+  LoginRequest,
+  ApiError,
+} from "@/types/auth.types";
+
 const SOCIAL_BUTTON_CLASS =
   "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]";
 
@@ -33,20 +42,59 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
     mode: "onChange",
     defaultValues: {
-      role: "PASSENGER",
+      role: "ROLE_PASSENGER",
     },
   });
-  const onSubmit = async (
-    data: LoginSchemaType
-  ) => {
-    try {
-      console.log(data);
 
-      // await api.post("/auth/login", data);
-    } catch (error) {
-      console.error(error);
+  const router = useRouter();
+
+const [errorMessage, setErrorMessage] =
+  useState("");
+
+
+const onSubmit = async (
+  data: LoginSchemaType
+) => {
+  try {
+    setErrorMessage("");
+
+    const payload: LoginRequest = {
+      email: data.email.trim(),
+      password: data.password,
+    };
+
+    const response =
+      await authService.login(
+        payload
+      );
+
+    localStorage.setItem(
+      "accessToken",
+      response.accessToken
+    );
+
+    localStorage.setItem(
+      "refreshToken",
+      response.refreshToken
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(response.user)
+    );
+
+    router.push("/dashboard/d");
+  } catch (error) {
+    if (error instanceof ApiError) {
+      setErrorMessage(error.message);
+      return;
     }
-  };
+
+    setErrorMessage(
+      "Login failed. Please try again."
+    );
+  }
+};
 
   return (
     <div
