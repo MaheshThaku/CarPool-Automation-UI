@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  role: z.enum(["PASSENGER", "RIDER"], {
+  role: z.enum(["ROLE_PASSENGER", "ROLE_RIDER"], {
     message: "Please select a role",
   }),
 
