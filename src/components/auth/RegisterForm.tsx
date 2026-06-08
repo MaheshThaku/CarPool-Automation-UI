@@ -109,8 +109,8 @@ const onSubmit = async (
       role: data.role,
       password: data.password,
     };
-    console.log("Payload:", payload);
-    console.log(data);
+    // console.log("Payload:", payload);
+    // console.log(data);
 
     const response =
       await authService.register(
