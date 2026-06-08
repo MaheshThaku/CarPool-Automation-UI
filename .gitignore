@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .next/
+/.idea/.gitignore
+/.idea/CarPool-Automation-UI.iml
+/.idea/misc.xml
+/.idea/modules.xml
