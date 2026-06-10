@@ -46,3 +46,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* partners scroller */
+.partner-slider {
+  overflow: hidden;
+  width: 100%;
+}
+
+.partner-track {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: max-content;
+  padding: 0.5rem 0;
+
+  animation: trustedScroll 30s linear infinite;
+}
+
+.partner-slider:hover .partner-track {
+  animation-play-state: paused;
+}
+
+@keyframes trustedScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
