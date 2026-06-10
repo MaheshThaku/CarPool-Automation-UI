@@ -13,7 +13,7 @@ export default function TrustedPartners() {
         relative
         overflow-hidden
 
-        bg-[var(--background)]
+        bg-white
 
         py-8
         md:py-10
@@ -107,7 +107,7 @@ export default function TrustedPartners() {
               w-16
 
               bg-gradient-to-r
-              from-[var(--background)]
+              from-white
               to-transparent
 
               lg:w-32
@@ -127,7 +127,7 @@ export default function TrustedPartners() {
               w-16
 
               bg-gradient-to-l
-              from-[var(--background)]
+              from-white
               to-transparent
 
               lg:w-32

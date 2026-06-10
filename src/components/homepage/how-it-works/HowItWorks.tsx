@@ -9,7 +9,7 @@ export default function HowItWorks() {
   return (
     <section
       className="
-        bg-[var(--background)]
+        bg-white
         py-8
 
         md:py-10

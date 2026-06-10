@@ -109,13 +109,13 @@ export default function Navbar() {
                   text-white
                 "
               >
-                ShareFare
+                <span className="text-[var(--heading)]">Share</span><span className="text-[var(--primary-hover)]">Fare</span>
               </h2>
 
               <p
                 className="
                   text-xs
-                  text-white/80
+                  text-[var(--heading)]
                 "
               >
                 Travel Together, Better
@@ -142,7 +142,7 @@ export default function Navbar() {
                   relative
                   text-sm
                   font-medium
-                  text-white
+                  text-[var(--heading)]
 
                   transition-colors
                   duration-300
@@ -198,7 +198,7 @@ export default function Navbar() {
 
                 text-sm
                 font-medium
-                text-white
+                text-[var(--heading)]
 
                 backdrop-blur-md
 
@@ -224,7 +224,7 @@ export default function Navbar() {
 
                 text-sm
                 font-medium
-                text-white
+               text-[var(--heading)]
 
                 shadow-lg
 
@@ -327,7 +327,7 @@ export default function Navbar() {
               transition-all
               duration-300
 
-              hover:bg-[var(--background)]
+              hover:bg-white/10
               hover:text-[var(--primary)]
             "
           >
