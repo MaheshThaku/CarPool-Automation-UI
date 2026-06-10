@@ -3,6 +3,7 @@
 :root {
   --primary: #d89a33;
   --primary-hover: #c8851f;
+  --primary-light: #fff8ee;
 
   --heading: #111827;
   --text: #4b5563;
@@ -32,13 +33,6 @@
 
   --border: #e5e7eb; */
 
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

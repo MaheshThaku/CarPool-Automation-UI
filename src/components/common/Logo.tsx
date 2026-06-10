@@ -18,7 +18,7 @@ export default function Logo() {
             RideConnect
           </h2>
 
-          <p className="mt-1 text-base text-[var(--text-)]">
+          <p className="mt-1 text-base text-[var(--text-light)]">
             Travel Together, Better
           </p>
         </div>
