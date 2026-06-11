@@ -1,11 +1,6 @@
-export type UserRole =
-  | "ROLE_PASSENGER"
-  | "ROLE_RIDER";
+export type UserRole = "ROLE_PASSENGER" | "ROLE_RIDER";
 
-export type Gender =
-  | "MALE"
-  | "FEMALE"
-  | "OTHER";
+export type Gender = "MALE" | "FEMALE" | "OTHER";
 
 /* ===========================
    REGISTER
@@ -37,13 +32,14 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
 
-  user: {
+  user?: {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
+    role?: string;
   };
 }
 
