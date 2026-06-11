@@ -33,7 +33,7 @@ class AuthService {
 
       throw new ApiError(
         axiosError.response?.data?.message ??
-          "Something went wrong. Please try again."
+        "Something went wrong. Please try again."
       );
     }
 
@@ -66,7 +66,7 @@ class AuthService {
     payload: RegisterRequest
   ): Promise<RegisterResponse> {
     return this.post<RegisterResponse>(
-      "/v1/public/register",
+      "/public/register",
       payload
     );
   }
@@ -79,7 +79,7 @@ class AuthService {
     payload: LoginRequest
   ): Promise<LoginResponse> {
     return this.post<LoginResponse>(
-      "/v1/public/login",
+      "/public/login",
       payload
     );
   }
@@ -92,7 +92,7 @@ class AuthService {
     payload: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> {
     return this.post<ForgotPasswordResponse>(
-      "/v1/public/forgot-password",
+      "/public/forgot-password",
       payload
     );
   }
@@ -105,7 +105,7 @@ class AuthService {
     payload: ResetPasswordRequest
   ): Promise<ResetPasswordResponse> {
     return this.post<ResetPasswordResponse>(
-      "/v1/public/reset-password",
+      "/public/reset-password",
       payload
     );
   }
@@ -118,7 +118,7 @@ class AuthService {
     payload: VerifyOtpRequest
   ): Promise<VerifyOtpResponse> {
     return this.post<VerifyOtpResponse>(
-      "/v1/public/verify-otp",
+      "/public/verify-otp",
       payload
     );
   }
@@ -131,7 +131,7 @@ class AuthService {
     payload: ResendOtpRequest
   ): Promise<ResendOtpResponse> {
     return this.post<ResendOtpResponse>(
-      "/v1/public/resend-otp",
+      "/public/resend-otp",
       payload
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Lock, Phone, User } from "lucide-react";
+import { Mail, Lock, Phone, User, Check } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import NotificationModal from "@/components/ui/NotificationModal";
 
 import { authService } from "@/services/auth.service";
+import { otpService } from "@/services/otp.service";
 
 import { RegisterRequest } from "@/types/auth.types";
 
@@ -92,6 +93,69 @@ const acceptPrivacy = useWatch({
     title: "",
     message: "",
   });
+
+  // OTP Verification States
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpError, setOtpError] = useState("");
+
+  const email = useWatch({
+    control,
+    name: "email",
+  });
+
+  const handleSendOtp = async () => {
+    if (!email) return;
+    setIsSendingOtp(true);
+    setOtpError("");
+    try {
+      await otpService.sendOtp({ email: email.trim().toLowerCase() });
+      setOtpSent(true);
+      setNotification({
+        open: true,
+        type: "success",
+        title: "OTP Sent",
+        message: "A verification code has been sent to your email address.",
+      });
+    } catch (error) {
+      setOtpError(error instanceof Error ? error.message : "Failed to send OTP");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!email || otpCode.length !== 6) return;
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    try {
+      await otpService.verifyOtp({
+        email: email.trim().toLowerCase(),
+        otp: otpCode,
+      });
+      setIsEmailVerified(true);
+      setNotification({
+        open: true,
+        type: "success",
+        title: "Verification Successful",
+        message: "Your email has been successfully verified.",
+      });
+    } catch (error) {
+      setOtpError(error instanceof Error ? error.message : "Invalid OTP code");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const resetEmailVerification = () => {
+    setIsEmailVerified(false);
+    setOtpSent(false);
+    setOtpCode("");
+    setOtpError("");
+  };
 
 const onSubmit = async (
   data: RegisterSchemaType
@@ -247,27 +311,124 @@ const onSubmit = async (
             />
           </div>
 
-          {/* Contact */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              required
-              label="Email Address"
-              placeholder="Enter email address"
-              icon={Mail}
-              error={errors.email?.message}
-              {...register("email")}
-            />
+          {/* Contact & Verification */}
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Input
+                  required
+                  label="Email Address"
+                  placeholder="Enter email address"
+                  icon={Mail}
+                  error={errors.email?.message}
+                  readOnly={isEmailVerified}
+                  {...register("email")}
+                  suffix={
+                    isEmailVerified ? (
+                      <div className="flex items-center text-green-600 bg-green-50 px-2 py-1 rounded-lg border border-green-200">
+                        <Check size={14} className="mr-1 stroke-[3]" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-green-600">Verified</span>
+                      </div>
+                    ) : isSendingOtp ? (
+                      <span className="text-xs font-semibold text-[var(--text-light)] animate-pulse">Sending...</span>
+                    ) : otpSent ? (
+                      <button
+                        type="button"
+                        disabled={isSendingOtp}
+                        onClick={handleSendOtp}
+                        className="text-xs font-bold text-[var(--primary)] hover:underline uppercase tracking-wider"
+                      >
+                        Resend
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isSendingOtp || !email || !!errors.email}
+                        onClick={handleSendOtp}
+                        className="text-xs font-bold text-[var(--primary)] hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider"
+                      >
+                        Verify
+                      </button>
+                    )
+                  }
+                />
+                
+                {isEmailVerified && (
+                  <div className="flex justify-end px-1 animate-fadeIn">
+                    <button
+                      type="button"
+                      onClick={resetEmailVerification}
+                      className="text-xs font-semibold text-slate-500 hover:text-[var(--primary)] underline transition-colors"
+                    >
+                      Change email
+                    </button>
+                  </div>
+                )}
+              </div>
 
-            <Input
-              required
-              label="Contact Number"
-              placeholder="Enter mobile number"
-              icon={Phone}
-              error={errors.contactNumber?.message}
-              maxLength={10}
-              inputMode="numeric"
-              {...register("contactNumber")}
-            />
+              <div className="space-y-2">
+                <Input
+                  required
+                  label="Contact Number"
+                  placeholder="Enter mobile number"
+                  icon={Phone}
+                  error={errors.contactNumber?.message}
+                  maxLength={10}
+                  inputMode="numeric"
+                  {...register("contactNumber")}
+                />
+              </div>
+            </div>
+
+            {/* OTP Verification Panel */}
+            {otpSent && !isEmailVerified && (
+              <div className="p-5 bg-slate-50 border border-slate-200 border-dashed rounded-2xl space-y-4 max-w-lg transition-all duration-300 animate-fadeIn">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Verification Code Sent
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    We sent a 6-digit OTP code to <span className="font-semibold text-slate-700">{email}</span>. Enter it below to verify your address.
+                  </p>
+                </div>
+                
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <Input
+                      required
+                      label="Enter OTP Code"
+                      placeholder="0 0 0 0 0 0"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      maxLength={6}
+                      inputMode="numeric"
+                      error={otpError}
+                      className="text-center tracking-widest text-lg font-bold placeholder:tracking-normal placeholder:font-normal"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    isLoading={isVerifyingOtp}
+                    disabled={otpCode.length !== 6 || isVerifyingOtp}
+                    onClick={handleVerifyOtp}
+                    className="h-[62px] px-6 shrink-0 font-bold uppercase tracking-wider text-xs"
+                  >
+                    Confirm Code
+                  </Button>
+                </div>
+
+                <div className="text-xs text-slate-500">
+                  Not your email?{" "}
+                  <button
+                    type="button"
+                    onClick={resetEmailVerification}
+                    className="font-bold text-[var(--primary)] hover:underline"
+                  >
+                    Change Email
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Gender */}
@@ -370,7 +531,7 @@ const onSubmit = async (
           </div>
 
           <Button
-            // disabled={!isValid}
+            disabled={!isEmailVerified || isSubmitting}
             isLoading={isSubmitting}
             type="submit"
             
@@ -405,9 +566,9 @@ const onSubmit = async (
   title={notification.title}
   message={notification.message}
   onClose={() => {
-    const isSuccess =
-      notification.type ===
-      "success";
+    const isRegSuccess =
+      notification.type === "success" &&
+      notification.title === "Registration Successful";
 
     setNotification({
       open: false,
@@ -416,7 +577,7 @@ const onSubmit = async (
       message: "",
     });
 
-    if (isSuccess) {
+    if (isRegSuccess) {
       router.push("/auth/login");
     }
   }}
