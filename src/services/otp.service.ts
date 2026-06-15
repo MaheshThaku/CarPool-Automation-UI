@@ -37,7 +37,7 @@ class OtpService {
   async sendOtp(payload: SendOtpRequest): Promise<string> {
     try {
       const { data } = await api.post<string>(
-        "/otp/send-otp",
+        "v1/otp/send-otp",
         payload
       );
       return data;
@@ -49,7 +49,7 @@ class OtpService {
   async verifyOtp(payload: VerifyOtpRequest): Promise<string> {
     try {
       const { data } = await api.post<string>(
-        "/otp/verify-otp",
+        "v1/otp/verify-otp",
         payload
       );
       return data;

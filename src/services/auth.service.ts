@@ -66,7 +66,7 @@ class AuthService {
     payload: RegisterRequest
   ): Promise<RegisterResponse> {
     return this.post<RegisterResponse>(
-      "/public/register",
+      "v1/public/register",
       payload
     );
   }
@@ -79,7 +79,7 @@ class AuthService {
     payload: LoginRequest
   ): Promise<LoginResponse> {
     return this.post<LoginResponse>(
-      "/public/login",
+      "v1/public/login",
       payload
     );
   }
@@ -92,7 +92,7 @@ class AuthService {
     payload: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> {
     return this.post<ForgotPasswordResponse>(
-      "/public/forgot-password",
+      "v1/public/forgot-password",
       payload
     );
   }
@@ -118,7 +118,7 @@ class AuthService {
     payload: VerifyOtpRequest
   ): Promise<VerifyOtpResponse> {
     return this.post<VerifyOtpResponse>(
-      "/public/verify-otp",
+      "v1/public/verify-otp",
       payload
     );
   }
@@ -131,7 +131,7 @@ class AuthService {
     payload: ResendOtpRequest
   ): Promise<ResendOtpResponse> {
     return this.post<ResendOtpResponse>(
-      "/public/resend-otp",
+      "v1/public/resend-otp",
       payload
     );
   }

@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Globe, Lock, Mail } from "lucide-react";
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Globe, Lock, Mail } from 'lucide-react';
 
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
-import { loginSchema, LoginSchemaType } from "@/schemas/login.schema";
+import { loginSchema, LoginSchemaType } from '@/schemas/login.schema';
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { authService } from "@/services/auth.service";
-import { LoginRequest, ApiError } from "@/types/auth.types";
+import { authService } from '@/services/auth.service';
+import { LoginRequest, ApiError } from '@/types/auth.types';
 
 const SOCIAL_BUTTON_CLASS =
-  "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]";
+  'flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]';
 
 /* Decode JWT payload and extract user info including role.
    Handles common Spring Boot JWT claim shapes:
@@ -27,34 +27,31 @@ const SOCIAL_BUTTON_CLASS =
 */
 function decodeUserFromJwt(token: string) {
   try {
-    const parts = token.split(".");
+    const parts = token.split('.');
     if (parts.length < 2) return null;
-    const seg = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = seg + "=".repeat((4 - (seg.length % 4)) % 4);
+    const seg = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = seg + '='.repeat((4 - (seg.length % 4)) % 4);
     const claims = JSON.parse(window.atob(padded)) as Record<string, unknown>;
 
     const role: string =
-      (Array.isArray(claims.roles) ? String(claims.roles[0]) : "") ||
+      (Array.isArray(claims.roles) ? String(claims.roles[0]) : '') ||
       (Array.isArray(claims.authorities)
         ? String(
             (claims.authorities as Array<{ authority?: string }>)[0]
-              ?.authority || claims.authorities[0]
+              ?.authority || claims.authorities[0],
           )
-        : "") ||
-      String(claims.role || claims.scope || "ROLE_PASSENGER");
+        : '') ||
+      String(claims.role || claims.scope || 'ROLE_PASSENGER');
 
-    const email = String(claims.sub || claims.email || "");
+    const email = String(claims.sub || claims.email || '');
     const firstName = String(
-      claims.firstName ||
-        claims.given_name ||
-        email.split("@")[0] ||
-        "User"
+      claims.firstName || claims.given_name || email.split('@')[0] || 'User',
     );
 
     return {
-      id: String(claims.sub || claims.userId || claims.id || ""),
+      id: String(claims.sub || claims.userId || claims.id || ''),
       firstName,
-      lastName: String(claims.lastName || claims.family_name || ""),
+      lastName: String(claims.lastName || claims.family_name || ''),
       email,
       role,
     };
@@ -70,22 +67,22 @@ export default function LoginForm() {
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
-    defaultValues: { role: "ROLE_PASSENGER" },
+    mode: 'onChange',
+    defaultValues: { role: 'ROLE_PASSENGER' },
   });
 
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      setErrorMessage("");
+      setErrorMessage('');
 
       // Clear any stale tokens before login so axios interceptor doesn't
       // attach an old/broken token to the login request itself.
-      window.localStorage.removeItem("accessToken");
-      window.localStorage.removeItem("refreshToken");
-      window.localStorage.removeItem("user");
+      window.localStorage.removeItem('accessToken');
+      window.localStorage.removeItem('refreshToken');
+      window.localStorage.removeItem('user');
 
       const payload: LoginRequest = {
         email: data.email.trim(),
@@ -97,21 +94,21 @@ export default function LoginForm() {
 
       // Backend may return a plain JWT string OR an object
       const accessToken: string =
-        typeof rawResponse === "string"
+        typeof rawResponse === 'string'
           ? rawResponse
-          : rawResponse.accessToken || "";
+          : rawResponse.accessToken || '';
 
       const refreshToken: string =
-        typeof rawResponse === "string" ? "" : rawResponse.refreshToken || "";
+        typeof rawResponse === 'string' ? '' : rawResponse.refreshToken || '';
 
-      window.localStorage.setItem("accessToken", accessToken);
+      window.localStorage.setItem('accessToken', accessToken);
       if (refreshToken) {
-        window.localStorage.setItem("refreshToken", refreshToken);
+        window.localStorage.setItem('refreshToken', refreshToken);
       }
 
       // Build user object: prefer response.user then fall back to JWT claims
       let userObj =
-        typeof rawResponse === "object" && rawResponse !== null
+        typeof rawResponse === 'object' && rawResponse !== null
           ? rawResponse.user || null
           : null;
 
@@ -127,21 +124,21 @@ export default function LoginForm() {
       }
 
       if (userObj) {
-        window.localStorage.setItem("user", JSON.stringify(userObj));
+        window.localStorage.setItem('user', JSON.stringify(userObj));
       }
 
-      router.push("/dashboard/overview");
+      router.push('/dashboard/overview');
     } catch (error) {
       if (error instanceof ApiError) {
         setErrorMessage(error.message);
         return;
       }
-      setErrorMessage("Login failed. Please try again.");
+      setErrorMessage('Login failed. Please try again.');
     }
   };
 
   return (
-    <div className="w-full bg-white p-5 sm:p-6 lg:p-8 lg:rounded-3xl lg:shadow-sm">
+    <div className="w-full bg-white p-5 sm:p-6 lg:rounded-3xl lg:p-8 lg:shadow-sm">
       <header>
         <h1 className="text-3xl font-bold text-[var(--heading)] sm:text-4xl">
           Welcome Back
@@ -158,7 +155,7 @@ export default function LoginForm() {
           placeholder="Enter your email address"
           icon={Mail}
           error={errors.email?.message}
-          {...register("email")}
+          {...register('email')}
         />
 
         <Input
@@ -168,7 +165,7 @@ export default function LoginForm() {
           placeholder="Enter your password"
           icon={Lock}
           error={errors.password?.message}
-          {...register("password")}
+          {...register('password')}
         />
 
         {errorMessage && (
@@ -202,7 +199,7 @@ export default function LoginForm() {
         </button>
 
         <p className="text-center text-sm text-[var(--text)]">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account?{' '}
           <Link
             href="/auth/register"
             className="font-semibold text-[var(--primary)] hover:underline"

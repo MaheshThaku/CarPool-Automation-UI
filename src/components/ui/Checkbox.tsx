@@ -4,13 +4,9 @@ interface CheckboxProps {
   label: string;
 }
 
-export default function Checkbox({
-  checked,
-  onChange,
-  label,
-}: CheckboxProps) {
+export default function Checkbox({ checked, onChange, label }: CheckboxProps) {
   return (
-    <label className="flex items-center gap-3 cursor-pointer">
+    <label className="flex cursor-pointer items-center gap-3">
       <input
         type="checkbox"
         checked={checked}
@@ -18,9 +14,7 @@ export default function Checkbox({
         className="h-4 w-4 accent-[var(--primary)]"
       />
 
-      <span className="text-sm text-[var(--text)]">
-        {label}
-      </span>
+      <span className="text-sm text-[var(--text)]">{label}</span>
     </label>
   );
 }

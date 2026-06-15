@@ -1,12 +1,14 @@
 import { LucideIcon } from "lucide-react";
 
-interface Props {
+type Props = {
   title: string;
+  subtitle: string;
   icon: LucideIcon;
-}
+};
 
 export default function SafetyCard({
   title,
+  subtitle,
   icon: Icon,
 }: Props) {
   return (
@@ -20,13 +22,12 @@ export default function SafetyCard({
         justify-center
 
         rounded-2xl
-
         border
         border-[var(--border)]
 
         bg-[var(--surface)]
 
-        p-4
+        p-5
 
         text-center
 
@@ -35,20 +36,20 @@ export default function SafetyCard({
 
         hover:-translate-y-1
         hover:border-[var(--primary)]
-        hover:shadow-md
+        hover:shadow-lg
       "
     >
       <div
         className="
-          mb-3
+          mb-4
 
           flex
-          h-10
-          w-10
+          h-16
+          w-16
           items-center
           justify-center
 
-          rounded-xl
+          rounded-2xl
 
           bg-[var(--primary)]/10
 
@@ -58,7 +59,7 @@ export default function SafetyCard({
         "
       >
         <Icon
-          size={20}
+          size={30}
           className="
             text-[var(--primary)]
 
@@ -67,18 +68,25 @@ export default function SafetyCard({
         />
       </div>
 
-      <h3
+      <h4
         className="
-          text-xs
+          text-sm
           font-semibold
-
           text-[var(--heading)]
-
-          md:text-sm
         "
       >
         {title}
-      </h3>
+      </h4>
+
+      <p
+        className="
+          mt-1
+          text-xs
+          text-[var(--text-light)]
+        "
+      >
+        {subtitle}
+      </p>
     </div>
   );
 }

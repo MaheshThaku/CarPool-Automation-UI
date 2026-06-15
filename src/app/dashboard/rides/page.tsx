@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import MyRidesPage from "./_components/MyRidesPage";
-import FindRidesPage from "./_components/FindRidesPage";
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import MyRidesPage from './_components/MyRidesPage';
+import FindRidesPage from './_components/FindRidesPage';
 
 export default function RidesPage() {
   const user = useCurrentUser();
@@ -15,5 +15,5 @@ export default function RidesPage() {
     );
   }
 
-  return user.role === "ROLE_RIDER" ? <MyRidesPage /> : <FindRidesPage />;
+  return user.role === 'ROLE_RIDER' ? <MyRidesPage /> : <FindRidesPage />;
 }
