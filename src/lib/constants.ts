@@ -15,6 +15,21 @@ export const GENDERS = {
   OTHER: "OTHER",
 } as const;
 
+/**
+ * Display labels for VerificationItemResponse.documentType (the backend
+ * returns only the raw enum value, no human-readable label).
+ */
+export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  DRIVING_LICENSE: "Driving License",
+  VEHICLE_RC: "Vehicle Registration (RC)",
+  VEHICLE_INSURANCE: "Vehicle Insurance",
+  GOVT_ID: "Government ID",
+};
+
+export function documentTypeLabel(documentType: string): string {
+  return DOCUMENT_TYPE_LABELS[documentType] ?? documentType;
+}
+
 export const AUTH_STATS = [
   {
     value: "500K+",

@@ -38,15 +38,7 @@ export default function RadioCard({
       )}
     >
       <div
-        className="
-        flex
-        h-14
-        w-14
-        items-center
-        justify-center
-        rounded-full
-        bg-[#F8F5EF]
-      "
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F8F5EF]"
       >
         {icon}
       </div>

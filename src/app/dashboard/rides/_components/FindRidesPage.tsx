@@ -2,13 +2,20 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import {
   MapPin, Calendar, Search, ArrowRight, Clock,
   Users, Star, ArrowLeftRight, Car, IndianRupee,
 } from "lucide-react";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { api } from "@/lib/axios";
+import { rideService } from "@/services/ride.service";
+import { bookingService } from "@/services/booking.service";
 import { RideResponse } from "@/types/ride.types";
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong. Please try again.";
+}
 
 /* =====================================================================
    Search form
@@ -17,7 +24,8 @@ import { RideResponse } from "@/types/ride.types";
 interface SearchForm {
   sourceCity: string;
   destinationCity: string;
-  date: string;
+  departureDate: string;
+  requiredSeats: number;
 }
 
 /* =====================================================================
@@ -41,12 +49,41 @@ function todayMin() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Reads the homepage hand-off query params (sourceCity/destinationCity/
+// departureDate/requiredSeats) once on mount. Returns null when the page
+// was opened directly (no params), so callers can fall back to blank defaults.
+function getInitialSearchFromUrl(urlParams: URLSearchParams): SearchForm | null {
+  const sourceCity = urlParams.get("sourceCity") ?? "";
+  const destinationCity = urlParams.get("destinationCity") ?? "";
+  const departureDate = urlParams.get("departureDate") ?? "";
+  const requiredSeats = Number(urlParams.get("requiredSeats") ?? "1") || 1;
+
+  if (!sourceCity && !destinationCity) return null;
+  return { sourceCity, destinationCity, departureDate, requiredSeats };
+}
+
 /* =====================================================================
    Ride Result Card
 ===================================================================== */
 
-function RideCard({ ride }: { ride: RideResponse }) {
+type BookingState = "idle" | "loading" | "success" | "error";
+
+function RideCard({ ride, requiredSeats }: { ride: RideResponse; requiredSeats: number }) {
   const dt = parseDeparture(ride.departureTime);
+  const [bookingState, setBookingState] = useState<BookingState>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleBookNow = async () => {
+    setBookingState("loading");
+    setErrorMsg("");
+    try {
+      await bookingService.createBooking({ rideId: ride.id, seatsBooked: requiredSeats });
+      setBookingState("success");
+    } catch (err) {
+      setBookingState("error");
+      setErrorMsg(getErrorMessage(err));
+    }
+  };
 
   return (
     <div className="group rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/50 hover:shadow-md">
@@ -100,10 +137,22 @@ function RideCard({ ride }: { ride: RideResponse }) {
               Verified
             </span>
           </div>
-          <button className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[var(--primary-hover)] active:scale-95">
-            Book Now
+          <button
+            type="button"
+            onClick={handleBookNow}
+            disabled={bookingState === "loading" || bookingState === "success"}
+            className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[var(--primary-hover)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {bookingState === "loading" ? "Booking…" : bookingState === "success" ? "Requested ✓" : "Book Now"}
           </button>
         </div>
+
+        {bookingState === "error" && (
+          <p className="mt-2 text-right text-xs text-red-500">{errorMsg}</p>
+        )}
+        {bookingState === "success" && (
+          <p className="mt-2 text-right text-xs text-green-600">Booking request sent to the driver.</p>
+        )}
       </div>
     </div>
   );
@@ -125,33 +174,36 @@ const POPULAR_ROUTES = [
 ===================================================================== */
 
 export default function FindRidesPage() {
-  const [searchParams, setSearchParams] = useState<SearchForm | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const urlParams = useSearchParams();
+  // Computed fresh each render, but only ever consumed below as a `useState`
+  // initial value, which React only applies on the very first render — this
+  // reproduces the old "run once on mount" effect without calling setState
+  // inside a useEffect body.
+  const initialSearch = getInitialSearchFromUrl(urlParams);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<SearchForm>({
-    defaultValues: { sourceCity: "", destinationCity: "", date: "" },
+  const [searchParams, setSearchParams] = useState<SearchForm | null>(initialSearch);
+  const [hasSearched, setHasSearched] = useState(initialSearch !== null);
+
+  const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<SearchForm>({
+    defaultValues: initialSearch ?? {
+      sourceCity: "",
+      destinationCity: "",
+      departureDate: "",
+      requiredSeats: 1,
+    },
   });
 
-  const values = watch();
-
-  // Fetch rides only after user submits search
+  // Fetch rides only after the user submits (or arrives from homepage with params).
   const results$ = useAsyncData<RideResponse[]>(
     async () => {
       if (!searchParams) return [];
-      try {
-        const res = await api.get<RideResponse[]>("/v1/passenger/ride/search", {
-          params: {
-            sourceCity: searchParams.sourceCity,
-            destinationCity: searchParams.destinationCity,
-            date: searchParams.date || undefined,
-          },
-        });
-        return res.data;
-      } catch (err: unknown) {
-        const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 401) throw err;
-        return [];
-      }
+      const page = await rideService.searchRides({
+        sourceCity: searchParams.sourceCity,
+        destinationCity: searchParams.destinationCity,
+        departureDate: searchParams.departureDate || undefined,
+        requiredSeats: searchParams.requiredSeats > 1 ? searchParams.requiredSeats : undefined,
+      });
+      return page.content;
     },
     [searchParams]
   );
@@ -162,8 +214,7 @@ export default function FindRidesPage() {
   };
 
   const swapCities = () => {
-    const src = values.sourceCity;
-    const dst = values.destinationCity;
+    const { sourceCity: src, destinationCity: dst } = getValues();
     setValue("sourceCity", dst);
     setValue("destinationCity", src);
   };
@@ -216,8 +267,28 @@ export default function FindRidesPage() {
             <label className="text-xs font-medium text-[var(--text-light)]">Date <span className="text-gray-400">(optional)</span></label>
             <div className="relative">
               <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-light)]" />
-              <input type="date" min={todayMin()} {...register("date")}
-                className="w-full rounded-xl border border-[var(--border)] py-2.5 pl-9 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20" />
+              <input
+                type="date"
+                min={todayMin()}
+                {...register("departureDate")}
+                className="w-full rounded-xl border border-[var(--border)] py-2.5 pl-9 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+              />
+            </div>
+          </div>
+
+          {/* Seats */}
+          <div className="min-w-[100px] space-y-1.5">
+            <label className="text-xs font-medium text-[var(--text-light)]">Seats</label>
+            <div className="relative">
+              <Users size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-light)]" />
+              <select
+                {...register("requiredSeats", { valueAsNumber: true })}
+                className="w-full rounded-xl border border-[var(--border)] py-2.5 pl-9 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 appearance-none"
+              >
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -255,8 +326,11 @@ export default function FindRidesPage() {
                 { step: "3", icon: IndianRupee, title: "Book & Pay", desc: "Confirm your seat and pay securely. That's it!" },
               ].map(({ step, icon: Icon, title, desc }) => (
                 <div key={step} className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-white">
-                    {step}
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white">
+                    <Icon size={16} />
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[var(--primary)] ring-1 ring-[var(--primary)]">
+                      {step}
+                    </span>
                   </div>
                   <div>
                     <p className="font-semibold text-[var(--heading)]">{title}</p>
@@ -274,7 +348,7 @@ export default function FindRidesPage() {
         <div>
           {results$.loading ? (
             <div className="space-y-4">
-              {[1,2,3].map(i => (
+              {[1, 2, 3].map(i => (
                 <div key={i} className="animate-pulse rounded-2xl border border-[var(--border)] bg-white p-5 space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-gray-100 shrink-0" />
@@ -300,16 +374,20 @@ export default function FindRidesPage() {
               <h3 className="mt-4 text-lg font-semibold text-[var(--heading)]">No rides found</h3>
               <p className="mt-1.5 max-w-xs text-sm text-[var(--text)]">
                 No rides available for <strong>{searchParams?.sourceCity}</strong> → <strong>{searchParams?.destinationCity}</strong>
-                {searchParams?.date ? ` on ${searchParams.date}` : ""}. Try a different date or route.
+                {searchParams?.departureDate ? ` on ${searchParams.departureDate}` : ""}. Try a different date or route.
               </p>
             </div>
           ) : (
             <div>
               <p className="mb-4 text-sm text-[var(--text)]">
-                <span className="font-semibold text-[var(--heading)]">{(results$.data ?? []).length}</span> ride{(results$.data ?? []).length !== 1 ? "s" : ""} found · {searchParams?.sourceCity} → {searchParams?.destinationCity}
+                <span className="font-semibold text-[var(--heading)]">{(results$.data ?? []).length}</span>{" "}
+                ride{(results$.data ?? []).length !== 1 ? "s" : ""} found ·{" "}
+                {searchParams?.sourceCity} → {searchParams?.destinationCity}
               </p>
               <div className="space-y-4">
-                {(results$.data ?? []).map(ride => <RideCard key={ride.id} ride={ride} />)}
+                {(results$.data ?? []).map(ride => (
+                  <RideCard key={ride.id} ride={ride} requiredSeats={searchParams?.requiredSeats ?? 1} />
+                ))}
               </div>
             </div>
           )}

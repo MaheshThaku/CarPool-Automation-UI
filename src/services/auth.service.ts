@@ -10,6 +10,8 @@ import {
   ForgotPasswordResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  SendOtpRequest,
+  SendOtpResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
   ResendOtpRequest,
@@ -111,14 +113,27 @@ class AuthService {
   }
 
   /* ===========================
-     VERIFY OTP
+     SEND OTP (registration)
+  =========================== */
+
+  async sendOtp(
+    payload: SendOtpRequest
+  ): Promise<SendOtpResponse> {
+    return this.post<SendOtpResponse>(
+      "/v1/otp/send-otp",
+      payload
+    );
+  }
+
+  /* ===========================
+     VERIFY OTP (registration)
   =========================== */
 
   async verifyOtp(
     payload: VerifyOtpRequest
   ): Promise<VerifyOtpResponse> {
     return this.post<VerifyOtpResponse>(
-      "/v1/public/verify-otp",
+      "/v1/otp/verify-otp",
       payload
     );
   }
@@ -130,8 +145,9 @@ class AuthService {
   async resendOtp(
     payload: ResendOtpRequest
   ): Promise<ResendOtpResponse> {
+    // Same backend endpoint as sendOtp — resend is just a new send.
     return this.post<ResendOtpResponse>(
-      "/v1/public/resend-otp",
+      "/v1/otp/send-otp",
       payload
     );
   }

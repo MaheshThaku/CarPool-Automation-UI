@@ -28,20 +28,7 @@ export default function AuthStats() {
       {STATS.map(({ icon: Icon, value, label }) => (
         <div
           key={label}
-          className="
-            flex flex-col items-center justify-center
-
-            rounded-lg
-            bg-white/80
-
-            px-3 py-3
-            sm:px-4 sm:py-4
-
-            text-center
-
-            backdrop-blur-sm
-            shadow-md
-          "
+          className="flex flex-col items-center justify-center rounded-lg bg-white/80 px-3 py-3 sm:px-4 sm:py-4 text-center backdrop-blur-sm shadow-md"
         >
           <Icon
             size={22}
@@ -49,28 +36,13 @@ export default function AuthStats() {
           />
 
           <h3
-            className="
-              text-lg
-              font-bold
-              leading-none
-
-              sm:text-2xl
-
-              text-[var(--heading)]
-            "
+            className="text-lg font-bold leading-none sm:text-2xl text-[var(--heading)]"
           >
             {value}
           </h3>
 
           <p
-            className="
-              mt-1
-
-              text-[10px]
-              sm:text-xs
-
-              text-[var(--text)]
-            "
+            className="mt-1 text-[10px] sm:text-xs text-[var(--text)]"
           >
             {label}
           </p>
