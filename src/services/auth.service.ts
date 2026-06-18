@@ -10,6 +10,8 @@ import {
   ForgotPasswordResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  SendOtpRequest,
+  SendOtpResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
   ResendOtpRequest,
@@ -66,7 +68,7 @@ class AuthService {
     payload: RegisterRequest
   ): Promise<RegisterResponse> {
     return this.post<RegisterResponse>(
-      "/public/register",
+      "/v1/public/register",
       payload
     );
   }
@@ -79,7 +81,7 @@ class AuthService {
     payload: LoginRequest
   ): Promise<LoginResponse> {
     return this.post<LoginResponse>(
-      "/public/login",
+      "/v1/public/login",
       payload
     );
   }
@@ -92,7 +94,7 @@ class AuthService {
     payload: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> {
     return this.post<ForgotPasswordResponse>(
-      "/public/forgot-password",
+      "/v1/public/forgot-password",
       payload
     );
   }
@@ -105,20 +107,33 @@ class AuthService {
     payload: ResetPasswordRequest
   ): Promise<ResetPasswordResponse> {
     return this.post<ResetPasswordResponse>(
-      "/public/reset-password",
+      "/v1/public/reset-password",
       payload
     );
   }
 
   /* ===========================
-     VERIFY OTP
+     SEND OTP (registration)
+  =========================== */
+
+  async sendOtp(
+    payload: SendOtpRequest
+  ): Promise<SendOtpResponse> {
+    return this.post<SendOtpResponse>(
+      "/v1/otp/send-otp",
+      payload
+    );
+  }
+
+  /* ===========================
+     VERIFY OTP (registration)
   =========================== */
 
   async verifyOtp(
     payload: VerifyOtpRequest
   ): Promise<VerifyOtpResponse> {
     return this.post<VerifyOtpResponse>(
-      "/public/verify-otp",
+      "/v1/otp/verify-otp",
       payload
     );
   }
@@ -130,8 +145,9 @@ class AuthService {
   async resendOtp(
     payload: ResendOtpRequest
   ): Promise<ResendOtpResponse> {
+    // Same backend endpoint as sendOtp — resend is just a new send.
     return this.post<ResendOtpResponse>(
-      "/public/resend-otp",
+      "/v1/otp/send-otp",
       payload
     );
   }

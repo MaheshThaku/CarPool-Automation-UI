@@ -74,28 +74,12 @@ export default function RoleSelector({
             {active && (
               <CircleCheckBig
                 size={20}
-                className="
-                  absolute
-                  right-4
-                  top-4
-
-                  text-[var(--primary)]
-                "
+                className="absolute right-4 top-4 text-[var(--primary)]"
               />
             )}
 
             <div
-              className="
-                flex
-                h-12
-                w-12
-                items-center
-                justify-center
-
-                rounded-full
-
-                bg-white
-              "
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white"
             >
               <Icon
                 size={24}
@@ -109,23 +93,13 @@ export default function RoleSelector({
 
             <div>
               <h3
-                className="
-                  text-lg
-                  font-semibold
-                  text-[var(--heading)]
-                "
+                className="text-lg font-semibold text-[var(--heading)]"
               >
                 {role.title}
               </h3>
 
               <p
-                className="
-                  mt-1
-                  max-w-[150px]
-
-                  text-sm
-                  text-[var(--text)]
-                "
+                className="mt-1 max-w-[150px] text-sm text-[var(--text)]"
               >
                 {role.description}
               </p>

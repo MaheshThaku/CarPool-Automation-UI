@@ -13,54 +13,42 @@ import { loginSchema, LoginSchemaType } from "@/schemas/login.schema";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { authService } from "@/services/auth.service";
-import { LoginRequest, ApiError } from "@/types/auth.types";
+import { api } from "@/lib/axios";
+import { setCookie, deleteCookie } from "@/lib/cookies";
 
 const SOCIAL_BUTTON_CLASS =
   "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]";
 
-/* Decode JWT payload and extract user info including role.
-   Handles common Spring Boot JWT claim shapes:
-     { roles: ["ROLE_RIDER"], sub: "email@..." }
-     { authorities: [{authority: "ROLE_RIDER"}], sub: "email@..." }
-     { role: "ROLE_RIDER", sub: "email@..." }
-*/
-function decodeUserFromJwt(token: string) {
-  try {
-    const parts = token.split(".");
-    if (parts.length < 2) return null;
-    const seg = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = seg + "=".repeat((4 - (seg.length % 4)) % 4);
-    const claims = JSON.parse(window.atob(padded)) as Record<string, unknown>;
+interface StoredUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
 
-    const role: string =
-      (Array.isArray(claims.roles) ? String(claims.roles[0]) : "") ||
-      (Array.isArray(claims.authorities)
-        ? String(
-            (claims.authorities as Array<{ authority?: string }>)[0]
-              ?.authority || claims.authorities[0]
-          )
-        : "") ||
-      String(claims.role || claims.scope || "ROLE_PASSENGER");
+/* Normalize the /users/me response into the shape we persist in the `user`
+   cookie. This shapes an API response — it does NOT decode the JWT. */
+function normalizeUser(data: unknown, email: string): StoredUser {
+  const obj = (data ?? {}) as Record<string, unknown>;
 
-    const email = String(claims.sub || claims.email || "");
-    const firstName = String(
-      claims.firstName ||
-        claims.given_name ||
-        email.split("@")[0] ||
-        "User"
-    );
+  const role =
+    (Array.isArray(obj.roles) ? String(obj.roles[0]) : "") ||
+    (Array.isArray(obj.authorities)
+      ? String(
+          (obj.authorities as Array<{ authority?: string }>)[0]?.authority ??
+            obj.authorities[0]
+        )
+      : "") ||
+    String(obj.role ?? "ROLE_PASSENGER");
 
-    return {
-      id: String(claims.sub || claims.userId || claims.id || ""),
-      firstName,
-      lastName: String(claims.lastName || claims.family_name || ""),
-      email,
-      role,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    id: String(obj.id ?? obj.userId ?? ""),
+    firstName: String(obj.firstName ?? ""),
+    lastName: String(obj.lastName ?? ""),
+    email: String(obj.email ?? email),
+    role,
+  };
 }
 
 export default function LoginForm() {
@@ -81,61 +69,36 @@ export default function LoginForm() {
     try {
       setErrorMessage("");
 
-      // Clear any stale tokens before login so axios interceptor doesn't
-      // attach an old/broken token to the login request itself.
-      window.localStorage.removeItem("accessToken");
-      window.localStorage.removeItem("refreshToken");
-      window.localStorage.removeItem("user");
+      // Clear any stale client-readable cookies before logging in.
+      deleteCookie("user");
+      deleteCookie("tokenExpiry");
 
-      const payload: LoginRequest = {
-        email: data.email.trim(),
-        password: data.password,
-      };
+      // The login API route sets the httpOnly accessToken cookie for us.
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email.trim(),
+          password: data.password,
+        }),
+      });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rawResponse: any = await authService.login(payload);
-
-      // Backend may return a plain JWT string OR an object
-      const accessToken: string =
-        typeof rawResponse === "string"
-          ? rawResponse
-          : rawResponse.accessToken || "";
-
-      const refreshToken: string =
-        typeof rawResponse === "string" ? "" : rawResponse.refreshToken || "";
-
-      window.localStorage.setItem("accessToken", accessToken);
-      if (refreshToken) {
-        window.localStorage.setItem("refreshToken", refreshToken);
-      }
-
-      // Build user object: prefer response.user then fall back to JWT claims
-      let userObj =
-        typeof rawResponse === "object" && rawResponse !== null
-          ? rawResponse.user || null
-          : null;
-
-      if (!userObj || !userObj.role) {
-        const fromJwt = decodeUserFromJwt(accessToken);
-        if (fromJwt) {
-          userObj = userObj
-            ? Object.assign({}, fromJwt, userObj, {
-                role: (userObj.role as string) || fromJwt.role,
-              })
-            : fromJwt;
-        }
-      }
-
-      if (userObj) {
-        window.localStorage.setItem("user", JSON.stringify(userObj));
-      }
-
-      router.push("/dashboard/overview");
-    } catch (error) {
-      if (error instanceof ApiError) {
-        setErrorMessage(error.message);
+      if (!loginRes.ok) {
+        const body = await loginRes.json().catch(() => null);
+        setErrorMessage(body?.message ?? "Login failed. Please try again.");
         return;
       }
+
+      // Token is httpOnly now, so fetch the user through the proxy (the proxy
+      // attaches the cookie as the Bearer token).
+      const meRes = await api.get("/v1/users/me");
+      const user = normalizeUser(meRes.data, data.email.trim());
+
+      // Persist only the safe user fields in a non-httpOnly cookie.
+      setCookie("user", JSON.stringify(user));
+
+      router.push("/dashboard/overview");
+    } catch {
       setErrorMessage("Login failed. Please try again.");
     }
   };

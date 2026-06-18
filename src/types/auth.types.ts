@@ -85,6 +85,19 @@ export interface VerifyOtpResponse {
 }
 
 /* ===========================
+   SEND OTP (registration)
+=========================== */
+
+export interface SendOtpRequest {
+  email: string;
+}
+
+export interface SendOtpResponse {
+  success: boolean;
+  message: string;
+}
+
+/* ===========================
    RESEND OTP
 =========================== */
 
@@ -98,8 +111,12 @@ export interface ResendOtpResponse {
 }
 
 export class ApiError extends Error {
-  constructor(message: string) {
+  /** HTTP status code from the backend response, when available. */
+  status?: number;
+
+  constructor(message: string, status?: number) {
     super(message);
     this.name = "ApiError";
+    this.status = status;
   }
 }

@@ -84,9 +84,7 @@ export default function GenderSelector({
           >
             <User
               size={18}
-              className="
-                shrink-0
-              "
+              className="shrink-0"
             />
 
             <span>{gender.label}</span>

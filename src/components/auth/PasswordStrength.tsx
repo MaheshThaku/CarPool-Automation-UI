@@ -117,47 +117,27 @@ export default function PasswordStrength({
       {/* Rules */}
 
       <div
-        className="
-          grid
-          gap-2
-
-          sm:grid-cols-2
-        "
+        className="grid gap-2 sm:grid-cols-2"
       >
         {items.map((item) => (
           <div
             key={item.label}
-            className="
-              flex
-              items-start
-              gap-2
-            "
+            className="flex items-start gap-2"
           >
             {item.valid ? (
               <CheckCircle2
                 size={16}
-                className="
-                  mt-0.5
-                  shrink-0
-                  text-green-500
-                "
+                className="mt-0.5 shrink-0 text-green-500"
               />
             ) : (
               <Circle
                 size={16}
-                className="
-                  mt-0.5
-                  shrink-0
-                  text-gray-400
-                "
+                className="mt-0.5 shrink-0 text-gray-400"
               />
             )}
 
             <span
-              className="
-                text-xs
-                text-[var(--text)]
-              "
+              className="text-xs text-[var(--text)]"
             >
               {item.label}
             </span>

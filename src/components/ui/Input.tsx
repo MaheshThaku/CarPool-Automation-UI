@@ -38,15 +38,7 @@ const Input = forwardRef<
       <div className="w-full">
         {label && (
           <label
-            className="
-              mb-2
-              block
-
-              text-sm
-              font-semibold
-
-              text-[var(--heading)]
-            "
+            className="mb-2 block text-sm font-semibold text-[var(--heading)]"
           >
             {label}
 
@@ -87,12 +79,7 @@ const Input = forwardRef<
           {Icon && (
             <Icon
               size={22}
-              className="
-                mr-3
-                shrink-0
-
-                text-[var(--text-light)]
-              "
+              className="mr-3 shrink-0 text-[var(--text-light)]"
             />
           )}
 
@@ -147,14 +134,7 @@ const Input = forwardRef<
 
         {error && (
           <p
-            className="
-              mt-1.5
-
-              text-xs
-              font-medium
-
-              text-[var(--error)]
-            "
+            className="mt-1.5 text-xs font-medium text-[var(--error)]"
           >
             {error}
           </p>

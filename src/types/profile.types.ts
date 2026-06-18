@@ -8,36 +8,27 @@ export interface ProfileData {
   email: string;
   contactNumber: string;
   gender: Gender;
-  dateOfBirth?: string; // ISO date string YYYY-MM-DD
-  avatarUrl?: string;
-  emailVerified: boolean;
-  contactVerified: boolean;
+  role?: string;
+  dateOfBirth?: string;       // not yet in UserProfileResponse
+  avatarUrl?: string;         // mapped from profilePictureUrl
+  profilePictureUrl?: string; // from UserProfileResponse
+  emailVerified: boolean;     // not yet in UserProfileResponse — defaults to false
+  contactVerified: boolean;   // not yet in UserProfileResponse — defaults to false
+  bio?: string;
+  rating?: number;
+  memberSince?: string;       // ISO date-time from UserProfileResponse
 }
 
+/**
+ * Matches the backend's UpdateUserProfileRequest exactly.
+ * Note: contactNumber and gender are NOT accepted by PUT /v1/users/profile —
+ * they're set at registration and shown read-only in the UI.
+ */
 export interface UpdateProfileRequest {
   firstName: string;
   lastName: string;
-  contactNumber: string;
-  gender: Gender;
+  bio?: string;
   dateOfBirth?: string;
-}
-
-export interface VehicleData {
-  id?: string;
-  model: string;
-  registrationNumber: string;
-  color: string;
-  vehicleType: string;
-  yearOfManufacture?: number;
-  imageUrl?: string;
-}
-
-export interface UpdateVehicleRequest {
-  model: string;
-  registrationNumber: string;
-  color: string;
-  vehicleType: string;
-  yearOfManufacture?: number;
 }
 
 export interface ChangePasswordRequest {
