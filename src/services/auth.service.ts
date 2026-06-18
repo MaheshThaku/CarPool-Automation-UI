@@ -35,7 +35,7 @@ class AuthService {
 
       throw new ApiError(
         axiosError.response?.data?.message ??
-          "Something went wrong. Please try again."
+        "Something went wrong. Please try again."
       );
     }
 

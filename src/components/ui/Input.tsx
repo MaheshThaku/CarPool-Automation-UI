@@ -1,7 +1,7 @@
 "use client";
 
-import { forwardRef } from "react";
-import { LucideIcon } from "lucide-react";
+import { forwardRef, useState } from "react";
+import { LucideIcon, Eye, EyeOff } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 
@@ -11,6 +11,7 @@ interface Props
   icon?: LucideIcon;
   error?: string;
   required?: boolean;
+  suffix?: React.ReactNode;
 }
 
 const Input = forwardRef<
@@ -24,10 +25,15 @@ const Input = forwardRef<
       error,
       required,
       className,
+      type,
+      suffix,
       ...props
     },
     ref
   ) => {
+    const [showPassword, setShowPassword] = useState(false);
+    const isPassword = type === "password";
+    const inputType = isPassword ? (showPassword ? "text" : "password") : type;
     return (
       <div className="w-full">
         {label && (
@@ -79,6 +85,7 @@ const Input = forwardRef<
 
           <input
             ref={ref}
+            type={inputType}
             className={cn(
               `
                 w-full
@@ -99,6 +106,30 @@ const Input = forwardRef<
             )}
             {...props}
           />
+
+          {suffix && (
+            <div className="flex items-center shrink-0 ml-2">
+              {suffix}
+            </div>
+          )}
+
+          {isPassword && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="
+                ml-2
+                shrink-0
+                text-[var(--text-light)]
+                hover:text-[var(--heading)]
+                focus:outline-none
+                transition-colors
+              "
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          )}
         </div>
 
         {error && (
