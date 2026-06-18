@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { Mail, Lock, Phone, User, Check } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import Link from "next/link";
+import { Mail, Lock, Phone, User, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -26,25 +26,26 @@ import { RegisterRequest } from '@/types/auth.types';
 import { registerSchema, RegisterSchemaType } from '@/schemas/register.schema';
 
 export default function RegisterForm() {
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    reset,
-    formState: {
-      errors,
-      // isValid,
-      isSubmitting,
-    },
-  } = useForm<RegisterSchemaType>({
-    resolver: zodResolver(registerSchema),
-    mode: 'onChange',
-    defaultValues: {
-      role: 'ROLE_PASSENGER',
-      gender: 'MALE',
-      acceptTerms: false,
-      acceptPrivacy: false,
+const {
+  register,
+  handleSubmit,
+  control,
+  setValue,
+  reset,
+  getValues,
+  formState: {
+    errors,
+    // isValid,
+    isSubmitting,
+  },
+} = useForm<RegisterSchemaType>({
+  resolver: zodResolver(registerSchema),
+  mode: "onChange",
+  defaultValues: {
+    role: "ROLE_PASSENGER",
+    gender: "MALE",
+    acceptTerms: false,
+    acceptPrivacy: false,
 
       firstName: '',
       lastName: '',
@@ -75,97 +76,116 @@ export default function RegisterForm() {
     name: 'acceptTerms',
   });
 
-  const acceptPrivacy = useWatch({
-    control,
-    name: 'acceptPrivacy',
-  });
+const acceptPrivacy = useWatch({
+  control,
+  name: "acceptPrivacy",
+});
+
   const router = useRouter();
 
-  const [notification, setNotification] = useState({
-    open: false,
-    type: 'success' as 'success' | 'error',
-    title: '',
-    message: '',
-  });
-
-  // OTP Verification States
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  /* ── OTP state ── */
   const [otpSent, setOtpSent] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpError, setOtpError] = useState('');
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
 
-  const email = useWatch({
-    control,
-    name: 'email',
+  const [notification, setNotification] =
+  useState({
+    open: false,
+    type: "success" as
+      | "success"
+      | "error",
+    title: "",
+    message: "",
   });
 
+  /* ── OTP handlers ── */
   const handleSendOtp = async () => {
-    if (!email) return;
-    setIsSendingOtp(true);
-    setOtpError('');
+    const email = getValues("email").trim().toLowerCase();
+    if (!email) {
+      setOtpError("Please enter your email address above first.");
+      return;
+    }
+    setOtpError("");
+    setOtpLoading(true);
     try {
-      await otpService.sendOtp({ email: email.trim().toLowerCase() });
+      await authService.sendOtp({ email });
       setOtpSent(true);
-      setNotification({
-        open: true,
-        type: 'success',
-        title: 'OTP Sent',
-        message: 'A verification code has been sent to your email address.',
-      });
     } catch (error) {
       setOtpError(
-        error instanceof Error ? error.message : 'Failed to send OTP',
+        error instanceof Error ? error.message : "Failed to send OTP."
       );
     } finally {
-      setIsSendingOtp(false);
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    const email = getValues("email").trim().toLowerCase();
+    setOtpError("");
+    setOtpLoading(true);
+    try {
+      await authService.resendOtp({ email });
+      setOtpCode("");
+    } catch (error) {
+      setOtpError(
+        error instanceof Error ? error.message : "Failed to resend OTP."
+      );
+    } finally {
+      setOtpLoading(false);
     }
   };
 
   const handleVerifyOtp = async () => {
-    if (!email || otpCode.length !== 6) return;
-    setIsVerifyingOtp(true);
-    setOtpError('');
+    const email = getValues("email").trim().toLowerCase();
+    if (!otpCode.trim()) {
+      setOtpError("Please enter the OTP sent to your email.");
+      return;
+    }
+    setOtpError("");
+    setVerifyLoading(true);
     try {
-      await otpService.verifyOtp({
-        email: email.trim().toLowerCase(),
-        otp: otpCode,
-      });
-      setIsEmailVerified(true);
-      setNotification({
-        open: true,
-        type: 'success',
-        title: 'Verification Successful',
-        message: 'Your email has been successfully verified.',
-      });
+      await authService.verifyOtp({ email, otp: otpCode.trim() });
+      setOtpVerified(true);
     } catch (error) {
-      setOtpError(error instanceof Error ? error.message : 'Invalid OTP code');
+      setOtpError(
+        error instanceof Error ? error.message : "Invalid or expired OTP."
+      );
     } finally {
-      setIsVerifyingOtp(false);
+      setVerifyLoading(false);
     }
   };
 
-  const resetEmailVerification = () => {
-    setIsEmailVerified(false);
-    setOtpSent(false);
-    setOtpCode('');
-    setOtpError('');
-  };
+const onSubmit = async (
+  data: RegisterSchemaType
+) => {
+  /* Guard: email must be OTP-verified before registering */
+  if (!otpVerified) {
+    setNotification({
+      open: true,
+      type: "error",
+      title: "Email Not Verified",
+      message:
+        "Please verify your email address using the OTP section below before creating your account.",
+    });
+    return;
+  }
 
-  const onSubmit = async (data: RegisterSchemaType) => {
-    try {
-      const payload: RegisterRequest = {
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        email: data.email.trim().toLowerCase(),
-        contactNumber: data.contactNumber.trim(),
-        gender: data.gender,
-        role: data.role,
-        password: data.password,
-      };
-      // console.log("Payload:", payload);
-      // console.log(data);
+  try {
+    const payload: RegisterRequest = {
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email
+        .trim()
+        .toLowerCase(),
+      contactNumber:
+        data.contactNumber.trim(),
+      gender: data.gender,
+      role: data.role,
+      password: data.password,
+    };
 
       const response = await authService.register(payload);
 
@@ -195,30 +215,44 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-3xl bg-white lg:max-h-[calc(100vh-32px)] lg:overflow-hidden lg:rounded-[32px] lg:shadow-sm">
+    <div
+      className="w-full max-w-3xl bg-white lg:max-h-[calc(100vh-32px)] lg:overflow-hidden lg:rounded-[32px] lg:shadow-sm"
+    >
       {/* Header */}
-      <div className="sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
-        <h1 className="text-3xl font-bold text-[var(--heading)] lg:text-[42px]">
+      <div
+        className="sm:px-6 sm:pt-6 lg:px-8 lg:pt-8"
+      >
+        <h1
+          className="text-3xl font-bold text-[var(--heading)] lg:text-[42px]"
+        >
           Create Your Account
         </h1>
 
-        <p className="mt-1 text-sm text-[var(--text)]">
-          Join India&apos;s premium carpooling community
+        <p
+          className="mt-1 text-sm text-[var(--text)]"
+        >
+          Join India&apos;s premium carpooling
+          community
         </p>
       </div>
 
       {/* Scroll Area */}
-      <div className="px-5 pb-5 sm:px-6 sm:pb-6 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:px-8 lg:pb-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-          <RoleSelector
-            value={role}
-            onChange={(value) =>
-              setValue('role', value, {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
-          />
+      <div
+        className="lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto px-5 pb-5 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8"
+      >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-6 space-y-4"
+        >
+        <RoleSelector
+          value={role}
+          onChange={(value) =>
+            setValue("role", value, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        />
 
           {/* Name */}
           <div className="grid gap-4 md:grid-cols-2">
@@ -241,141 +275,44 @@ export default function RegisterForm() {
             />
           </div>
 
-          {/* Contact & Verification */}
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Input
-                  required
-                  label="Email Address"
-                  placeholder="Enter email address"
-                  icon={Mail}
-                  error={errors.email?.message}
-                  readOnly={isEmailVerified}
-                  {...register('email')}
-                  suffix={
-                    isEmailVerified ? (
-                      <div className="flex items-center rounded-lg border border-green-200 bg-green-50 px-2 py-1 text-green-600">
-                        <Check size={14} className="mr-1 stroke-[3]" />
-                        <span className="text-[10px] font-bold tracking-wider text-green-600 uppercase">
-                          Verified
-                        </span>
-                      </div>
-                    ) : isSendingOtp ? (
-                      <span className="animate-pulse text-xs font-semibold text-[var(--text-light)]">
-                        Sending...
-                      </span>
-                    ) : otpSent ? (
-                      <button
-                        type="button"
-                        disabled={isSendingOtp}
-                        onClick={handleSendOtp}
-                        className="text-xs font-bold tracking-wider text-[var(--primary)] uppercase hover:underline"
-                      >
-                        Resend
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={isSendingOtp || !email || !!errors.email}
-                        onClick={handleSendOtp}
-                        className="text-xs font-bold tracking-wider text-[var(--primary)] uppercase hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        Verify
-                      </button>
-                    )
+          {/* Contact */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              required
+              label="Email Address"
+              placeholder="Enter email address"
+              icon={Mail}
+              error={errors.email?.message}
+              {...register("email", {
+                onChange: () => {
+                  // Reset OTP state when email changes
+                  if (otpSent || otpVerified) {
+                    setOtpSent(false);
+                    setOtpVerified(false);
+                    setOtpCode("");
+                    setOtpError("");
                   }
-                />
+                },
+              })}
+            />
 
-                {isEmailVerified && (
-                  <div className="animate-fadeIn flex justify-end px-1">
-                    <button
-                      type="button"
-                      onClick={resetEmailVerification}
-                      className="text-xs font-semibold text-slate-500 underline transition-colors hover:text-[var(--primary)]"
-                    >
-                      Change email
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Input
-                  required
-                  label="Contact Number"
-                  placeholder="Enter mobile number"
-                  icon={Phone}
-                  error={errors.contactNumber?.message}
-                  maxLength={10}
-                  inputMode="numeric"
-                  {...register('contactNumber')}
-                />
-              </div>
-            </div>
-
-            {/* OTP Verification Panel */}
-            {otpSent && !isEmailVerified && (
-              <div className="animate-fadeIn max-w-lg space-y-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 transition-all duration-300">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">
-                    Verification Code Sent
-                  </h4>
-                  <p className="mt-1 text-xs text-slate-500">
-                    We sent a 6-digit OTP code to{' '}
-                    <span className="font-semibold text-slate-700">
-                      {email}
-                    </span>
-                    . Enter it below to verify your address.
-                  </p>
-                </div>
-
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <Input
-                      required
-                      label="Enter OTP Code"
-                      placeholder="0 0 0 0 0 0"
-                      value={otpCode}
-                      onChange={(e) =>
-                        setOtpCode(
-                          e.target.value.replace(/\D/g, '').slice(0, 6),
-                        )
-                      }
-                      maxLength={6}
-                      inputMode="numeric"
-                      error={otpError}
-                      className="text-center text-lg font-bold tracking-widest placeholder:font-normal placeholder:tracking-normal"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    isLoading={isVerifyingOtp}
-                    disabled={otpCode.length !== 6 || isVerifyingOtp}
-                    onClick={handleVerifyOtp}
-                    className="h-[62px] shrink-0 px-6 text-xs font-bold tracking-wider uppercase"
-                  >
-                    Confirm Code
-                  </Button>
-                </div>
-
-                <div className="text-xs text-slate-500">
-                  Not your email?{' '}
-                  <button
-                    type="button"
-                    onClick={resetEmailVerification}
-                    className="font-bold text-[var(--primary)] hover:underline"
-                  >
-                    Change Email
-                  </button>
-                </div>
-              </div>
-            )}
+            <Input
+              required
+              label="Contact Number"
+              placeholder="Enter mobile number"
+              icon={Phone}
+              error={errors.contactNumber?.message}
+              maxLength={10}
+              inputMode="numeric"
+              {...register("contactNumber")}
+            />
           </div>
 
           {/* Gender */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-[var(--heading)]">
+            <label
+              className="mb-2 block text-sm font-medium text-[var(--heading)]"
+            >
               Gender <span className="text-red-500">*</span>
             </label>
 
@@ -452,18 +389,118 @@ export default function RegisterForm() {
             )}
           </div>
 
+          {/* ── OTP Verification Section ── */}
+          <div
+            className={`
+              rounded-2xl
+              border
+              p-4
+              transition-colors
+              ${otpVerified
+                ? "border-green-200 bg-green-50"
+                : "border-[var(--border)] bg-[var(--surface)]"
+              }
+            `}
+          >
+            {otpVerified ? (
+              /* Verified state */
+              <div className="flex items-center gap-3">
+                <CheckCircle2
+                  size={22}
+                  className="shrink-0 text-green-500"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-green-700">
+                    Email Verified
+                  </p>
+                  <p className="text-xs text-green-600">
+                    {getValues("email")} is verified and ready.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              /* Unverified state */
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-[var(--primary)]" />
+                  <p className="text-sm font-semibold text-[var(--heading)]">
+                    Verify Your Email
+                  </p>
+                </div>
+
+                <p className="text-xs text-[var(--text)]">
+                  We&apos;ll send a 6-digit code to your email to confirm it&apos;s you.
+                </p>
+
+                {!otpSent ? (
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={otpLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white disabled:opacity-50"
+                  >
+                    {otpLoading ? "Sending…" : "Send Verification Code"}
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={otpCode}
+                        onChange={(e) => {
+                          setOtpCode(e.target.value);
+                          setOtpError("");
+                        }}
+                        placeholder="Enter 6-digit code"
+                        maxLength={6}
+                        inputMode="numeric"
+                        className="w-40 rounded-xl border border-[var(--border)] px-3 py-2 text-center text-sm tracking-widest text-[var(--heading)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={verifyLoading}
+                        className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[var(--primary-hover)] disabled:opacity-50"
+                      >
+                        {verifyLoading ? "Verifying…" : "Verify"}
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-[var(--text)]">
+                      Didn&apos;t receive it?{" "}
+                      <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={otpLoading}
+                        className="font-semibold text-[var(--primary)] hover:underline disabled:opacity-50"
+                      >
+                        Resend
+                      </button>
+                    </p>
+                  </div>
+                )}
+
+                {otpError && (
+                  <p className="text-xs text-red-500">{otpError}</p>
+                )}
+              </div>
+            )}
+          </div>
+
           <Button
-            disabled={!isEmailVerified || isSubmitting}
             isLoading={isSubmitting}
             type="submit"
           >
             Create Account
           </Button>
 
-          <p className="text-center text-sm text-[var(--text)]">
-            Already have an account?{' '}
+          <p
+            className="text-center text-sm text-[var(--text)]"
+          >
+            Already have an account?{" "}
             <Link
               href="/auth/login"
+              className="font-semibold text-[var(--primary)] hover:underline"
               className="font-semibold text-[var(--primary)] hover:underline"
             >
               Sign In

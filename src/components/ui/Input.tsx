@@ -24,7 +24,9 @@ const Input = forwardRef<HTMLInputElement, Props>(
     return (
       <div className="w-full">
         {label && (
-          <label className="mb-2 block text-sm font-semibold text-[var(--heading)]">
+          <label
+            className="mb-2 block text-sm font-semibold text-[var(--heading)]"
+          >
             {label}
 
             {required && <span className="ml-1 text-[var(--error)]">*</span>}
@@ -40,6 +42,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           {Icon && (
             <Icon
               size={22}
+              className="mr-3 shrink-0 text-[var(--text-light)]"
               className="mr-3 shrink-0 text-[var(--text-light)]"
             />
           )}
@@ -71,7 +74,9 @@ const Input = forwardRef<HTMLInputElement, Props>(
         </div>
 
         {error && (
-          <p className="mt-1.5 text-xs font-medium text-[var(--error)]">
+          <p
+            className="mt-1.5 text-xs font-medium text-[var(--error)]"
+          >
             {error}
           </p>
         )}

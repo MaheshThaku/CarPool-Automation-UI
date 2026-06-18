@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
+
+import { getCookie } from "@/lib/cookies";
 
 export interface CurrentUser {
   id: string;
@@ -9,19 +11,28 @@ export interface CurrentUser {
   role: "ROLE_PASSENGER" | "ROLE_RIDER" | "ROLE_ADMIN";
 }
 
+// No external mutation source to subscribe to; cookie is read on render.
+function subscribe(): () => void {
+  return () => {};
+}
+
+function getSnapshot(): string | null {
+  return getCookie("user");
+}
+
+function getServerSnapshot(): string | null {
+  return null;
+}
+
 export function useCurrentUser(): CurrentUser | null {
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        setUser(null);
-      }
+  return useMemo(() => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as CurrentUser;
+    } catch {
+      return null;
     }
-  }, []);
-
-  return user;
+  }, [raw]);
 }

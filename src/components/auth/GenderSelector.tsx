@@ -42,7 +42,10 @@ export default function GenderSelector({ value, onChange }: Props) {
                 : `border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)]`
             } `}
           >
-            <User size={18} className="shrink-0" />
+            <User
+              size={18}
+              className="shrink-0"
+            />
 
             <span>{gender.label}</span>
           </button>

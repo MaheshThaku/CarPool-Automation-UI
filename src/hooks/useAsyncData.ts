@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface AsyncState<T> {
   data: T | null;
@@ -27,6 +27,10 @@ export function useAsyncData<T>(
 
   useEffect(() => {
     let cancelled = false;
+    // Resetting loading/error synchronously when deps or `tick` change is
+    // intentional: it must happen before `fetcher()` is invoked below so
+    // consumers see a `loading` flip on refetch, not just on first mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     fetcher()

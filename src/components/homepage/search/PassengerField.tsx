@@ -8,29 +8,35 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export default function PassengerField({ value, onChange, error }: Props) {
+interface Props {
+  value?: number;
+  onChange?: (value: number) => void;
+}
+
+export default function PassengerField({ value = 1, onChange }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold tracking-wide text-[var(--text-light)] uppercase">
+      <label
+        className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]"
+      >
         Passengers
       </label>
 
       <div
-        className={`flex items-center gap-3 rounded-xl border bg-[var(--surface)] px-4 py-4 ${
-          error ? 'border-[var(--error)]' : 'border-[var(--border)]'
-        } `}
+        className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4"
       >
         <Users size={18} className="text-[var(--primary)]" />
 
         <select
           value={value}
-          onChange={onChange}
+          onChange={(e) => onChange?.(Number(e.target.value))}
           className="w-full bg-transparent text-[var(--heading)] outline-none"
         >
-          <option value={1}>1 Passenger</option>
-          <option value={2}>2 Passengers</option>
-          <option value={3}>3 Passengers</option>
-          <option value={4}>4 Passengers</option>
+          {[1, 2, 3, 4].map((n) => (
+            <option key={n} value={n}>
+              {n} Passenger{n > 1 ? "s" : ""}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -38,3 +44,4 @@ export default function PassengerField({ value, onChange, error }: Props) {
     </div>
   );
 }
+

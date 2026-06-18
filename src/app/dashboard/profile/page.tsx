@@ -953,9 +953,11 @@ export default function ProfilePage() {
   const profile$ = useAsyncData(() => profileService.getProfile());
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
-  useEffect(() => {
-    if (profile$.data) setProfile(profile$.data);
-  }, [profile$.data]);
+  // Promote freshly-fetched profile data into local editable state, compared
+  // during render rather than in a useEffect.
+  if (profile$.data && profile$.data !== profile) {
+    setProfile(profile$.data);
+  }
 
   return (
     <div className="space-y-6">
@@ -1020,7 +1022,7 @@ export default function ProfilePage() {
               profile={profile}
               onSaved={(updated) => {
                 setProfile(updated);
-                // also sync localStorage user name
+                // also sync the cached user-cookie name
                 try {
                   const stored = window.localStorage.getItem('user');
                   if (stored) {

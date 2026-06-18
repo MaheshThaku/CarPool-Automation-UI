@@ -45,11 +45,13 @@ export default function RoleSelector({ value, onChange }: RoleSelectorProps) {
             {active && (
               <CircleCheckBig
                 size={20}
-                className="absolute top-4 right-4 text-[var(--primary)]"
+                className="absolute right-4 top-4 text-[var(--primary)]"
               />
             )}
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white"
+            >
               <Icon
                 size={24}
                 className={
@@ -59,11 +61,15 @@ export default function RoleSelector({ value, onChange }: RoleSelectorProps) {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-[var(--heading)]">
+              <h3
+                className="text-lg font-semibold text-[var(--heading)]"
+              >
                 {role.title}
               </h3>
 
-              <p className="mt-1 max-w-[150px] text-sm text-[var(--text)]">
+              <p
+                className="mt-1 max-w-[150px] text-sm text-[var(--text)]"
+              >
                 {role.description}
               </p>
             </div>

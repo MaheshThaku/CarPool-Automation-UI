@@ -37,6 +37,21 @@ const PASSENGER_NAV = [
   { href: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
+/**
+ * Returns the href of the most specific nav item that matches pathname.
+ * Longest-prefix-match ensures "/dashboard/rides" does NOT activate when
+ * the user is on "/dashboard/rides/publish".
+ */
+function getActiveHref(navItems: typeof RIDER_NAV, pathname: string): string | null {
+  return navItems.reduce<string | null>((best, item) => {
+    const matches =
+      pathname === item.href || pathname.startsWith(item.href + "/");
+    if (!matches) return best;
+    if (!best || item.href.length > best.length) return item.href;
+    return best;
+  }, null);
+}
+
 function SidebarContent({
   navItems,
   pathname,
@@ -48,6 +63,8 @@ function SidebarContent({
   onLinkClick: () => void;
   onLogout: () => void;
 }) {
+  const activeHref = getActiveHref(navItems, pathname);
+
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Logo */}
@@ -115,7 +132,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const user = useCurrentUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
+  // Close profile dropdown on outside click
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) router.replace('/auth/login');

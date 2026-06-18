@@ -25,7 +25,9 @@ export default function RadioCard({
         active ? 'border-[#D89B2B] bg-[#FFF8EE]' : 'border-[#E5E7EB] bg-white',
       )}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F8F5EF]">
+      <div
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F8F5EF]"
+      >
         {icon}
       </div>
 
