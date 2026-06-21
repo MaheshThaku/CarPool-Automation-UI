@@ -8,8 +8,7 @@ export default function HeroActions() {
     >
       {/* Primary CTA */}
 
-      <Link
-        href="/rides/search"
+      <Link href="/rides/search"
         className="group flex h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-8 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[var(--primary-hover)] hover:scale-[1.02] hover:shadow-xl sm:w-auto"
       >
         Find a Ride
