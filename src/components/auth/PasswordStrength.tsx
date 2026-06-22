@@ -1,79 +1,62 @@
-"use client";
+'use client';
 
-import {
-  CheckCircle2,
-  Circle,
-} from "lucide-react";
+import { CheckCircle2, Circle } from 'lucide-react';
 
 interface Props {
   password: string;
 }
 
-export default function PasswordStrength({
-  password,
-}: Props) {
+export default function PasswordStrength({ password }: Props) {
   const rules = {
     length: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /\d/.test(password),
-    special:
-      /[!@#$%^&*(),.?":{}|<>]/.test(
-        password
-      ),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
   };
 
-  const score = Object.values(
-    rules
-  ).filter(Boolean).length;
+  const score = Object.values(rules).filter(Boolean).length;
 
   const getStrength = () => {
     if (score <= 2)
       return {
-        label: "Weak",
-        color: "bg-red-500",
-        text: "text-red-500",
+        label: 'Weak',
+        color: 'bg-red-500',
+        text: 'text-red-500',
       };
 
     if (score <= 4)
       return {
-        label: "Medium",
-        color: "bg-amber-500",
-        text: "text-amber-500",
+        label: 'Medium',
+        color: 'bg-amber-500',
+        text: 'text-amber-500',
       };
 
     return {
-      label: "Strong",
-      color: "bg-green-500",
-      text: "text-green-500",
+      label: 'Strong',
+      color: 'bg-green-500',
+      text: 'text-green-500',
     };
   };
 
-  const strength =
-    getStrength();
+  const strength = getStrength();
 
   const items = [
     {
       valid: rules.length,
-      label:
-        "At least 8 characters long",
+      label: 'At least 8 characters long',
     },
     {
-      valid:
-        rules.uppercase &&
-        rules.lowercase,
-      label:
-        "Include uppercase & lowercase letters",
+      valid: rules.uppercase && rules.lowercase,
+      label: 'Include uppercase & lowercase letters',
     },
     {
       valid: rules.number,
-      label:
-        "Include a number (0-9)",
+      label: 'Include a number (0-9)',
     },
     {
       valid: rules.special,
-      label:
-        "Include a special character (!@#$%^&*)",
+      label: 'Include a special character (!@#$%^&*)',
     },
   ];
 
@@ -96,22 +79,14 @@ export default function PasswordStrength({
       {/* Progress Bar */}
 
       <div className="grid grid-cols-4 gap-2">
-        {[1, 2, 3, 4].map(
-          (segment) => (
-            <div
-              key={segment}
-              className={`
-                h-1.5
-                rounded-full
-                ${
-                  score >= segment
-                    ? strength.color
-                    : "bg-gray-200"
-                }
-              `}
-            />
-          )
-        )}
+        {[1, 2, 3, 4].map((segment) => (
+          <div
+            key={segment}
+            className={`h-1.5 rounded-full ${
+              score >= segment ? strength.color : 'bg-gray-200'
+            } `}
+          />
+        ))}
       </div>
 
       {/* Rules */}

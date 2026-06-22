@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, ArrowRight } from 'lucide-react';
 
 export default function SafetyHighlight() {
   return (
@@ -33,6 +33,7 @@ export default function SafetyHighlight() {
         className="mt-6 rounded-xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--primary-hover)]"
       >
         Learn More
+        <ArrowRight size={16} />
       </button>
     </div>
   );

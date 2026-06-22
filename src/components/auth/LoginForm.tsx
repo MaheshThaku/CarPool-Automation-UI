@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Globe, Lock, Mail } from "lucide-react";
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Globe, Lock, Mail } from 'lucide-react';
 
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import Button from '@/components/ui/Button';
+import  Input  from '@/components/ui/Input';
 
-import { loginSchema, LoginSchemaType } from "@/schemas/login.schema";
+import { loginSchema, LoginSchemaType } from '@/schemas/login.schema';
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { api } from "@/lib/axios";
 import { setCookie, deleteCookie } from "@/lib/cookies";
 
 const SOCIAL_BUTTON_CLASS =
-  "flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]";
+  'flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]';
 
 interface StoredUser {
   id: string;
@@ -58,16 +58,16 @@ export default function LoginForm() {
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
-    defaultValues: { role: "ROLE_PASSENGER" },
+    mode: 'onChange',
+    defaultValues: { role: 'ROLE_PASSENGER' },
   });
 
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      setErrorMessage("");
+      setErrorMessage('');
 
       // Clear any stale client-readable cookies before logging in.
       deleteCookie("user");
@@ -104,7 +104,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full bg-white p-5 sm:p-6 lg:p-8 lg:rounded-3xl lg:shadow-sm">
+    <div className="w-full bg-white p-5 sm:p-6 lg:rounded-3xl lg:p-8 lg:shadow-sm">
       <header>
         <h1 className="text-3xl font-bold text-[var(--heading)] sm:text-4xl">
           Welcome Back
@@ -121,7 +121,7 @@ export default function LoginForm() {
           placeholder="Enter your email address"
           icon={Mail}
           error={errors.email?.message}
-          {...register("email")}
+          {...register('email')}
         />
 
         <Input
@@ -131,7 +131,7 @@ export default function LoginForm() {
           placeholder="Enter your password"
           icon={Lock}
           error={errors.password?.message}
-          {...register("password")}
+          {...register('password')}
         />
 
         {errorMessage && (
@@ -165,7 +165,7 @@ export default function LoginForm() {
         </button>
 
         <p className="text-center text-sm text-[var(--text)]">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account?{' '}
           <Link
             href="/auth/register"
             className="font-semibold text-[var(--primary)] hover:underline"

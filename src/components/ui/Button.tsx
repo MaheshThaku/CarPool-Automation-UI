@@ -1,8 +1,7 @@
-import { ButtonHTMLAttributes } from "react";
-import { ArrowRight } from "lucide-react";
+import { ButtonHTMLAttributes } from 'react';
+import { ArrowRight } from 'lucide-react';
 
-interface Props
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
 }
 
@@ -19,7 +18,7 @@ export default function Button({
       {...props}
     >
       {isLoading ? (
-        "Loading..."
+        'Loading...'
       ) : (
         <>
           {children}

@@ -1,11 +1,11 @@
-import { LucideIcon, CheckCircle } from "lucide-react";
+import { LucideIcon, CheckCircle } from 'lucide-react';
 
 interface StatsCardProps {
   icon: LucideIcon;
   title: string;
   value: string | number;
   subtitle: string;
-  valueColor?: "default" | "green";
+  valueColor?: 'default' | 'green';
   verified?: boolean;
 }
 
@@ -14,7 +14,7 @@ export default function StatsCard({
   title,
   value,
   subtitle,
-  valueColor = "default",
+  valueColor = 'default',
   verified = false,
 }: StatsCardProps) {
   return (
@@ -24,7 +24,7 @@ export default function StatsCard({
           <Icon size={26} className="text-[var(--primary)]" />
         </div>
         {verified && (
-          <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5">
+          <div className="absolute -right-1 -bottom-1 rounded-full bg-white p-0.5">
             <CheckCircle size={16} className="fill-green-100 text-green-600" />
           </div>
         )}
@@ -33,7 +33,7 @@ export default function StatsCard({
         <p className="text-xs text-[var(--text-light)]">{title}</p>
         <p
           className={`text-2xl font-bold ${
-            valueColor === "green" ? "text-green-600" : "text-[var(--heading)]"
+            valueColor === 'green' ? 'text-green-600' : 'text-[var(--heading)]'
           }`}
         >
           {value}

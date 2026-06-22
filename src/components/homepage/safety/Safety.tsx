@@ -1,9 +1,9 @@
-import Container from "@/components/ui/Container";
+import Container from '@/components/ui/Container';
 
-import SafetyCard from "./SafetyCard";
-import SafetyHighlight from "./SafetyHighlight";
+import SafetyCard from './SafetyCard';
+import SafetyHighlight from './SafetyHighlight';
 
-import { safetyFeatures } from "./safety.data";
+import { safetyFeatures } from './safety.data';
 
 export default function Safety() {
   return (
@@ -33,10 +33,7 @@ export default function Safety() {
             className="grid grid-cols-2 gap-5 md:grid-cols-3"
           >
             {safetyFeatures.map((item) => (
-              <SafetyCard
-                key={item.title}
-                {...item}
-              />
+              <SafetyCard subtitle={''} key={item.title} {...item} />
             ))}
           </div>
 

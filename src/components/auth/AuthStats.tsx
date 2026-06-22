@@ -1,24 +1,20 @@
-import {
-  Car,
-  Star,
-  Users,
-} from "lucide-react";
+import { Car, Star, Users } from 'lucide-react';
 
 const STATS = [
   {
     icon: Users,
-    value: "500K+",
-    label: "Verified Riders",
+    value: '500K+',
+    label: 'Verified Riders',
   },
   {
     icon: Car,
-    value: "50K+",
-    label: "Monthly Trips",
+    value: '50K+',
+    label: 'Monthly Trips',
   },
   {
     icon: Star,
-    value: "4.9★",
-    label: "Community Rating",
+    value: '4.9★',
+    label: 'Community Rating',
   },
 ];
 
@@ -30,10 +26,7 @@ export default function AuthStats() {
           key={label}
           className="flex flex-col items-center justify-center rounded-lg bg-white/80 px-3 py-3 sm:px-4 sm:py-4 text-center backdrop-blur-sm shadow-md"
         >
-          <Icon
-            size={22}
-            className="mb-2 text-[var(--primary)] sm:size-6"
-          />
+          <Icon size={22} className="mb-2 text-[var(--primary)] sm:size-6" />
 
           <h3
             className="text-lg font-bold leading-none sm:text-2xl text-[var(--heading)]"

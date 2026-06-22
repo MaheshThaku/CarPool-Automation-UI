@@ -1,8 +1,8 @@
-import Image from "next/image";
-import Container from "@/components/ui/Container";
+import Image from 'next/image';
+import Container from '@/components/ui/Container';
 
-import HeroContent from "./HeroContent";
-import HeroActions from "./HeroActions";
+import HeroContent from './HeroContent';
+import HeroActions from './HeroActions';
 
 export default function Hero() {
   return ( 
@@ -29,7 +29,6 @@ export default function Hero() {
             <HeroContent />
 
             <HeroActions />
-
           </div>
         </div>
       </Container>
