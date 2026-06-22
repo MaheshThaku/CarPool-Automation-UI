@@ -43,7 +43,6 @@ const Input = forwardRef<HTMLInputElement, Props>(
             <Icon
               size={22}
               className="mr-3 shrink-0 text-[var(--text-light)]"
-              className="mr-3 shrink-0 text-[var(--text-light)]"
             />
           )}
 

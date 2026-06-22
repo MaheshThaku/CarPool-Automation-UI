@@ -1,39 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import {
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  Car,
-  Lock,
-  Eye,
-  EyeOff,
-  CheckCircle,
-  AlertCircle,
-  Camera,
-  Save,
-  X,
-  Edit2,
-  ShieldCheck,
-  RefreshCw,
-} from 'lucide-react';
-
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useAsyncData } from '@/hooks/useAsyncData';
-import { profileService } from '@/services/profile.service';
-import {
-  ProfileData,
-  UpdateProfileRequest,
-  VehicleData,
-  UpdateVehicleRequest,
-  Gender,
-} from '@/types/profile.types';
-
-/* =====================================================================
-   Utilities
-===================================================================== */
 
 function cn(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ');
@@ -48,7 +14,6 @@ function initials(p: ProfileData | null) {
 
 /* =====================================================================
    Shared primitives
-===================================================================== */
 
 function Skeleton({ className }: { className: string }) {
   return (
@@ -243,7 +208,6 @@ function SectionHeader({
 
 /* =====================================================================
    Avatar Section
-===================================================================== */
 
 function AvatarSection({
   profile,
@@ -341,7 +305,6 @@ function AvatarSection({
 
 /* =====================================================================
    Personal Info Section
-===================================================================== */
 
 function PersonalInfoSection({
   profile,
@@ -519,7 +482,6 @@ function PersonalInfoSection({
 
 /* =====================================================================
    Vehicle Section (Rider only)
-===================================================================== */
 
 const VEHICLE_TYPES = [
   'SEDAN',
@@ -712,7 +674,6 @@ function VehicleSection() {
 
 /* =====================================================================
    Change Password Section
-===================================================================== */
 
 function PasswordSection() {
   const [editing, setEditing] = useState(false);
@@ -883,7 +844,6 @@ function PasswordSection() {
 
 /* =====================================================================
    Verification Status Card
-===================================================================== */
 
 function VerificationCard({ profile }: { profile: ProfileData }) {
   const items = [
@@ -944,7 +904,21 @@ function VerificationCard({ profile }: { profile: ProfileData }) {
 
 /* =====================================================================
    Page
-===================================================================== */
+import { useState } from "react";
+
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { profileService } from "@/services/profile.service";
+import { getCookie, setCookie } from "@/lib/cookies";
+import { ProfileData } from "@/types/profile.types";
+
+import Skeleton from "./_components/Skeleton";
+import SectionError from "./_components/SectionError";
+import AvatarSection from "./_components/AvatarSection";
+import PersonalInfoSection from "./_components/PersonalInfoSection";
+import VehicleSection from "./_components/VehicleSection";
+import PasswordSection from "./_components/PasswordSection";
+import VerificationCard from "./_components/VerificationCard";
 
 export default function ProfilePage() {
   const currentUser = useCurrentUser();
@@ -1006,8 +980,8 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[var(--text-light)]">Member since</span>
-                  <span className="text-xs font-medium text-[var(--heading)]">
-                    2025
+                  <span className="text-[var(--heading)] text-xs font-medium">
+                    {profile.memberSince ? new Date(profile.memberSince).getFullYear() : "—"}
                   </span>
                 </div>
               </div>
@@ -1024,12 +998,12 @@ export default function ProfilePage() {
                 setProfile(updated);
                 // also sync the cached user-cookie name
                 try {
-                  const stored = window.localStorage.getItem('user');
+                  const stored = getCookie("user");
                   if (stored) {
                     const u = JSON.parse(stored);
                     u.firstName = updated.firstName;
                     u.lastName = updated.lastName;
-                    window.localStorage.setItem('user', JSON.stringify(u));
+                    setCookie("user", JSON.stringify(u));
                   }
                 } catch {
                   /* ignore */

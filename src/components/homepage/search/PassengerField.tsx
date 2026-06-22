@@ -3,12 +3,6 @@
 import { Users } from 'lucide-react';
 
 interface Props {
-  value: number;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-}
-
-interface Props {
   value?: number;
   onChange?: (value: number) => void;
 }
@@ -44,4 +38,3 @@ export default function PassengerField({ value = 1, onChange }: Props) {
     </div>
   );
 }
-

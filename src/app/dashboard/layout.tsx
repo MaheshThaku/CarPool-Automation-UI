@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useRef, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   LayoutDashboard,
   Car,
@@ -18,9 +18,10 @@ import {
   Menu,
   X,
   Target,
-} from 'lucide-react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { cn } from '@/lib/cn';
+} from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { deleteCookie } from "@/lib/cookies";
+import { cn } from "@/lib/cn";
 
 const RIDER_NAV = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
@@ -86,10 +87,7 @@ function SidebarContent({
       <nav className="flex-1 space-y-0.5 p-3">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isOverview = item.href === '/dashboard/overview';
-          const active = isOverview
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
+          const active = activeHref === item.href;
           return (
             <Link
               key={item.label}
@@ -137,13 +135,24 @@ export default function DashboardLayout({
 
   // Close profile dropdown on outside click
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) router.replace('/auth/login');
-  }, [router]);
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.replace('/auth/login');
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore network errors — clear client state regardless
+    }
+    deleteCookie("user");
+    deleteCookie("tokenExpiry");
+    router.replace("/auth/login");
   };
 
   const isRider = user?.role === 'ROLE_RIDER';
@@ -213,23 +222,56 @@ export default function DashboardLayout({
               </span>
             </button>
 
-            {/* Avatar + name */}
-            <div className="flex cursor-pointer items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-white">
-                {user?.firstName?.charAt(0).toUpperCase() ?? 'U'}
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-sm leading-tight font-semibold text-[var(--heading)]">
-                  {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
-                </p>
-                <p className="text-xs text-[var(--text-light)]">
-                  {isRider ? 'Rider' : 'Passenger'}
-                </p>
-              </div>
-              <ChevronDown
-                size={15}
-                className="hidden text-[var(--text-light)] sm:block"
-              />
+            {/* Avatar + name — clickable, opens Profile/Logout dropdown */}
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileOpen((prev) => !prev)}
+                className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1 hover:bg-gray-50"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-white">
+                  {user?.firstName?.charAt(0).toUpperCase() ?? "U"}
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-sm font-semibold leading-tight text-[var(--heading)]">
+                    {user ? `${user.firstName} ${user.lastName}` : "Loading..."}
+                  </p>
+                  <p className="text-xs text-[var(--text-light)]">
+                    {isRider ? "Rider" : "Passenger"}
+                  </p>
+                </div>
+                <ChevronDown
+                  size={15}
+                  className={cn(
+                    "hidden text-[var(--text-light)] transition-transform sm:block",
+                    profileOpen && "rotate-180"
+                  )}
+                />
+              </button>
+
+              {/* Dropdown */}
+              {profileOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-lg">
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-3 text-sm text-[var(--text)] hover:bg-gray-50"
+                  >
+                    <User size={15} className="text-[var(--text-light)]" />
+                    Profile
+                  </Link>
+                  <div className="border-t border-[var(--border)]" />
+                  <button
+                    onClick={() => {
+                      setProfileOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50"
+                  >
+                    <LogOut size={15} />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

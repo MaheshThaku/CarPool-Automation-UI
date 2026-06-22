@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import Container from "@/components/ui/Container";
+
 import Container from '@/components/ui/Container';
 
 import LocationField from './LocationField';
@@ -75,9 +77,7 @@ export default function RideSearch() {
             </button>
           </div>
         </form>
-        </form>
       </Container>
     </section>
   );
 }
-

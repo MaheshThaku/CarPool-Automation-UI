@@ -18,8 +18,7 @@ import { useRouter } from 'next/navigation';
 
 import NotificationModal from '@/components/ui/NotificationModal';
 
-import { authService } from '@/services/auth.service';
-import { otpService } from '@/services/otp.service';
+import { authService } from "@/services/auth.service";
 
 import { RegisterRequest } from '@/types/auth.types';
 
@@ -501,7 +500,6 @@ const onSubmit = async (
             <Link
               href="/auth/login"
               className="font-semibold text-[var(--primary)] hover:underline"
-              className="font-semibold text-[var(--primary)] hover:underline"
             >
               Sign In
             </Link>
@@ -509,27 +507,27 @@ const onSubmit = async (
         </form>
       </div>
       <NotificationModal
-        open={notification.open}
-        type={notification.type}
-        title={notification.title}
-        message={notification.message}
-        onClose={() => {
-          const isRegSuccess =
-            notification.type === 'success' &&
-            notification.title === 'Registration Successful';
+  open={notification.open}
+  type={notification.type}
+  title={notification.title}
+  message={notification.message}
+  onClose={() => {
+    const isSuccess =
+      notification.type ===
+      "success";
 
-          setNotification({
-            open: false,
-            type: 'success',
-            title: '',
-            message: '',
-          });
+    setNotification({
+      open: false,
+      type: "success",
+      title: "",
+      message: "",
+    });
 
-          if (isRegSuccess) {
-            router.push('/auth/login');
-          }
-        }}
-      />
+    if (isSuccess) {
+      router.push("/auth/login");
+    }
+  }}
+/>
     </div>
   );
 }

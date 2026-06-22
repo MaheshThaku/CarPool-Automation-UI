@@ -103,7 +103,6 @@ export default function PasswordStrength({ password }: Props) {
               <CheckCircle2
                 size={16}
                 className="mt-0.5 shrink-0 text-green-500"
-                className="mt-0.5 shrink-0 text-green-500"
               />
             ) : (
               <Circle

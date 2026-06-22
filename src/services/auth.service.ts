@@ -68,7 +68,7 @@ class AuthService {
     payload: RegisterRequest
   ): Promise<RegisterResponse> {
     return this.post<RegisterResponse>(
-      "v1/public/register",
+      "/v1/public/register",
       payload
     );
   }
@@ -81,7 +81,7 @@ class AuthService {
     payload: LoginRequest
   ): Promise<LoginResponse> {
     return this.post<LoginResponse>(
-      "v1/public/login",
+      "/v1/public/login",
       payload
     );
   }
@@ -94,7 +94,7 @@ class AuthService {
     payload: ForgotPasswordRequest
   ): Promise<ForgotPasswordResponse> {
     return this.post<ForgotPasswordResponse>(
-      "v1/public/forgot-password",
+      "/v1/public/forgot-password",
       payload
     );
   }

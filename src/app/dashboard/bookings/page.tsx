@@ -1,30 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import {
-  BookOpen,
-  MapPin,
-  ArrowRight,
-  Clock,
-  Users,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Search,
-  Calendar,
-  Car,
-  IndianRupee,
-  Filter,
-} from 'lucide-react';
-
-import { useAsyncData } from '@/hooks/useAsyncData';
-import { dashboardService } from '@/services/dashboard.service';
-import { BookingListItem, BookingStatus } from '@/types/dashboard.types';
-
-/* =====================================================================
-   Utilities
-===================================================================== */
 
 function parseDeparture(iso: string) {
   try {
@@ -105,7 +80,6 @@ const TABS: { key: BookingStatus | 'ALL'; label: string }[] = [
 
 /* =====================================================================
    Booking Card
-===================================================================== */
 
 function BookingCard({ booking }: { booking: BookingListItem }) {
   const dt = parseDeparture(booking.departureTime);
@@ -209,7 +183,6 @@ function BookingCard({ booking }: { booking: BookingListItem }) {
 
 /* =====================================================================
    Empty state
-===================================================================== */
 
 function EmptyBookings({ filtered }: { filtered: boolean }) {
   return (
@@ -239,7 +212,6 @@ function EmptyBookings({ filtered }: { filtered: boolean }) {
 
 /* =====================================================================
    Skeleton
-===================================================================== */
 
 function BookingSkeleton() {
   return (
@@ -273,7 +245,18 @@ function BookingSkeleton() {
 
 /* =====================================================================
    Page
-===================================================================== */
+import { useState } from "react";
+import Link from "next/link";
+import { BookOpen, Calendar, CheckCircle, IndianRupee, Search } from "lucide-react";
+
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { dashboardService } from "@/services/dashboard.service";
+import { BookingStatus } from "@/types/dashboard.types";
+
+import BookingCard from "./_components/BookingCard";
+import BookingSkeleton from "./_components/BookingSkeleton";
+import EmptyBookings from "./_components/EmptyBookings";
+import { TABS } from "./_components/bookingUtils";
 
 export default function MyBookingsPage() {
   const { data: bookings, loading } = useAsyncData(() =>
@@ -327,37 +310,10 @@ export default function MyBookingsPage() {
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          {
-            label: 'Total Bookings',
-            value: all.length,
-            color: 'text-[var(--heading)]',
-            bg: 'bg-white',
-            icon: BookOpen,
-          },
-          {
-            label: 'Upcoming',
-            value: countOf('CONFIRMED') + countOf('PENDING'),
-            color: 'text-blue-700',
-            bg: 'bg-blue-50',
-            icon: Calendar,
-          },
-          {
-            label: 'Completed',
-            value: countOf('COMPLETED'),
-            color: 'text-green-700',
-            bg: 'bg-green-50',
-            icon: CheckCircle,
-          },
-          {
-            label: 'Total Spent',
-            value:
-              totalSpent > 0
-                ? `Rs.${totalSpent.toLocaleString('en-IN')}`
-                : 'Rs.0',
-            color: 'text-[var(--primary)]',
-            bg: 'bg-[var(--primary-light)]',
-            icon: IndianRupee,
-          },
+          { label: "Total Bookings", value: all.length, color: "text-[var(--heading)]", bg: "bg-white", icon: BookOpen },
+          { label: "Upcoming", value: countOf("APPROVED") + countOf("PENDING"), color: "text-blue-700", bg: "bg-blue-50", icon: Calendar },
+          { label: "Completed", value: countOf("COMPLETED"), color: "text-green-700", bg: "bg-green-50", icon: CheckCircle },
+          { label: "Total Spent", value: totalSpent > 0 ? `Rs.${totalSpent.toLocaleString("en-IN")}` : "Rs.0", color: "text-[var(--primary)]", bg: "bg-[var(--primary-light)]", icon: IndianRupee },
         ].map(({ label, value, color, bg, icon: Icon }) => (
           <div
             key={label}
@@ -433,17 +389,13 @@ export default function MyBookingsPage() {
       {/* List */}
       {loading ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <BookingSkeleton key={i} />
-          ))}
+          {[1, 2, 3, 4].map((i) => <BookingSkeleton key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
         <EmptyBookings filtered={activeTab !== 'ALL' || search.length > 0} />
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {filtered.map((b) => (
-            <BookingCard key={b.id} booking={b} />
-          ))}
+          {filtered.map((b) => <BookingCard key={b.bookingId} booking={b} />)}
         </div>
       )}
     </div>

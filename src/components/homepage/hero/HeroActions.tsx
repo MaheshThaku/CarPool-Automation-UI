@@ -16,7 +16,6 @@ export default function HeroActions() {
         <ArrowRight
           size={18}
           className="transition-transform duration-300 group-hover:translate-x-1"
-          className="transition-transform duration-300 group-hover:translate-x-1"
         />
       </Link>
 
@@ -28,7 +27,6 @@ export default function HeroActions() {
       >
         <Car
           size={18}
-          className="text-[var(--primary)] transition-transform duration-300 group-hover:rotate-6"
           className="text-[var(--primary)] transition-transform duration-300 group-hover:rotate-6"
         />
         Offer a Ride
