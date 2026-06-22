@@ -55,15 +55,11 @@ export const footerLinks = {
     },
     {
       label: "Contact Us",
-      href: "/contact",
+      href: "#faq",
     },
     {
       label: "FAQs",
-      href: "/faq",
-    },
-    {
-      label: "Blog",
-      href: "/blog",
+      href: "#faq",
     },
   ],
 

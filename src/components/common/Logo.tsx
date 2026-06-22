@@ -9,7 +9,7 @@ export default function Logo() {
       className="inline-flex items-center transition-transform duration-300 hover:scale-[1.02]"
     >
       <Image
-        src="/images/logo/finalLogo.png"
+        src="/images/logo/FLogo.png"
         alt="ShareFare Logo"
         width={400}
         height={200}

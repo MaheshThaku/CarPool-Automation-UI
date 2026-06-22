@@ -134,9 +134,13 @@ export default function Navbar() {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-black/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 lg:hidden"
           >
-            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            {isMenuOpen ? (
+              <X size={22} color="black" />
+            ) : (
+              <Menu size={22} color="black" />
+            )}
           </button>
         </nav>
         {isMenuOpen && (
