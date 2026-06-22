@@ -9,7 +9,7 @@ import { getCookie, deleteCookie } from "@/lib/cookies";
  */
 export const api = axios.create({
   baseURL: "/api/proxy",
-  headers: { "Content-Type": "application/json" },
+  // headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
