@@ -76,22 +76,20 @@ class ProfileService {
    * Note: base URL already includes /api, so path is /v1/photos/{userId}/upload-photo
    */
   async uploadAvatar(file: File): Promise<AvatarUploadResponse> {
-    const stored = getUserFromCookie();
-    const userId = stored?.id ?? "";
+    const formData = new FormData();
+    formData.append("file", file);
 
-    if (!userId) {
-      throw new Error("User ID not found. Please log in again.");
-    }
-
-    const form = new FormData();
-    form.append("file", file);
-
-    const res = await api.post<AvatarUploadResponse>(
-      `/v1/photos/${userId}/upload-photo`,
-      form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+    const response = await api.post<AvatarUploadResponse>(
+      "/v1/photos/profile",
+      formData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
     );
-    return res.data;
+
+    return response.data;
   }
 
   /**
