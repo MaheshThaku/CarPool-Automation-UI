@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+
 import Link from 'next/link';
 import {
   Car,
@@ -493,7 +493,7 @@ function RiderDashboard({ user }: { user: CurrentUser }) {
                           />
                         </div>
                         <span className="text-sm font-medium text-[var(--heading)]">
-                          {item.label}
+                          {item.status}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -823,13 +823,7 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
           ) : (
             <div className="mt-4 divide-y divide-[var(--border)]">
               {trips.data.map((trip) => {
-                const typedTrip = trip as any;
-                const dt = parseDeparture(
-                  typedTrip.departureTime ??
-                    typedTrip.departureDate ??
-                    typedTrip.departureDateTime ??
-                    '',
-                );
+                const dt = parseDeparture(trip.departureTime);
                 return (
                   <div
                     key={trip.id}

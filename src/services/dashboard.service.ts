@@ -1,12 +1,9 @@
 import { api } from "@/lib/axios";
-import { describeApiError } from "@/lib/errors";
-import { vehicleService } from "@/services/vehicle.service";
-import { ApiError } from "@/types/auth.types";
 import {
   RiderStats, UpcomingRide, VerificationItem,
   VehicleInfo, ProfileCompletion,
   PassengerStats, UpcomingTrip, RecentBooking, ProfileVerification,
-  BookingListItem, DocumentUploadResponse,
+  BookingListItem,
 } from "@/types/dashboard.types";
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
@@ -18,15 +15,6 @@ async function safeGet<T>(url: string, fallback: T): Promise<T> {
     if (status === 401) throw err;
     return fallback;
   }
-}
-
-function handleError(error: unknown): never {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
-    const status = axiosError.response?.status;
-    throw new ApiError(describeApiError(status, axiosError.response?.data?.message), status);
-  }
-  throw new ApiError("Something went wrong.");
 }
 
 class DashboardService {
@@ -47,33 +35,9 @@ class DashboardService {
     return safeGet<VerificationItem[]>("/v1/rider/document/all", []);
   }
 
-  /**
-   * POST /v1/rider/document/upload?documentType={documentType}
-   * Multipart upload; backend accepts documentType as one of
-   * DRIVING_LICENSE | VEHICLE_RC | VEHICLE_INSURANCE | GOVT_ID.
-   */
-  async uploadDocument(documentType: string, file: File): Promise<DocumentUploadResponse> {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      // Don't set Content-Type explicitly: the browser must set it (with the
-      // multipart boundary) itself. The instance default of application/json
-      // is cleared by setting it to undefined here.
-      const { data } = await api.post<DocumentUploadResponse>(
-        `/v1/rider/document/upload?documentType=${encodeURIComponent(documentType)}`,
-        formData,
-        { headers: { "Content-Type": undefined } }
-      );
-      return data;
-    } catch (error) {
-      handleError(error);
-    }
-  }
-
-  /** GET /v1/vehicles — returns the rider's first vehicle, or null if none yet. */
-  async getVehicleInfo(): Promise<VehicleInfo | null> {
-    const vehicles = await vehicleService.getMyVehicles();
-    return vehicles[0] ?? null;
+  /** GET /v1/rider/vehicle/my-vehicle */
+  getVehicleInfo(): Promise<VehicleInfo | null> {
+    return safeGet<VehicleInfo | null>("/v1/rider/vehicle/my-vehicle", null);
   }
 
   /** GET /v1/rider/profile/completion */
