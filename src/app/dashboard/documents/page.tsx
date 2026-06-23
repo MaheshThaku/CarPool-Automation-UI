@@ -1,9 +1,6 @@
 'use client';
 
 import { CheckCircle, FileText, Info, ShieldCheck } from "lucide-react";
-
-import { CheckCircle, FileText, Info, ShieldCheck } from "lucide-react";
-
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { dashboardService } from "@/services/dashboard.service";
 import { VerificationItem } from "@/types/dashboard.types";

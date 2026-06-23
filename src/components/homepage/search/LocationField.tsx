@@ -7,6 +7,7 @@ interface Props {
   placeholder: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
 }
 
 export default function LocationField({
@@ -14,18 +15,15 @@ export default function LocationField({
   placeholder,
   value,
   onChange,
+  error,
 }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      <label
-        className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]"
-      >
+      <label className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]">
         {label}
       </label>
 
-      <div
-        className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4"
-      >
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
         <MapPin size={18} className="text-[var(--primary)]" />
 
         <input
@@ -33,13 +31,13 @@ export default function LocationField({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          value={value}
-          onChange={onChange}
           className="w-full bg-transparent text-[var(--heading)] outline-none placeholder:text-[var(--text-light)]"
         />
       </div>
 
-      {error && <p className="text-xs text-[var(--error)]">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-500">{error}</p>
+      )}
     </div>
   );
 }

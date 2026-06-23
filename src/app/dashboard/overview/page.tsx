@@ -1,5 +1,34 @@
 'use client';
+import React from 'react';
+import Link from 'next/link';
+import {
+  Car,
+  CalendarDays,
+  Shield,
+  ArrowRight,
+  Clock,
+  MoreVertical,
+  CheckCircle,
+  ChevronRight,
+  Plus,
+  FileText,
+  ShieldCheck,
+  MapPin,
+  Phone,
+  ArrowLeftRight,
+  AlertCircle,
+  RefreshCw,
+} from 'lucide-react';
 
+import StatsCard from '@/components/dashboard/StatsCard';
+import { CurrentUser, useCurrentUser } from '@/hooks/useCurrentUser';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { dashboardService } from '@/services/dashboard.service';
+import { DocStatus } from '@/types/dashboard.types';
+
+/* =====================================================================
+   Utilities
+===================================================================== */
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -52,6 +81,7 @@ function docStatusLabel(status: DocStatus) {
 
 /* =====================================================================
    Shared UI primitives
+===================================================================== */
 
 function Skeleton({ className }: { className: string }) {
   return (
@@ -160,6 +190,7 @@ function CircularProgress({ pct }: { pct: number }) {
 
 /* =====================================================================
    Rider Dashboard
+===================================================================== */
 
 function RiderDashboard({ user }: { user: CurrentUser }) {
   const stats = useAsyncData(() => dashboardService.getRiderStats());
@@ -610,6 +641,7 @@ function RiderDashboard({ user }: { user: CurrentUser }) {
 
 /* =====================================================================
    Passenger Dashboard
+===================================================================== */
 
 function PassengerDashboard({ user }: { user: CurrentUser }) {
   const stats = useAsyncData(() => dashboardService.getPassengerStats());
@@ -791,7 +823,13 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
           ) : (
             <div className="mt-4 divide-y divide-[var(--border)]">
               {trips.data.map((trip) => {
-                const dt = parseDeparture(trip.departureTime);
+                const typedTrip = trip as any;
+                const dt = parseDeparture(
+                  typedTrip.departureTime ??
+                    typedTrip.departureDate ??
+                    typedTrip.departureDateTime ??
+                    '',
+                );
                 return (
                   <div
                     key={trip.id}
@@ -1081,10 +1119,7 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
 
 /* =====================================================================
    Page Entry Point
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-import RiderDashboard from "./_components/RiderDashboard";
-import PassengerDashboard from "./_components/PassengerDashboard";
+===================================================================== */
 
 export default function OverviewPage() {
   const user = useCurrentUser();

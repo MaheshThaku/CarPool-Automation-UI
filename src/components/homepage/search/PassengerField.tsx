@@ -10,15 +10,11 @@ interface Props {
 export default function PassengerField({ value = 1, onChange }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      <label
-        className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]"
-      >
+      <label className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]">
         Passengers
       </label>
 
-      <div
-        className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4"
-      >
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
         <Users size={18} className="text-[var(--primary)]" />
 
         <select
@@ -33,8 +29,6 @@ export default function PassengerField({ value = 1, onChange }: Props) {
           ))}
         </select>
       </div>
-
-      {error && <p className="text-xs text-[var(--error)]">{error}</p>}
     </div>
   );
 }
