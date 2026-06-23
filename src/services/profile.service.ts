@@ -75,18 +75,22 @@ class ProfileService {
    * POST /api/v1/photos/{userId}/upload-photo  (multipart/form-data)
    * Note: base URL already includes /api, so path is /v1/photos/{userId}/upload-photo
    */
- async uploadAvatar(file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
+  async uploadAvatar(file: File): Promise<AvatarUploadResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const res = await api.post("/v1/photos/profile", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+    const response = await api.post<AvatarUploadResponse>(
+      "/v1/photos/profile",
+      formData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
+    );
 
-  return res.data;
-}
+    return response.data;
+  }
 
   /**
    * POST /v1/user/change-password
