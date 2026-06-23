@@ -1,3 +1,37 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import Link from 'next/link';
+import {
+  MapPin,
+  ArrowRight,
+  Calendar,
+  DollarSign,
+  Users,
+  CheckCircle,
+  ChevronLeft,
+  Car,
+  Clock,
+  AlertCircle,
+  ArrowLeftRight,
+  Minus,
+  Plus,
+} from 'lucide-react';
+
+import { rideService } from '@/services/ride.service';
+import { RideResponse } from '@/types/ride.types';
+
+/* =====================================================================
+   Zod schema — mirrors the backend CreateRideRequest constraints:
+   sourceCity / destinationCity: ≥ 1 char
+   departureTime: must be in the future
+   pricePerSeat: positive double
+   totalSeats: int 1–8
+===================================================================== */
 
 const offerRideSchema = z
   .object({
@@ -36,6 +70,7 @@ type FormValues = z.infer<typeof offerRideSchema>;
 
 /* =====================================================================
    Utilities
+===================================================================== */
 
 function toIso(date: string, time: string) {
   return new Date(`${date}T${time}`).toISOString();
@@ -72,6 +107,7 @@ function todayMin() {
 
 /* =====================================================================
    Sub-components
+===================================================================== */
 
 function InputField({
   label,
@@ -113,6 +149,7 @@ const inputCls = (hasIcon: boolean, error?: string) =>
 
 /* =====================================================================
    Seat Picker
+===================================================================== */
 
 function SeatPicker({
   value,
@@ -171,6 +208,7 @@ function SeatPicker({
 
 /* =====================================================================
    Live Preview Card
+===================================================================== */
 
 function RidePreview({ values }: { values: FormValues }) {
   const dt = formatDisplayDate(values.departureDate, values.departureTime);
@@ -296,6 +334,7 @@ function RidePreview({ values }: { values: FormValues }) {
 
 /* =====================================================================
    Success State
+===================================================================== */
 
 function SuccessState({
   ride,
@@ -387,6 +426,7 @@ function SuccessState({
 
 /* =====================================================================
    Page
+===================================================================== */
 
 export default function OfferRidePage() {
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
@@ -423,6 +463,7 @@ export default function OfferRidePage() {
         departureTime: toIso(data.departureDate, data.departureTime),
         pricePerSeat: Number(data.pricePerSeat),
         totalSeats: data.totalSeats,
+        vehicleId: 0
       });
       setPublishedRide(ride);
     } catch (err: unknown) {
@@ -630,8 +671,4 @@ export default function OfferRidePage() {
       </div>
     </div>
   );
-import OfferRideForm from "./_components/OfferRideForm";
-
-export default function OfferRidePage() {
-  return <OfferRideForm />;
 }

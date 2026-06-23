@@ -28,7 +28,7 @@ export default function SafetyCard({
         className="text-xs font-semibold text-[var(--heading)] md:text-sm"
       >
         {title}
-      </h4>
+      </h3>
 
       <p
         className="

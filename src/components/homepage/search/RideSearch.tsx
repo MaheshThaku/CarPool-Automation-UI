@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 
 import Container from "@/components/ui/Container";
 
-import Container from '@/components/ui/Container';
-
 import LocationField from './LocationField';
 import DateField from './DateField';
 import PassengerField from './PassengerField';
