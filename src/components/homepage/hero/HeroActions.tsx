@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { ArrowRight, Car } from "lucide-react";
+import Link from 'next/link';
+import { ArrowRight, Car } from 'lucide-react';
 
 export default function HeroActions() {
   return (
@@ -13,7 +13,6 @@ export default function HeroActions() {
         className="group flex h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-8 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[var(--primary-hover)] hover:scale-[1.02] hover:shadow-xl sm:w-auto"
       >
         Find a Ride
-
         <ArrowRight
           size={18}
           className="transition-transform duration-300 group-hover:translate-x-1"
@@ -30,7 +29,6 @@ export default function HeroActions() {
           size={18}
           className="text-[var(--primary)] transition-transform duration-300 group-hover:rotate-6"
         />
-
         Offer a Ride
       </Link>
     </div>

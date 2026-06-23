@@ -1,31 +1,28 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import { Mail, Lock, Phone, User, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
-import Checkbox from "@/components/ui/Checkbox";
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Checkbox from '@/components/ui/Checkbox';
 
-import RoleSelector from "./RoleSelector";
-import GenderSelector from "./GenderSelector";
-import PasswordStrength from "./PasswordStrength";
+import RoleSelector from './RoleSelector';
+import GenderSelector from './GenderSelector';
+import PasswordStrength from './PasswordStrength';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import NotificationModal from "@/components/ui/NotificationModal";
+import NotificationModal from '@/components/ui/NotificationModal';
 
 import { authService } from "@/services/auth.service";
 
-import { RegisterRequest } from "@/types/auth.types";
+import { RegisterRequest } from '@/types/auth.types';
 
-import {
-  registerSchema,
-  RegisterSchemaType,
-} from "@/schemas/register.schema";
+import { registerSchema, RegisterSchemaType } from '@/schemas/register.schema';
 
 export default function RegisterForm() {
 const {
@@ -49,34 +46,34 @@ const {
     acceptTerms: false,
     acceptPrivacy: false,
 
-    firstName: "",
-    lastName: "",
-    email: "",
-    contactNumber: "",
-    password: "",
-    confirmPassword: "",
-  },
-});
+      firstName: '',
+      lastName: '',
+      email: '',
+      contactNumber: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
-const role = useWatch({
-  control,
-  name: "role",
-});
+  const role = useWatch({
+    control,
+    name: 'role',
+  });
 
-const gender = useWatch({
-  control,
-  name: "gender",
-});
+  const gender = useWatch({
+    control,
+    name: 'gender',
+  });
 
-const password = useWatch({
-  control,
-  name: "password",
-});
+  const password = useWatch({
+    control,
+    name: 'password',
+  });
 
-const acceptTerms = useWatch({
-  control,
-  name: "acceptTerms",
-});
+  const acceptTerms = useWatch({
+    control,
+    name: 'acceptTerms',
+  });
 
 const acceptPrivacy = useWatch({
   control,
@@ -189,38 +186,32 @@ const onSubmit = async (
       password: data.password,
     };
 
-    const response =
-      await authService.register(
-        payload
-      );
+      const response = await authService.register(payload);
 
-    reset();
+      reset();
 
-    setNotification({
-      open: true,
-      type: "success",
-      title:
-        "Registration Successful",
-      message:
-        response.message ||
-        "Your account has been created successfully. Continue to login.",
-    });
+      setNotification({
+        open: true,
+        type: 'success',
+        title: 'Registration Successful',
+        message:
+          response.message ||
+          'Your account has been created successfully. Continue to login.',
+      });
 
-    setTimeout(() => {
-      router.push("/auth/login");
-    }, 3000);
-  } catch (error) {
-    setNotification({
-      open: true,
-      type: "error",
-      title: "Registration Failed",
-      message:
-        error instanceof Error
-          ? error.message
-          : "Something went wrong.",
-    });
-  }
-};
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 3000);
+    } catch (error) {
+      setNotification({
+        open: true,
+        type: 'error',
+        title: 'Registration Failed',
+        message:
+          error instanceof Error ? error.message : 'Something went wrong.',
+      });
+    }
+  };
 
   return (
     <div
@@ -270,7 +261,7 @@ const onSubmit = async (
               placeholder="Enter first name"
               icon={User}
               error={errors.firstName?.message}
-              {...register("firstName")}
+              {...register('firstName')}
             />
 
             <Input
@@ -279,7 +270,7 @@ const onSubmit = async (
               placeholder="Enter last name"
               icon={User}
               error={errors.lastName?.message}
-              {...register("lastName")}
+              {...register('lastName')}
             />
           </div>
 
@@ -327,7 +318,7 @@ const onSubmit = async (
             <GenderSelector
               value={gender}
               onChange={(value) =>
-                setValue("gender", value, {
+                setValue('gender', value, {
                   shouldValidate: true,
                   shouldDirty: true,
                 })
@@ -344,7 +335,7 @@ const onSubmit = async (
               placeholder="Create password"
               icon={Lock}
               error={errors.password?.message}
-              {...register("password")}
+              {...register('password')}
             />
 
             <Input
@@ -353,33 +344,25 @@ const onSubmit = async (
               label="Confirm Password"
               placeholder="Confirm password"
               icon={Lock}
-              error={
-                errors.confirmPassword?.message
-              }
-              {...register("confirmPassword")}
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
             />
           </div>
 
-          <PasswordStrength
-            password={password}
-          />
+          <PasswordStrength password={password} />
 
           {/* Agreements */}
           <div className="space-y-2">
-          <Checkbox
-            checked={acceptTerms}
-            onChange={() =>
-              setValue(
-                "acceptTerms",
-                !acceptTerms,
-                {
+            <Checkbox
+              checked={acceptTerms}
+              onChange={() =>
+                setValue('acceptTerms', !acceptTerms, {
                   shouldValidate: true,
                   shouldDirty: true,
-                }
-              )
-            }
-            label="I agree to the Terms & Conditions"
-          />
+                })
+              }
+              label="I agree to the Terms & Conditions"
+            />
 
             {errors.acceptTerms && (
               <p className="text-xs text-red-500">
@@ -390,14 +373,10 @@ const onSubmit = async (
             <Checkbox
               checked={acceptPrivacy}
               onChange={() =>
-                setValue(
-                  "acceptPrivacy",
-                  !acceptPrivacy,
-                  {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  }
-                )
+                setValue('acceptPrivacy', !acceptPrivacy, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
               }
               label="I agree to the Privacy Policy"
             />

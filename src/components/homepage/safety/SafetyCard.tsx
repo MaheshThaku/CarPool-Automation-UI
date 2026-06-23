@@ -1,12 +1,14 @@
 import { LucideIcon } from "lucide-react";
 
-interface Props {
+type Props = {
   title: string;
+  subtitle: string;
   icon: LucideIcon;
-}
+};
 
 export default function SafetyCard({
   title,
+  subtitle,
   icon: Icon,
 }: Props) {
   return (
@@ -26,7 +28,17 @@ export default function SafetyCard({
         className="text-xs font-semibold text-[var(--heading)] md:text-sm"
       >
         {title}
-      </h3>
+      </h4>
+
+      <p
+        className="
+          mt-1
+          text-xs
+          text-[var(--text-light)]
+        "
+      >
+        {subtitle}
+      </p>
     </div>
   );
 }

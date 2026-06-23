@@ -1,9 +1,9 @@
-import Image from "next/image";
+import Image from 'next/image';
 
-import Logo from "@/components/common/Logo";
+import Logo from '@/components/common/Logo';
 
-import AuthFeatures from "./AuthFeatures";
-import AuthStats from "./AuthStats";
+import AuthFeatures from './AuthFeatures';
+import AuthStats from './AuthStats';
 
 export default function AuthBanner() {
   return (

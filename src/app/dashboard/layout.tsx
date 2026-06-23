@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -24,18 +24,18 @@ import { deleteCookie } from "@/lib/cookies";
 import { cn } from "@/lib/cn";
 
 const RIDER_NAV = [
-  { href: "/dashboard/overview", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/rides/publish", label: "Offer Ride", icon: Car },
-  { href: "/dashboard/rides", label: "My Rides", icon: CalendarCheck },
-  { href: "/dashboard/documents", label: "Documents", icon: FileText },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/rides/publish', label: 'Offer Ride', icon: Car },
+  { href: '/dashboard/rides', label: 'My Rides', icon: CalendarCheck },
+  { href: '/dashboard/documents', label: 'Documents', icon: FileText },
+  { href: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
 const PASSENGER_NAV = [
-  { href: "/dashboard/overview", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/rides", label: "Find Rides", icon: Search },
-  { href: "/dashboard/bookings", label: "My Bookings", icon: BookOpen },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/rides', label: 'Find Rides', icon: Search },
+  { href: '/dashboard/bookings', label: 'My Bookings', icon: BookOpen },
+  { href: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
 /**
@@ -74,10 +74,12 @@ function SidebarContent({
           <Target size={20} className="text-white" />
         </div>
         <div>
-          <h2 className="text-base font-bold leading-tight text-[var(--heading)]">
+          <h2 className="text-base leading-tight font-bold text-[var(--heading)]">
             Ride<span className="text-[var(--primary)]">Connect</span>
           </h2>
-          <p className="text-[11px] text-[var(--text-light)]">Travel Together, Better</p>
+          <p className="text-[11px] text-[var(--text-light)]">
+            Travel Together, Better
+          </p>
         </div>
       </div>
 
@@ -92,10 +94,10 @@ function SidebarContent({
               href={item.href}
               onClick={onLinkClick}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
                 active
-                  ? "bg-[var(--primary-light)] text-[var(--primary)]"
-                  : "text-[var(--text)] hover:bg-gray-50 hover:text-[var(--heading)]"
+                  ? 'bg-[var(--primary-light)] text-[var(--primary)]'
+                  : 'text-[var(--text)] hover:bg-gray-50 hover:text-[var(--heading)]',
               )}
             >
               <Icon size={18} />
@@ -119,7 +121,11 @@ function SidebarContent({
   );
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const user = useCurrentUser();
@@ -149,7 +155,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.replace("/auth/login");
   };
 
-  const isRider = user?.role === "ROLE_RIDER";
+  const isRider = user?.role === 'ROLE_RIDER';
   const navItems = isRider ? RIDER_NAV : PASSENGER_NAV;
   const notifCount = isRider ? 3 : 2;
 
@@ -172,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="absolute inset-0 bg-black/40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-[240px] border-r border-[var(--border)] shadow-xl">
+          <aside className="absolute top-0 left-0 h-full w-[240px] border-r border-[var(--border)] shadow-xl">
             <SidebarContent
               navItems={navItems}
               pathname={pathname}
@@ -181,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
           </aside>
           <button
-            className="absolute right-4 top-4 rounded-full bg-white p-2 shadow-md"
+            className="absolute top-4 right-4 rounded-full bg-white p-2 shadow-md"
             onClick={() => setSidebarOpen(false)}
           >
             <X size={18} className="text-[var(--heading)]" />
@@ -194,10 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Header */}
         <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-4">
           {/* Mobile hamburger */}
-          <button
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
+          <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu size={24} className="text-[var(--heading)]" />
           </button>
 
@@ -214,7 +217,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Bell with badge */}
             <button className="relative rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
               <Bell size={20} />
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-white">
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-white">
                 {notifCount}
               </span>
             </button>
@@ -274,9 +277,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );

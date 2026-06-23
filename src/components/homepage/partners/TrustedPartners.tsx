@@ -1,11 +1,8 @@
-import Container from "@/components/ui/Container";
-import { trustedBrands } from "./trustedBrands";
+import Container from '@/components/ui/Container';
+import { trustedBrands } from './trustedBrands';
 
 export default function TrustedPartners() {
-  const brands = [
-    ...trustedBrands,
-    ...trustedBrands,
-  ];
+  const brands = [...trustedBrands, ...trustedBrands];
 
   return (
     <section

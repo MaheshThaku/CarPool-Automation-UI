@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Users } from "lucide-react";
+import { Users } from 'lucide-react';
 
 interface Props {
   value?: number;
@@ -19,10 +19,7 @@ export default function PassengerField({ value = 1, onChange }: Props) {
       <div
         className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4"
       >
-        <Users
-          size={18}
-          className="text-[var(--primary)]"
-        />
+        <Users size={18} className="text-[var(--primary)]" />
 
         <select
           value={value}
@@ -36,6 +33,8 @@ export default function PassengerField({ value = 1, onChange }: Props) {
           ))}
         </select>
       </div>
+
+      {error && <p className="text-xs text-[var(--error)]">{error}</p>}
     </div>
   );
 }

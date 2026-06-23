@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Calendar } from "lucide-react";
+import { Calendar } from 'lucide-react';
 
 interface Props {
   value?: string;
@@ -20,10 +20,7 @@ export default function DateField({ value, onChange }: Props) {
       <div
         className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4"
       >
-        <Calendar
-          size={18}
-          className="text-[var(--primary)]"
-        />
+        <Calendar size={18} className="text-[var(--primary)]" />
 
         <input
           type="date"
@@ -33,6 +30,8 @@ export default function DateField({ value, onChange }: Props) {
           className="w-full bg-transparent text-[var(--heading)] outline-none"
         />
       </div>
+
+      {error && <p className="text-xs text-[var(--error)]">{error}</p>}
     </div>
   );
 }

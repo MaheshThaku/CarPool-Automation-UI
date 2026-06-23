@@ -1,9 +1,9 @@
-import Container from "@/components/ui/Container";
+import Container from '@/components/ui/Container';
 
-import StepCard from "./StepCard";
-import { howItWorksSteps } from "./howItWorks.data";
+import StepCard from './StepCard';
+import { howItWorksSteps } from './howItWorks.data';
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from 'lucide-react';
 
 export default function HowItWorks() {
   return (
@@ -40,16 +40,12 @@ export default function HowItWorks() {
           className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
         >
           {howItWorksSteps.map((step, index) => (
-            <div
-              key={step.number}
-              className="relative"
-            >
+            <div key={step.number} className="relative">
               <StepCard {...step} />
 
               {/* Desktop Connector */}
 
-              {index !==
-                howItWorksSteps.length - 1 && (
+              {index !== howItWorksSteps.length - 1 && (
                 <ArrowRight
                   size={28}
                   className="absolute -right-6 top-1/2 z-10 hidden -translate-y-1/2 text-[var(--primary)] lg:block"

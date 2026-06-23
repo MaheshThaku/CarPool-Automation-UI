@@ -1,14 +1,12 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
-import AuthBanner from "./AuthBanner";
+import AuthBanner from './AuthBanner';
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export default function AuthLayout({
-  children,
-}: AuthLayoutProps) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <main
       className="min-h-screen bg-white lg:h-screen lg:overflow-hidden"

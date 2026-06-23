@@ -1,30 +1,25 @@
-import {
-  BadgeCheck,
-  Headphones,
-  Lock,
-  Shield,
-} from "lucide-react";
+import { BadgeCheck, Headphones, Lock, Shield } from 'lucide-react';
 
 const FEATURES = [
   {
     icon: Shield,
-    title: "Secure & Safe",
-    description: "Your safety is our priority",
+    title: 'Secure & Safe',
+    description: 'Your safety is our priority',
   },
   {
     icon: Lock,
-    title: "Privacy First",
-    description: "Your data is always protected",
+    title: 'Privacy First',
+    description: 'Your data is always protected',
   },
   {
     icon: Headphones,
-    title: "24/7 Support",
+    title: '24/7 Support',
     description: "We're here to help anytime",
   },
   {
     icon: BadgeCheck,
-    title: "Verified Users",
-    description: "Trusted community of travelers",
+    title: 'Verified Users',
+    description: 'Trusted community of travelers',
   },
 ];
 

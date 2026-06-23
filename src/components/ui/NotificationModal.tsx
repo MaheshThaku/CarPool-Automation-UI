@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from 'lucide-react';
 
-import Button from "./Button";
+import Button from './Button';
 
 interface NotificationModalProps {
   open: boolean;
-  type: "success" | "error";
+  type: 'success' | 'error';
   title: string;
   message: string;
   onClose: () => void;
@@ -21,7 +21,7 @@ export default function NotificationModal({
 }: NotificationModalProps) {
   if (!open) return null;
 
-  const isSuccess = type === "success";
+  const isSuccess = type === 'success';
 
   return (
     <div
@@ -32,15 +32,9 @@ export default function NotificationModal({
       >
         <div className="flex justify-center">
           {isSuccess ? (
-            <CheckCircle
-              size={72}
-              className="text-green-500"
-            />
+            <CheckCircle size={72} className="text-green-500" />
           ) : (
-            <XCircle
-              size={72}
-              className="text-red-500"
-            />
+            <XCircle size={72} className="text-red-500" />
           )}
         </div>
 
@@ -57,11 +51,7 @@ export default function NotificationModal({
         </p>
 
         <div className="mt-8">
-          <Button onClick={onClose}>
-            {isSuccess
-              ? "Continue"
-              : "Okay"}
-          </Button>
+          <Button onClick={onClose}>{isSuccess ? 'Continue' : 'Okay'}</Button>
         </div>
       </div>
     </div>
