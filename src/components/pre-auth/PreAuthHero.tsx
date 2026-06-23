@@ -27,9 +27,9 @@ export default function PreAuthHero({ title, subtitle }: Props) {
       <div className="relative z-10 flex h-full flex-col justify-between px-6 py-8 lg:px-16 lg:py-12">
         {/* Brand */}
         <div className="mb-10">
-          <div className="px-4 py-3">
+          {/* <div className="px-4 py-3">
             <Logo />
-          </div>
+          </div> */}
         </div>
 
         {/* Main Content */}

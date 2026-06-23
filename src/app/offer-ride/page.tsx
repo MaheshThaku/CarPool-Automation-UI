@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import PreAuthLayout from '@/components/pre-auth/PreAuthLayout';
+import Navbar from '@/components/common/Navbar';
 
 export const metadata: Metadata = {
   title: 'Offer Ride | ShareFare - Share Empty Seats & Earn',
@@ -48,12 +49,15 @@ const offerRideData = {
 
 export default function OfferRidePage() {
   return (
-    <PreAuthLayout
-      title={offerRideData.title}
-      subtitle={offerRideData.subtitle}
-      ctaTitle={offerRideData.ctaTitle}
-      ctaDescription={offerRideData.ctaDescription}
-      features={offerRideData.features}
-    />
+    <main>
+      <Navbar />
+      <PreAuthLayout
+        title={offerRideData.title}
+        subtitle={offerRideData.subtitle}
+        ctaTitle={offerRideData.ctaTitle}
+        ctaDescription={offerRideData.ctaDescription}
+        features={offerRideData.features}
+      />
+    </main>
   );
 }
