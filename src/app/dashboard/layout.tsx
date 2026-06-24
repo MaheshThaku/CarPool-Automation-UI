@@ -22,6 +22,7 @@ import {
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { deleteCookie } from "@/lib/cookies";
 import { cn } from "@/lib/cn";
+import Logo from "@/components/common/Logo";
 
 const RIDER_NAV = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
@@ -69,18 +70,8 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Logo */}
-      <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]">
-          <Target size={20} className="text-white" />
-        </div>
-        <div>
-          <h2 className="text-base leading-tight font-bold text-[var(--heading)]">
-            Ride<span className="text-[var(--primary)]">Connect</span>
-          </h2>
-          <p className="text-[11px] text-[var(--text-light)]">
-            Travel Together, Better
-          </p>
-        </div>
+      <div className="flex  h-19 items-center  border-b border-[var(--border)] ">
+       <Logo clickable={false} size="lg"/>
       </div>
 
       {/* Nav */}
