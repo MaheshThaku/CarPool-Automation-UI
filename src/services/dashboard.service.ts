@@ -3,7 +3,7 @@ import {
   RiderStats, UpcomingRide, VerificationItem,
   VehicleInfo, ProfileCompletion,
   PassengerStats, UpcomingTrip, RecentBooking, ProfileVerification,
-  BookingListItem,
+  BookingListItem
 } from "@/types/dashboard.types";
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
@@ -43,6 +43,38 @@ class DashboardService {
   /** GET /v1/rider/profile/completion */
   getProfileCompletion(): Promise<ProfileCompletion | null> {
     return safeGet<ProfileCompletion | null>("/v1/rider/profile/completion", null);
+  }
+
+  async uploadDocument(documentType: string, file: File) {
+    const formData = new FormData();
+
+    switch (documentType) {
+      case "DRIVING_LICENSE":
+        formData.append("drivingLicense", file);
+        break;
+
+      case "VEHICLE_RC":
+        formData.append("vehicleRc", file);
+        break;
+
+      case "VEHICLE_INSURANCE":
+        formData.append("vehicleInsurance", file);
+        break;
+
+      case "GOVT_ID":
+        formData.append("govtId", file);
+        break;
+
+      default:
+        throw new Error("Invalid document type");
+    }
+
+    const { data } = await api.post(
+      "/v1/rider/document/upload-all",
+      formData
+    );
+
+    return data;
   }
 
   /* ── Passenger ────────────────────────────────────── */
