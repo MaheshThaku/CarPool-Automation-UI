@@ -198,12 +198,12 @@ export default function DashboardLayout({
           <div className="flex-1" />
 
           <div className="flex items-center gap-3">
-            {/* Chat icon — passenger only */}
+            {/* Chat icon — passenger only
             {!isRider && (
               <button className="rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
                 <MessageCircle size={20} />
               </button>
-            )}
+            )} */}
 
             {/* Bell with badge */}
             <button className="relative rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
