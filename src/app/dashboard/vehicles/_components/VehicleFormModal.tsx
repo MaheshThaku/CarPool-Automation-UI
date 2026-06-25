@@ -15,6 +15,11 @@ interface VehicleFormState {
   yearOfManufacture: string;
 }
 
+const MIN_VEHICLE_YEAR = 2000;
+
+const VEHICLE_REG_NO_REGEX =
+  /^[A-Z]{2}[ -]?[0-9]{1,2}[ -]?[A-Z]{1,3}[ -]?[0-9]{4}$|^[0-9]{2}[ -]?BH[ -]?[0-9]{4}[ -]?[A-Z]{1,2}$/;
+
 function formFromVehicle(v: VehicleResponse | null): VehicleFormState {
   if (!v) {
     return { model: "", registrationNumber: "", color: "", vehicleType: "SEDAN", yearOfManufacture: "" };
@@ -52,19 +57,24 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const year = Number(form.yearOfManufacture);
+    const registrationNumber = form.registrationNumber.trim().toUpperCase();
 
-    if (!form.model.trim() || !form.registrationNumber.trim() || !form.color.trim()) {
+    if (!form.model.trim() || !registrationNumber || !form.color.trim()) {
       setError("Model, registration number, and color are required.");
       return;
     }
-    if (!year || year < 1990 || year > currentYear + 1) {
-      setError(`Please enter a valid year between 1990 and ${currentYear + 1}.`);
+    if (!Number.isInteger(year) || year < MIN_VEHICLE_YEAR || year > currentYear) {
+      setError(`Please enter a valid year between ${MIN_VEHICLE_YEAR} and ${currentYear}.`);
+      return;
+    }
+    if (!VEHICLE_REG_NO_REGEX.test(registrationNumber)) {
+      setError("Enter a valid registration number, e.g. DL 01 AB 1234 or 22 BH 1234 AB.");
       return;
     }
 
     const payload: VehicleRequest = {
       model: form.model.trim(),
-      registrationNumber: form.registrationNumber.trim(),
+      registrationNumber,
       color: form.color.trim(),
       vehicleType: form.vehicleType,
       yearOfManufacture: year,
@@ -127,7 +137,7 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
               </div>
               <input
                 value={form.registrationNumber}
-                onChange={(e) => handleChange("registrationNumber", e.target.value)}
+                onChange={(e) => handleChange("registrationNumber", e.target.value.toUpperCase())}
                 placeholder="e.g. DL 01 AB 1234"
                 className={inputCls}
               />
@@ -158,6 +168,8 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
                 </div>
                 <input
                   type="number"
+                  min={MIN_VEHICLE_YEAR}
+                  max={currentYear}
                   value={form.yearOfManufacture}
                   onChange={(e) => handleChange("yearOfManufacture", e.target.value)}
                   placeholder={`e.g. ${currentYear}`}
