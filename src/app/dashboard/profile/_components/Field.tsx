@@ -16,10 +16,13 @@ export interface FieldProps {
   readOnly?: boolean;
   badge?: React.ReactNode;
   options?: FieldOption[];
+  min?: string;
+  max?: string;
+  error?: string;
 }
 
 export default function Field({
-  label, value, editing, icon: Icon, type = "text", name, onChange, readOnly, badge, options,
+  label, value, editing, icon: Icon, type = "text", name, onChange, readOnly, badge, options, min, max, error,
 }: FieldProps) {
   return (
     <div className="space-y-1.5">
@@ -50,9 +53,14 @@ export default function Field({
               type={type}
               name={name}
               value={value}
+              min={min}
+              max={max}
               onChange={(e) => onChange(name, e.target.value)}
               className={cn(
-                "w-full rounded-xl border border-[var(--border)] bg-white py-2.5 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20",
+                "w-full rounded-xl border bg-white py-2.5 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:ring-2",
+                error
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-200"
+                  : "border-[var(--border)] focus:border-[var(--primary)] focus:ring-[var(--primary)]/20",
                 Icon ? "pl-9" : "pl-3"
               )}
             />
@@ -71,6 +79,9 @@ export default function Field({
           </div>
         )}
       </div>
+      {error && editing && !readOnly && (
+        <p className="text-xs font-medium text-red-600">{error}</p>
+      )}
     </div>
   );
 }

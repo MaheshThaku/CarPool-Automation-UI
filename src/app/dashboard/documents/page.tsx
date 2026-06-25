@@ -11,7 +11,9 @@ import { DOC_CATALOGUE } from "./_components/docCatalogue";
 
 export default function DocumentsPage() {
   const { data: verificationItems, loading, refetch } = useAsyncData(
-    () => dashboardService.getVerificationStatus()
+    () => dashboardService.getVerificationStatus(),
+    [],
+    { cacheKey: "rider-verification-status" },
   );
 
   // Merge catalogue with API data (if any)
