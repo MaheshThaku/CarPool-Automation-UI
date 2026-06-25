@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import {
   MapPin, Calendar, DollarSign, ChevronLeft, Car,
-  Clock, AlertCircle, ArrowLeftRight,
+  Clock, AlertCircle, ArrowLeftRight, Plus,
 } from "lucide-react";
 
-import { useAsyncData } from "@/hooks/useAsyncData";
+import { useAsyncData, invalidateAsyncCache } from "@/hooks/useAsyncData";
 import { vehicleService } from "@/services/vehicle.service";
 import { rideService } from "@/services/ride.service";
 import { RideResponse } from "@/types/ride.types";
 import { offerRideSchema, OfferRideFormValues } from "@/schemas/publish-ride.schema";
 
-import { toIso, todayMin, inputCls } from "./utils";
+import { toIso, todayMin, dateOffset, inputCls, formatDisplayDate } from "./utils";
 import InputField from "./InputField";
 import SeatPicker from "./SeatPicker";
 import RidePreview from "./RidePreview";
@@ -23,8 +23,8 @@ import SuccessState from "./SuccessState";
 import NoVehicleState from "./NoVehicleState";
 
 export default function OfferRideForm() {
-  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles());
-  const vehicle = vehicles$.data?.[0] ?? null;
+  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles(), [], { cacheKey: "my-vehicles" });
+  const vehicles = vehicles$.data ?? [];
 
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
   const [submitError, setSubmitError] = useState("");
@@ -40,6 +40,7 @@ export default function OfferRideForm() {
     resolver: zodResolver(offerRideSchema),
     mode: "onChange",
     defaultValues: {
+      vehicleId: 0,
       totalSeats: 2,
       sourceCity: "",
       destinationCity: "",
@@ -57,6 +58,7 @@ export default function OfferRideForm() {
   // defaults passed to useForm so `values` is always a complete OfferRideFormValues.
   const watchedValues = useWatch({ control });
   const values: OfferRideFormValues = {
+    vehicleId: watchedValues.vehicleId ?? 0,
     sourceCity: watchedValues.sourceCity ?? "",
     destinationCity: watchedValues.destinationCity ?? "",
     departureDate: watchedValues.departureDate ?? "",
@@ -65,11 +67,22 @@ export default function OfferRideForm() {
     totalSeats: watchedValues.totalSeats ?? 2,
   };
 
-  const onSubmit = async (data: OfferRideFormValues) => {
-    if (!vehicle) {
-      setSubmitError("Please add a vehicle before publishing a ride.");
-      return;
+  // A vehicle is always pre-selected so the rider never has to choose one
+  // just to publish a ride. The default is the first vehicle they added
+  // (lowest id) — same rule the Manage Vehicles page uses for its "Default"
+  // badge. With 2+ vehicles they can still change the selection from the
+  // dropdown; this just removes the forced empty first choice.
+  useEffect(() => {
+    if (vehicles.length > 0 && !values.vehicleId) {
+      const defaultVehicle = vehicles.reduce((min, v) => (v.id < min.id ? v : min), vehicles[0]);
+      setValue("vehicleId", defaultVehicle.id, { shouldValidate: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicles.length]);
+
+  const departureSummary = formatDisplayDate(values.departureDate, values.departureTime);
+
+  const onSubmit = async (data: OfferRideFormValues) => {
     setSubmitError("");
     try {
       const ride = await rideService.publishRide({
@@ -78,8 +91,15 @@ export default function OfferRideForm() {
         departureTime: toIso(data.departureDate, data.departureTime),
         pricePerSeat: Number(data.pricePerSeat),
         totalSeats: data.totalSeats,
-        vehicleId: vehicle.id,
+        vehicleId: data.vehicleId,
       });
+      // A freshly published ride changes the rider's ride list, the
+      // upcoming-rides widget, and the dashboard stats — drop those cached
+      // entries so the next visit to those pages fetches current data
+      // instead of serving what was cached before this ride existed.
+      invalidateAsyncCache("rider-rides-list");
+      invalidateAsyncCache("rider-upcoming-rides");
+      invalidateAsyncCache("rider-stats");
       setPublishedRide(ride);
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message;
@@ -122,12 +142,46 @@ export default function OfferRideForm() {
           <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
           <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
         </div>
-      ) : !vehicle ? (
+      ) : vehicles.length === 0 ? (
         <NoVehicleState />
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+            {/* Vehicle */}
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-[var(--heading)]">Vehicle</h3>
+                  <p className="mt-0.5 text-xs text-[var(--text-light)]">Defaults to your primary vehicle — change it anytime.</p>
+                </div>
+                <Link
+                  href="/dashboard/vehicles"
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[var(--primary)] hover:bg-[var(--primary-light)]"
+                >
+                  <Plus size={13} /> Add vehicle
+                </Link>
+              </div>
+
+              <div className="mt-5">
+                <InputField label="Choose Vehicle" required icon={Car} error={errors.vehicleId?.message}>
+                  <select
+                    {...register("vehicleId", { valueAsNumber: true })}
+                    className={inputCls(true, errors.vehicleId?.message)}
+                  >
+                    <option value={0} disabled>
+                      Select a vehicle…
+                    </option>
+                    {vehicles.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.model} — {v.registrationNumber}
+                      </option>
+                    ))}
+                  </select>
+                </InputField>
+              </div>
+            </div>
 
             {/* Route */}
             <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
@@ -174,7 +228,29 @@ export default function OfferRideForm() {
               <h3 className="font-semibold text-[var(--heading)]">Schedule</h3>
               <p className="mt-0.5 text-xs text-[var(--text-light)]">When is your departure?</p>
 
-              <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Quick-pick date chips */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {[
+                  { label: "Today", days: 0 },
+                  { label: "Tomorrow", days: 1 },
+                  { label: "In a Week", days: 7 },
+                ].map(({ label, days }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setValue("departureDate", dateOffset(days), { shouldValidate: true })}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                      values.departureDate === dateOffset(days)
+                        ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]"
+                        : "border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <InputField label="Departure Date" required icon={Calendar} error={errors.departureDate?.message}>
                   <input
                     type="date"
@@ -192,6 +268,14 @@ export default function OfferRideForm() {
                   />
                 </InputField>
               </div>
+
+              {/* Live combined summary — confirms exactly what passengers will see */}
+              {departureSummary && (
+                <div className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--primary-light)] px-3 py-2.5 text-sm font-medium text-[var(--primary)]">
+                  <Clock size={14} />
+                  Departing {departureSummary.date} at {departureSummary.time}
+                </div>
+              )}
             </div>
 
             {/* Seats & Price */}

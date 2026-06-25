@@ -20,6 +20,13 @@ export function todayMin(): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Returns the YYYY-MM-DD for "today + offsetDays" — used by quick-pick date chips. */
+export function dateOffset(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
 export function inputCls(hasIcon: boolean, error?: string): string {
   return `w-full rounded-xl border ${
     error
