@@ -6,7 +6,7 @@ export interface CreateRideRequest {
   departureTime: string;
   pricePerSeat: number;
   totalSeats: number;
-  vehicleId: number;
+  // vehicleId: number;
 }
 
 export interface RideResponse {

@@ -17,7 +17,7 @@ export const DOC_CATALOGUE: DocConfig[] = [
   {
     documentType: "DRIVING_LICENSE",
     label: "Driving License",
-    description: "Valid driving license issued by the government. Must be current and not expired.",
+    description: "Current, government-issued driving license.",
     icon: CreditCard,
     required: true,
     acceptedFormats: "JPG, PNG, PDF",
