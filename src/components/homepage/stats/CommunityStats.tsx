@@ -11,7 +11,7 @@ export default function StatsSection() {
       {/* Background Image */}
 
       <Image
-        src="/images/stat/stat1.png"
+        src="/images/auth/banner.png"
         alt="Travel Community"
         fill
         className="object-cover"

@@ -4,41 +4,33 @@ import Link from 'next/link';
 export default function AboutHero() {
   return (
     <section className="relative overflow-hidden bg-[var(--background)] pt-32 pb-24">
-      {/* Background Mesh */}
+      {/* Background Gradient */}
 
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-light)] via-[var(--background)] to-[var(--primary-light)]" />
 
-      {/* Top Left Glow */}
-
-      <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-[var(--primary)]/10 blur-[120px]" />
-
-      {/* Bottom Right Glow */}
-
-      <div className="absolute -right-32 -bottom-32 h-[500px] w-[500px] rounded-full bg-[var(--primary)]/10 blur-[120px]" />
-
-      {/* Center Glow */}
-
-      <div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/5 blur-[100px]" />
-
-      {/* Grid Pattern */}
+      {/* Top Left Highlight */}
 
       <div
-        className="absolute inset-0 opacity-[0.1]"
+        className="absolute -top-20 -left-20 h-72 w-72 rounded-full opacity-60"
         style={{
-          backgroundImage: `
-      linear-gradient(
-        var(--heading) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        90deg,
-        var(--heading) 1px,
-        transparent 1px
-      )
-    `,
-          backgroundSize: '80px 80px',
+          background:
+            'radial-gradient(circle, var(--primary-light) 0%, transparent 75%)',
         }}
       />
+
+      {/* Bottom Right Highlight */}
+
+      <div
+        className="absolute -right-20 -bottom-20 h-72 w-72 rounded-full opacity-60"
+        style={{
+          background:
+            'radial-gradient(circle, var(--primary-light) 0%, transparent 75%)',
+        }}
+      />
+
+      {/* Subtle Grid */}
+
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--heading)_1px,transparent_1px),linear-gradient(to_bottom,var(--heading)_1px,transparent_1px)] bg-[size:80px_80px] opacity-[0.03]" />
 
       <Container>
         <div className="relative z-10 mx-auto max-w-5xl text-center">
@@ -64,14 +56,14 @@ export default function AboutHero() {
           <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/find-ride"
-              className="rounded-2xl bg-[var(--primary)] px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-[var(--primary-hover)] hover:shadow-xl"
+              className="rounded-2xl bg-[var(--primary)] px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-[var(--primary-hover)] hover:shadow-lg"
             >
               Find Ride
             </Link>
 
             <Link
               href="/offer-ride"
-              className="rounded-2xl border border-[var(--border)] bg-white/80 px-8 py-4 font-semibold text-[var(--heading)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)] hover:shadow-lg"
+              className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-8 py-4 font-semibold text-[var(--heading)] transition-all duration-300 hover:border-[var(--primary)] hover:shadow-lg"
             >
               Offer Ride
             </Link>

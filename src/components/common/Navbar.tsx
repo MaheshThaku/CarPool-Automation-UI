@@ -19,20 +19,16 @@ const navLinks = [
     href: '/offer-ride',
   },
   {
-    label: 'Routes',
-    href: '#routes',
-  },
-  {
-    label: 'How It Works',
-    href: '#how-it-works',
-  },
-  {
     label: 'Safety',
-    href: '#safety',
+    href: '/safety',
   },
   {
     label: 'About Us',
     href: '/about',
+  },
+  {
+    label: 'Contact Us',
+    href: '/contactUs',
   },
 ];
 

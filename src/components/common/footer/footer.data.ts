@@ -1,7 +1,8 @@
 import {
   FaInstagram,
   FaLinkedinIn,
-  FaYoutube,
+//   FaYoutube,
+  FaFacebook,
 } from "react-icons/fa";
 
 import { BsTwitterX } from "react-icons/bs";
@@ -23,9 +24,9 @@ export const socialLinks = [
     label: "X",
   },
   {
-    icon: FaYoutube,
-    href: "https://youtube.com",
-    label: "YouTube",
+    icon: FaFacebook,
+    href: "https://facebook.com",
+    label: "facebook",
   },
 ];
 export const footerLinks = {
@@ -38,10 +39,10 @@ export const footerLinks = {
       label: "Offer Ride",
       href: "/offer-ride",
     },
-    {
-      label: "Popular Routes",
-      href: "/routes",
-    },
+    // {
+    //   label: "Popular Routes",
+    //   href: "/routes",
+    // },
     {
       label: "Safety",
       href: "/safety",
@@ -49,38 +50,33 @@ export const footerLinks = {
   ],
 
   company: [
-    {
-      label: "About Us",
-      href: "/about",
-    },
+ {
+    label: 'About Us',
+    href: '/about',
+  },
     {
       label: "Contact Us",
-      href: "#faq",
+      href: "/contactUs",
     },
     {
-      label: "FAQs",
-      href: "#faq",
+      label: "Safety",
+      href: "/safety",
     },
   ],
 
   support: [
     {
-      label: "Help Center",
-      href: "/help-center",
-    },
-    {
       label: "Contact Support",
-      href:
-        "mailto:manavraju12@gmail.com",
+      href: "/contactUs"
     },
     {
       label: "Community Guidelines",
-      href: "/community",
+      href: "/community-guidelines",
     },
-    {
-      label: "Report Issue",
-      href: "/report",
-    },
+    // {
+    //   label: "Report Issue",
+    //   href: "/report",
+    // },
   ],
 
   legal: [
@@ -94,11 +90,11 @@ export const footerLinks = {
     },
     {
       label: "Cookie Policy",
-      href: "/cookie-policy",
+      href: "/cookies-policy",
     },
-    {
-      label: "Refund Policy",
-      href: "/refund-policy",
-    },
+    // {
+    //   label: "Refund Policy",
+    //   href: "/refund-policy",
+    // },
   ],
 };

@@ -47,7 +47,7 @@ export default function Footer() {
         <div className="relative z-10 flex flex-col gap-5 py-8 text-sm text-[var(--text-light)] lg:flex-row lg:items-center lg:justify-between">
           <p>© {new Date().getFullYear()} ShareFare. All rights reserved.</p>
 
-          <div className="flex flex-wrap justify-center gap-3 lg:justify-end">
+          {/* <div className="flex flex-wrap justify-center gap-3 lg:justify-end">
             {[
               'Verified Profiles',
               'Women Safety',
@@ -61,7 +61,7 @@ export default function Footer() {
                 ✓ {item}
               </span>
             ))}
-          </div>
+          </div> */}
         </div>
       </Container>
     </footer>

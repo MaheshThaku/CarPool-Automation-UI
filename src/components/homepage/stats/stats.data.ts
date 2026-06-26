@@ -8,31 +8,31 @@ import {
 
 export const stats = [
   {
-    value: "2M+",
+    value: "20k+",
     label: "Happy Travelers",
     icon: Users,
   },
 
   {
-    value: "150K+",
+    value: "2K+",
     label: "Rides Completed Daily",
     icon: Car,
   },
 
   {
-    value: "25K+",
+    value: "10K+",
     label: "Verified Drivers",
     icon: ShieldCheck,
   },
 
   {
-    value: "1,200+",
+    value: "100+",
     label: "Cities Connected",
     icon: MapPinned,
   },
 
   {
-    value: "12M+ kg",
+    value: "5M+ kg",
     label: "CO₂ Emissions Saved",
     icon: Leaf,
   },

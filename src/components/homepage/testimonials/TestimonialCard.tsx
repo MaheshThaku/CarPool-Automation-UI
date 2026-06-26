@@ -6,6 +6,7 @@ type Props = {
   name: string;
   location: string;
   review: string;
+  rating: number;
 };
 
 export default function TestimonialCard({
@@ -13,6 +14,7 @@ export default function TestimonialCard({
   name,
   location,
   review,
+  rating,
 }: Props) {
   return (
     <article className="group flex h-full flex-col rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)] hover:shadow-xl">
@@ -39,13 +41,15 @@ export default function TestimonialCard({
           <Star
             key={index}
             size={14}
-            fill="currentColor"
-            className="text-[var(--primary)]"
+            fill={index < rating ? 'currentColor' : 'none'}
+            className={
+              index < rating ? 'text-[var(--primary)]' : 'text-gray-300'
+            }
           />
         ))}
 
         <span className="ml-2 text-xs font-medium text-[var(--text-light)]">
-          5.0
+          {rating}.0
         </span>
       </div>
 

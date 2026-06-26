@@ -7,7 +7,7 @@ export default function AboutMission() {
         <div className="grid gap-10 lg:grid-cols-2">
           <div className="rounded-3xl border border-[var(--border)] p-8">
             <h2 className="text-3xl font-bold text-[var(--heading)]">
-              Our Mission
+              <span className="block text-[var(--primary)]">Our Mission</span>
             </h2>
 
             <p className="mt-5 leading-8 text-[var(--text)]">
@@ -18,7 +18,7 @@ export default function AboutMission() {
 
           <div className="rounded-3xl border border-[var(--border)] p-8">
             <h2 className="text-3xl font-bold text-[var(--heading)]">
-              Our Vision
+              <span className="block text-[var(--primary)]">Our Vision</span>
             </h2>
 
             <p className="mt-5 leading-8 text-[var(--text)]">

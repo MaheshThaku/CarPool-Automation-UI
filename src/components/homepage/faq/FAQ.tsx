@@ -3,6 +3,7 @@ import Container from '@/components/ui/Container';
 import FAQItem from './FAQItem';
 
 import { faqData } from './faq.data';
+import Link from 'next/link';
 
 export default function FAQ() {
   return (
@@ -12,10 +13,6 @@ export default function FAQ() {
           {/* Left Side */}
 
           <div>
-            <span className="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-4 py-2 text-sm font-semibold text-[var(--primary)]">
-              Frequently Asked Questions
-            </span>
-
             <h2 className="mt-5 text-3xl font-bold text-[var(--heading)] md:text-4xl">
               Got Questions?
             </h2>
@@ -33,14 +30,15 @@ export default function FAQ() {
               <h3 className="text-lg font-semibold text-[var(--heading)]">
                 Still Need Help?
               </h3>
-
               <p className="mt-2 text-sm text-[var(--text-light)]">
                 Our support team is available 24/7 to help.
               </p>
-
-              <button className="mt-5 rounded-xl bg-[var(--primary)] px-5 py-3 font-semibold text-white transition-all hover:bg-[var(--primary-hover)]">
+              <Link
+                href="/contactUs"
+                className="mt-5 inline-flex rounded-xl bg-[var(--primary)] px-5 py-3 font-semibold text-white transition-all duration-300 hover:bg-[var(--primary-hover)] hover:shadow-lg"
+              >
                 Contact Support
-              </button>
+              </Link>
             </div>
           </div>
 

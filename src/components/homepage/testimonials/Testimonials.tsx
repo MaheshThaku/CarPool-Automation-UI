@@ -10,10 +10,6 @@ export default function Testimonials() {
         {/* Header */}
 
         <div className="text-center">
-          <span className="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-4 py-2 text-sm font-semibold text-[var(--primary)]">
-            Customer Testimonials
-          </span>
-
           <h2 className="mt-4 text-3xl font-bold text-[var(--heading)] md:text-4xl">
             Trusted by Thousands of Travelers
           </h2>

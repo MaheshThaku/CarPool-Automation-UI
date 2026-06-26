@@ -29,7 +29,9 @@ export default function RouteCard({ from, to, price, image }: Props) {
           <span>{to}</span>
         </div>
 
-        <p className="mt-2 text-sm text-[var(--text-light)]">From ₹{price}</p>
+        <p className="mt-2 text-sm text-[var(--text-light)]">
+          From ₹{price} Approx
+        </p>
       </div>
     </div>
   );

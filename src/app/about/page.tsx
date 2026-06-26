@@ -4,7 +4,6 @@ import AboutHero from '@/components/about/AboutHero';
 import AboutMission from '@/components/about/AboutMission';
 import AboutValues from '@/components/about/AboutValues';
 import AboutSafety from '@/components/about/AboutSafety';
-import AboutStats from '@/components/about/AboutStats';
 import Navbar from '@/components/common/Navbar';
 import CommunityStats from '@/components/homepage/stats/CommunityStats';
 import Footer from '@/components/common/footer/Footer';
