@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@next/bundle-analyzer": "^16.2.9",
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.17.0",
     "clsx": "^2.1.1",

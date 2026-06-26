@@ -34,10 +34,6 @@ export default function AboutValues() {
     <section className="bg-[var(--background)] py-24">
       <Container>
         <div className="text-center">
-          <span className="inline-flex rounded-full bg-[var(--primary-light)] px-4 py-2 text-sm font-semibold text-[var(--primary)]">
-            Our Core Values
-          </span>
-
           <h2 className="mt-4 text-4xl font-bold text-[var(--heading)]">
             What Drives ShareFare
           </h2>

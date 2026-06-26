@@ -6,10 +6,6 @@ export default function AboutSafety() {
       <Container>
         <div className="rounded-[40px] border border-[var(--border)] bg-[var(--primary-light)] p-10 lg:p-16">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--primary)]">
-              Women Safety Commitment
-            </span>
-
             <h2 className="mt-6 text-4xl font-bold text-[var(--heading)]">
               Building Safer Travel Experiences
             </h2>

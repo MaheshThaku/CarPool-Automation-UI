@@ -20,14 +20,14 @@ export const safetyFeatures = [
     title: "Verified Travelers",
     icon: Users,
   },
-  {
-    title: "Live Tracking",
-    icon: MapPinned,
-  },
-  {
-    title: "Emergency SOS",
-    icon: Siren,
-  },
+  // {
+  //   title: "Live Tracking",
+  //   icon: MapPinned,
+  // },
+  // {
+  //   title: "Emergency SOS",
+  //   icon: Siren,
+  // },
   {
     title: "Women Friendly",
     icon: HeartHandshake,
