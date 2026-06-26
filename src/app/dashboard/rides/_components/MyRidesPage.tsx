@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
-  Car, Plus, MapPin, ArrowRight, Clock, Users,
+  Car, Plus, ArrowRight, Clock, Users,
   CalendarDays, CheckCircle, XCircle, AlertCircle,
   Search, ChevronDown, ChevronUp, User2,
   IndianRupee, Loader2, BookOpen,
@@ -220,87 +220,72 @@ function BookingsPanel({ rideId }: BookingsPanelProps) {
 }
 
 /* =====================================================================
-   Ride Card
+   Ride Table Row (expands in-place to show bookings, not a modal)
 ===================================================================== */
 
-function RideCard({ ride }: { ride: RideResponse }) {
+function RideTableRow({ ride }: { ride: RideResponse }) {
   const [expanded, setExpanded] = useState(false);
   const dt = parseDeparture(ride.departureTime);
   const sc = rideStatusConfig(ride.status);
   const StatusIcon = sc.icon;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/40 hover:shadow-md">
-      <div className="p-5">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-1 items-center gap-2 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-light)]">
-              <Car size={18} className="text-[var(--primary)]" />
+    <>
+      <tr className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/60">
+        <td className="px-5 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)]">
+              <Car size={15} className="text-[var(--primary)]" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-semibold text-[var(--heading)]">{ride.sourceCity}</span>
-                <ArrowRight size={13} className="shrink-0 text-[var(--text-light)]" />
-                <span className="font-semibold text-[var(--heading)]">{ride.destinationCity}</span>
+              <div className="flex items-center gap-1.5 font-semibold text-[var(--heading)]">
+                <span>{ride.sourceCity}</span>
+                <ArrowRight size={12} className="shrink-0 text-[var(--text-light)]" />
+                <span>{ride.destinationCity}</span>
               </div>
-              <p className="mt-0.5 text-xs text-[var(--text-light)]">Ride #{ride.id}</p>
+              <p className="text-xs text-[var(--text-light)]">Ride #{ride.id}</p>
             </div>
           </div>
-          <span className={`flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sc.bg} ${sc.text}`}>
+        </td>
+        <td className="px-5 py-3.5 whitespace-nowrap">
+          <p className="font-medium text-[var(--heading)]">{dt.date}</p>
+          <p className="text-xs text-[var(--text-light)]">{dt.day} · {dt.time}</p>
+        </td>
+        <td className="px-5 py-3.5 text-[var(--text)]">
+          <span className="flex items-center gap-1"><Users size={12} />{ride.availableSeats}</span>
+        </td>
+        <td className="px-5 py-3.5 font-semibold text-[var(--primary)] whitespace-nowrap">
+          Rs.{ride.pricePerSeat.toLocaleString("en-IN")}
+        </td>
+        <td className="px-5 py-3.5">
+          <span className={`flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sc.bg} ${sc.text}`}>
             <StatusIcon size={11} />{sc.label}
           </span>
-        </div>
+        </td>
+        <td className="px-5 py-3.5 text-right">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-1 rounded-xl border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text)] transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
+          >
+            <User2 size={12} />
+            Bookings
+            {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          </button>
+        </td>
+      </tr>
 
-        {/* Stats grid */}
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-gray-50 px-3 py-2">
-            <p className="text-[10px] text-[var(--text-light)]">Date</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">{dt.date}</p>
-            <p className="text-[10px] text-[var(--text-light)]">{dt.day}</p>
-          </div>
-          <div className="rounded-xl bg-gray-50 px-3 py-2">
-            <p className="text-[10px] text-[var(--text-light)]">Time</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">{dt.time}</p>
-          </div>
-          <div className="rounded-xl bg-gray-50 px-3 py-2">
-            <p className="text-[10px] text-[var(--text-light)]">Seats Left</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">{ride.availableSeats}</p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3">
-          <div className="flex items-center gap-3 text-xs text-[var(--text)]">
-            <span className="flex items-center gap-1"><Users size={12} />{ride.availableSeats} available</span>
-            <span className="flex items-center gap-1"><MapPin size={12} />{ride.sourceCity}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-[var(--primary)]">
-              Rs.{ride.pricePerSeat.toLocaleString("en-IN")} / seat
-            </span>
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              className="flex items-center gap-1 rounded-xl border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text)] transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
-            >
-              <User2 size={12} />
-              Bookings
-              {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Expandable bookings panel */}
+      {/* Expandable bookings panel — an inline row, not a modal */}
       {expanded && (
-        <div className="border-t border-[var(--border)] bg-gray-50/60 px-5 py-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]">
-            Booking Requests
-          </p>
-          <BookingsPanel rideId={ride.id} />
-        </div>
+        <tr className="border-b border-[var(--border)] bg-gray-50/60 last:border-0">
+          <td colSpan={6} className="px-5 py-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]">
+              Booking Requests
+            </p>
+            <BookingsPanel rideId={ride.id} />
+          </td>
+        </tr>
       )}
-    </div>
+    </>
   );
 }
 
@@ -320,7 +305,7 @@ const TABS: { key: RideStatus | "ALL"; label: string }[] = [
 ===================================================================== */
 
 export default function MyRidesPage() {
-  const { data: rides, loading } = useAsyncData(() => rideService.getRiderRides());
+  const { data: rides, loading } = useAsyncData(() => rideService.getRiderRides(), [], { cacheKey: "rider-rides-list" });
   const [activeTab, setActiveTab] = useState<RideStatus | "ALL">("ALL");
   const [search, setSearch] = useState("");
 
@@ -408,20 +393,9 @@ export default function MyRidesPage() {
 
       {/* List */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse rounded-2xl border border-[var(--border)] bg-white p-5">
-              <div className="flex gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gray-100" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 rounded-lg bg-gray-100" />
-                  <div className="h-3 w-20 rounded-lg bg-gray-100" />
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {[1, 2, 3].map(j => <div key={j} className="h-14 rounded-xl bg-gray-100" />)}
-              </div>
-            </div>
+            <div key={i} className="h-16 animate-pulse rounded-2xl border border-[var(--border)] bg-white" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -447,8 +421,22 @@ export default function MyRidesPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {filtered.map((ride) => <RideCard key={ride.id} ride={ride} />)}
+        <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border)] bg-gray-50 text-xs font-medium uppercase tracking-wide text-[var(--text-light)]">
+                <th className="px-5 py-3">Route</th>
+                <th className="px-5 py-3">Date &amp; Time</th>
+                <th className="px-5 py-3">Seats Left</th>
+                <th className="px-5 py-3">Price / Seat</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3 text-right">Bookings</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((ride) => <RideTableRow key={ride.id} ride={ride} />)}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -17,7 +17,7 @@ export const routes = [
     id: 3,
     from: "Bangalore",
     to: "Chennai",
-    price: 600,
+    price: 700,
     image: "/images/routes/img1.png",
   },
   {
@@ -31,14 +31,14 @@ export const routes = [
     id: 5,
     from: "Hyderabad",
     to: "Vijayawada",
-    price: 400,
+    price: 650,
     image: "/images/routes/img1.png",
   },
   {
     id: 6,
     from: "Ahmedabad",
     to: "Surat",
-    price: 180,
+    price: 700,
     image: "/images/routes/img2.png",
   },
 ];

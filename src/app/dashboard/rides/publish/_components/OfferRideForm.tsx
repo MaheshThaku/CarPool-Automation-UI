@@ -32,8 +32,8 @@ import SuccessState from './SuccessState';
 import NoVehicleState from './NoVehicleState';
 
 export default function OfferRideForm() {
-  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles());
-  const vehicle = vehicles$.data?.[0] ?? null;
+  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles(), [], { cacheKey: "my-vehicles" });
+  const vehicles = vehicles$.data ?? [];
 
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
   const [submitError, setSubmitError] = useState('');
@@ -49,6 +49,7 @@ export default function OfferRideForm() {
     resolver: zodResolver(offerRideSchema),
     mode: 'onChange',
     defaultValues: {
+      vehicleId: 0,
       totalSeats: 2,
       sourceCity: '',
       destinationCity: '',
@@ -89,6 +90,13 @@ export default function OfferRideForm() {
         totalSeats: data.totalSeats,
         // vehicleId: vehicle.id,
       });
+      // A freshly published ride changes the rider's ride list, the
+      // upcoming-rides widget, and the dashboard stats — drop those cached
+      // entries so the next visit to those pages fetches current data
+      // instead of serving what was cached before this ride existed.
+      invalidateAsyncCache("rider-rides-list");
+      invalidateAsyncCache("rider-upcoming-rides");
+      invalidateAsyncCache("rider-stats");
       setPublishedRide(ride);
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message;
@@ -138,7 +146,7 @@ export default function OfferRideForm() {
           <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
           <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
         </div>
-      ) : !vehicle ? (
+      ) : vehicles.length === 0 ? (
         <NoVehicleState />
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
@@ -235,6 +243,14 @@ export default function OfferRideForm() {
                   />
                 </InputField>
               </div>
+
+              {/* Live combined summary — confirms exactly what passengers will see */}
+              {departureSummary && (
+                <div className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--primary-light)] px-3 py-2.5 text-sm font-medium text-[var(--primary)]">
+                  <Clock size={14} />
+                  Departing {departureSummary.date} at {departureSummary.time}
+                </div>
+              )}
             </div>
 
             {/* Seats & Price */}

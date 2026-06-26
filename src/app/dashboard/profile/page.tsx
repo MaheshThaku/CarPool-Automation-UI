@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useState, useEffect } from "react";
 import { ProfileData } from "@/types/profile.types";
@@ -10,12 +9,10 @@ import AvatarSection from "./_components/AvatarSection";
 import PasswordSection from "./_components/PasswordSection";
 import SectionError from "./_components/SectionError";
 import Skeleton from "./_components/Skeleton";
-import VehicleSection from "./_components/VehicleSection";
-import VerificationCard from "./_components/VerificationCard";
 
 // add these if missing
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useAsyncData } from "@/hooks/useAsyncData";
+import { useAsyncData, invalidateAsyncCache } from "@/hooks/useAsyncData";
 import { profileService } from "@/services/profile.service";
 
 
@@ -36,12 +33,29 @@ export default function ProfilePage() {
   const currentUser = useCurrentUser();
   const isRider = currentUser?.role === "ROLE_RIDER";
 
-  const profile$ = useAsyncData(() => profileService.getProfile());
+  const profile$ = useAsyncData(() => profileService.getProfile(), [], { cacheKey: "current-profile" });
   const [profile, setProfile] = useState<ProfileData | null>(null);
+
+  // Keep the lightweight `user` cookie's avatarUrl in sync with the real
+  // profile photo, so the header avatar can render it without an extra
+  // network call on every page.
+  const syncAvatarCookie = (url: string | undefined) => {
+    try {
+      const stored = getCookie("user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        u.avatarUrl = url;
+        setCookie("user", JSON.stringify(u));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
 
   useEffect(() => {
     if (profile$.data) {
       setProfile(profile$.data);
+      syncAvatarCookie(profile$.data.avatarUrl);
     }
   }, [profile$.data]);
 
@@ -79,9 +93,11 @@ export default function ProfilePage() {
             <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
               <AvatarSection
                 profile={profile}
-                onAvatarChange={(url) =>
-                  setProfile((p) => (p ? { ...p, avatarUrl: url } : p))
-                }
+                onAvatarChange={(url) => {
+                  setProfile((p) => (p ? { ...p, avatarUrl: url } : p));
+                  syncAvatarCookie(url);
+                  invalidateAsyncCache("current-profile");
+                }}
               />
               <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-4">
                 <div className="flex items-center justify-between text-sm">
@@ -98,8 +114,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-
-            <VerificationCard profile={profile} />
           </div>
 
           {/* Right column */}
@@ -108,6 +122,7 @@ export default function ProfilePage() {
               profile={profile}
               onSaved={(updated) => {
                 setProfile(updated);
+                invalidateAsyncCache("current-profile");
                 // also sync the cached user-cookie name
                 try {
                   const stored = getCookie("user");
@@ -122,7 +137,6 @@ export default function ProfilePage() {
                 }
               }}
             />
-            {isRider && <VehicleSection />}
             <PasswordSection />
           </div>
         </div>

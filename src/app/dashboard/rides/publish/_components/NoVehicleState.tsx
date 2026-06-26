@@ -13,10 +13,10 @@ export default function NoVehicleState() {
         they&apos;re riding in.
       </p>
       <Link
-        href="/dashboard/profile"
+        href="/dashboard/vehicles"
         className="mt-5 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
       >
-        Add Vehicle in Profile
+        Add a Vehicle
       </Link>
     </div>
   );

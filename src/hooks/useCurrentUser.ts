@@ -9,6 +9,7 @@ export interface CurrentUser {
   lastName: string;
   email: string;
   role: "ROLE_PASSENGER" | "ROLE_RIDER" | "ROLE_ADMIN";
+  avatarUrl?: string;
 }
 
 // No external mutation source to subscribe to; cookie is read on render.

@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   Target,
+  Wrench,
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { deleteCookie } from "@/lib/cookies";
@@ -27,6 +28,7 @@ import Logo from "@/components/common/Logo";
 const RIDER_NAV = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/rides/publish', label: 'Offer Ride', icon: Car },
+  { href: '/dashboard/vehicles', label: 'Manage Vehicle', icon: Wrench },
   { href: '/dashboard/rides', label: 'My Rides', icon: CalendarCheck },
   { href: '/dashboard/documents', label: 'Documents', icon: FileText },
   { href: '/dashboard/profile', label: 'Profile', icon: User },
@@ -198,12 +200,12 @@ export default function DashboardLayout({
           <div className="flex-1" />
 
           <div className="flex items-center gap-3">
-            {/* Chat icon — passenger only */}
+            {/* Chat icon — passenger only
             {!isRider && (
               <button className="rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
                 <MessageCircle size={20} />
               </button>
-            )}
+            )} */}
 
             {/* Bell with badge */}
             <button className="relative rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
@@ -219,8 +221,13 @@ export default function DashboardLayout({
                 onClick={() => setProfileOpen((prev) => !prev)}
                 className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1 hover:bg-gray-50"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-white">
-                  {user?.firstName?.charAt(0).toUpperCase() ?? "U"}
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-sm font-bold text-white">
+                  {user?.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    user?.firstName?.charAt(0).toUpperCase() ?? "U"
+                  )}
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-semibold leading-tight text-[var(--heading)]">
