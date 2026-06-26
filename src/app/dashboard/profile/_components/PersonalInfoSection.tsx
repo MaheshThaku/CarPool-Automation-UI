@@ -10,6 +10,22 @@ import SectionHeader from "./SectionHeader";
 import SuccessBanner from "./SuccessBanner";
 import SectionError from "./SectionError";
 
+const MIN_AGE_YEARS = 18;
+
+// Latest birth date that still satisfies the minimum age, as a "YYYY-MM-DD"
+// string (matches the format produced/consumed by <input type="date">).
+function maxDobForAge(years: number): string {
+  const now = new Date();
+  const cutoffUtc = new Date(Date.UTC(now.getFullYear() - years, now.getMonth(), now.getDate()));
+  return cutoffUtc.toISOString().split("T")[0];
+}
+
+function meetsMinAge(dob: string, years: number): boolean {
+  const dobDate = new Date(dob);
+  if (Number.isNaN(dobDate.getTime())) return false;
+  return dobDate.getTime() <= new Date(maxDobForAge(years)).getTime();
+}
+
 function formFromProfile(profile: ProfileData): UpdateProfileRequest {
   return {
     firstName: profile.firstName,
@@ -29,6 +45,7 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [dobError, setDobError] = useState("");
   const [form, setForm] = useState<UpdateProfileRequest>(formFromProfile(profile));
 
   // Re-derive the editable form whenever a fresh `profile` arrives (e.g.
@@ -41,13 +58,16 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
     setForm(formFromProfile(profile));
   }
 
-  const handleChange = (name: string, val: string) =>
+  const handleChange = (name: string, val: string) => {
     setForm((prev) => ({ ...prev, [name]: val }));
+    if (name === "dateOfBirth") setDobError("");
+  };
 
   const handleCancel = () => {
     setForm(formFromProfile(profile));
     setEditing(false);
     setError("");
+    setDobError("");
   };
 
   const handleSave = async () => {
@@ -55,8 +75,13 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
       setError("First and last name are required.");
       return;
     }
+    if (form.dateOfBirth && !meetsMinAge(form.dateOfBirth, MIN_AGE_YEARS)) {
+      setDobError(`You must be at least ${MIN_AGE_YEARS} years old.`);
+      return;
+    }
     setSaving(true);
     setError("");
+    setDobError("");
     try {
       const updated = await profileService.updateProfile(form);
       onSaved(updated);
@@ -92,9 +117,9 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
           label="Email Address" name="email" value={profile.email} editing={editing}
           icon={Mail} onChange={handleChange} readOnly
           badge={
-            profile.emailVerified
-              ? <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700"><CheckCircle size={11} />Verified</span>
-              : <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">Unverified</span>
+            // Email is always treated as verified — it's the account identifier
+            // and there's no separate email-verification flow in this app.
+            <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700"><CheckCircle size={11} />Verified</span>
           }
         />
         <Field
@@ -110,7 +135,12 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
           label="Gender" name="gender" value={profile.gender} editing={editing}
           icon={User} onChange={() => {}} readOnly
         />
-        <Field label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth ?? ""} editing={editing} icon={Calendar} onChange={handleChange} type="date" />
+        <Field
+          label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth ?? ""} editing={editing}
+          icon={Calendar} onChange={handleChange} type="date"
+          max={maxDobForAge(MIN_AGE_YEARS)}
+          error={dobError}
+        />
       </div>
 
       <div className="mt-4 space-y-1.5">

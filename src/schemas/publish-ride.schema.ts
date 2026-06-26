@@ -11,6 +11,10 @@ import { z } from "zod";
 
 export const offerRideSchema = z
   .object({
+    vehicleId: z
+      .number({ invalid_type_error: "Please select a vehicle" })
+      .int()
+      .positive("Please select a vehicle"),
     sourceCity: z.string().min(1, "Source city is required"),
     destinationCity: z.string().min(1, "Destination city is required"),
     departureDate: z.string().min(1, "Date is required"),

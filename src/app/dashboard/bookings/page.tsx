@@ -14,7 +14,7 @@ import EmptyBookings from "./_components/EmptyBookings";
 import { TABS } from "./_components/bookingUtils";
 
 export default function MyBookingsPage() {
-  const { data: bookings, loading } = useAsyncData(() => dashboardService.getAllBookings());
+  const { data: bookings, loading } = useAsyncData(() => dashboardService.getAllBookings(), [], { cacheKey: "passenger-all-bookings" });
   const [activeTab, setActiveTab] = useState<BookingStatus | "ALL">("ALL");
   const [search, setSearch] = useState("");
 

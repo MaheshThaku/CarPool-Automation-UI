@@ -193,14 +193,18 @@ function CircularProgress({ pct }: { pct: number }) {
 ===================================================================== */
 
 function RiderDashboard({ user }: { user: CurrentUser }) {
-  const stats = useAsyncData(() => dashboardService.getRiderStats());
-  const rides = useAsyncData(() => dashboardService.getUpcomingRides());
-  const verification = useAsyncData(() =>
-    dashboardService.getVerificationStatus(),
+  const stats = useAsyncData(() => dashboardService.getRiderStats(), [], { cacheKey: "rider-stats" });
+  const rides = useAsyncData(() => dashboardService.getUpcomingRides(), [], { cacheKey: "rider-upcoming-rides" });
+  const verification = useAsyncData(
+    () => dashboardService.getVerificationStatus(),
+    [],
+    { cacheKey: "rider-verification-status" },
   );
-  const vehicle = useAsyncData(() => dashboardService.getVehicleInfo());
-  const completion = useAsyncData(() =>
-    dashboardService.getProfileCompletion(),
+  const vehicle = useAsyncData(() => dashboardService.getVehicleInfo(), [], { cacheKey: "rider-vehicle-info" });
+  const completion = useAsyncData(
+    () => dashboardService.getProfileCompletion(),
+    [],
+    { cacheKey: "rider-profile-completion" },
   );
 
   const displayName = formatDisplayName(user);
@@ -644,11 +648,13 @@ function RiderDashboard({ user }: { user: CurrentUser }) {
 ===================================================================== */
 
 function PassengerDashboard({ user }: { user: CurrentUser }) {
-  const stats = useAsyncData(() => dashboardService.getPassengerStats());
-  const trips = useAsyncData(() => dashboardService.getUpcomingTrips());
-  const bookings = useAsyncData(() => dashboardService.getRecentBookings());
-  const profileVerif = useAsyncData(() =>
-    dashboardService.getProfileVerification(),
+  const stats = useAsyncData(() => dashboardService.getPassengerStats(), [], { cacheKey: "passenger-stats" });
+  const trips = useAsyncData(() => dashboardService.getUpcomingTrips(), [], { cacheKey: "passenger-upcoming-trips" });
+  const bookings = useAsyncData(() => dashboardService.getRecentBookings(), [], { cacheKey: "passenger-recent-bookings" });
+  const profileVerif = useAsyncData(
+    () => dashboardService.getProfileVerification(),
+    [],
+    { cacheKey: "passenger-profile-verification" },
   );
 
   const displayName = formatDisplayName(user);
