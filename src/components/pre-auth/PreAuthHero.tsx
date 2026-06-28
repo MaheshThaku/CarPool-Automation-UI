@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 import PreAuthTrustBar from './PreAuthTrustBar';
-import Logo from '../common/Logo';
+import Logo from '../common/navbar/Logo';
 import AuthStats from '../auth/AuthStats';
 
 type Props = {
@@ -13,7 +13,7 @@ export default function PreAuthHero({ title, subtitle }: Props) {
   return (
     <section className="relative min-h-[700px] overflow-hidden">
       <Image
-        src="/images/auth/auth_banner.png"
+        src="/images/auth/banner.png"
         alt={title}
         fill
         priority

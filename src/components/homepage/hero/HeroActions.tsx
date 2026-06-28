@@ -3,14 +3,12 @@ import { ArrowRight, Car } from 'lucide-react';
 
 export default function HeroActions() {
   return (
-    <div
-      className="mt-10 flex flex-col gap-4 sm:flex-row"
-    >
+    <div className="mt-10 flex flex-col gap-4 sm:flex-row">
       {/* Primary CTA */}
 
       <Link
-        href="/rides/search"
-        className="group flex h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-8 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[var(--primary-hover)] hover:scale-[1.02] hover:shadow-xl sm:w-auto"
+        href="/find-ride"
+        className="group flex h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-8 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-[var(--primary-hover)] hover:shadow-xl sm:w-auto"
       >
         Find a Ride
         <ArrowRight
@@ -22,8 +20,8 @@ export default function HeroActions() {
       {/* Secondary CTA */}
 
       <Link
-        href="/rides/offer"
-        className="group flex h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-8 text-base font-semibold text-[var(--heading)] transition-all duration-300 hover:border-[var(--primary)] hover:bg-white hover:shadow-lg hover:-translate-y-0.5 sm:w-auto"
+        href="/offer-ride"
+        className="group flex h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-8 text-base font-semibold text-[var(--heading)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-white hover:shadow-lg sm:w-auto"
       >
         <Car
           size={18}

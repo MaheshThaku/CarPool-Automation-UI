@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useState, useRef, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   LayoutDashboard,
   Car,
@@ -19,11 +19,11 @@ import {
   X,
   Target,
   Wrench,
-} from "lucide-react";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { deleteCookie } from "@/lib/cookies";
-import { cn } from "@/lib/cn";
-import Logo from "@/components/common/Logo";
+} from 'lucide-react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { deleteCookie } from '@/lib/cookies';
+import { cn } from '@/lib/cn';
+import Logo from '@/components/common/navbar/Logo';
 
 const RIDER_NAV = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
@@ -46,10 +46,13 @@ const PASSENGER_NAV = [
  * Longest-prefix-match ensures "/dashboard/rides" does NOT activate when
  * the user is on "/dashboard/rides/publish".
  */
-function getActiveHref(navItems: typeof RIDER_NAV, pathname: string): string | null {
+function getActiveHref(
+  navItems: typeof RIDER_NAV,
+  pathname: string,
+): string | null {
   return navItems.reduce<string | null>((best, item) => {
     const matches =
-      pathname === item.href || pathname.startsWith(item.href + "/");
+      pathname === item.href || pathname.startsWith(item.href + '/');
     if (!matches) return best;
     if (!best || item.href.length > best.length) return item.href;
     return best;
@@ -72,8 +75,8 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Logo */}
-      <div className="flex  h-19 items-center  border-b border-[var(--border)] ">
-       <Logo clickable={false} size="lg"/>
+      <div className="flex h-19 items-center border-b border-[var(--border)]">
+        <Logo clickable={false} size="lg" />
       </div>
 
       {/* Nav */}
@@ -129,23 +132,26 @@ export default function DashboardLayout({
   // Close profile dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch('/api/auth/logout', { method: 'POST' });
     } catch {
       // ignore network errors — clear client state regardless
     }
-    deleteCookie("user");
-    deleteCookie("tokenExpiry");
-    router.replace("/auth/login");
+    deleteCookie('user');
+    deleteCookie('tokenExpiry');
+    router.replace('/auth/login');
   };
 
   const isRider = user?.role === 'ROLE_RIDER';
@@ -224,31 +230,35 @@ export default function DashboardLayout({
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-sm font-bold text-white">
                   {user?.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={user.avatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    user?.firstName?.charAt(0).toUpperCase() ?? "U"
+                    (user?.firstName?.charAt(0).toUpperCase() ?? 'U')
                   )}
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold leading-tight text-[var(--heading)]">
-                    {user ? `${user.firstName} ${user.lastName}` : "Loading..."}
+                  <p className="text-sm leading-tight font-semibold text-[var(--heading)]">
+                    {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
                   </p>
                   <p className="text-xs text-[var(--text-light)]">
-                    {isRider ? "Rider" : "Passenger"}
+                    {isRider ? 'Rider' : 'Passenger'}
                   </p>
                 </div>
                 <ChevronDown
                   size={15}
                   className={cn(
-                    "hidden text-[var(--text-light)] transition-transform sm:block",
-                    profileOpen && "rotate-180"
+                    'hidden text-[var(--text-light)] transition-transform sm:block',
+                    profileOpen && 'rotate-180',
                   )}
                 />
               </button>
 
               {/* Dropdown */}
               {profileOpen && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-lg">
+                <div className="absolute top-full right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-lg">
                   <Link
                     href="/dashboard/profile"
                     onClick={() => setProfileOpen(false)}

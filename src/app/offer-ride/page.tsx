@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 import PreAuthLayout from '@/components/pre-auth/PreAuthLayout';
-import Navbar from '@/components/common/Navbar';
+import Navbar from '@/components/common/navbar/Navbar';
 
 export const metadata: Metadata = {
   title: 'Offer Ride | ShareFare - Share Empty Seats & Earn',

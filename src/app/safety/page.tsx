@@ -5,7 +5,7 @@ import SafetyFeatures from './_components/SafetyFeatures';
 import WomenSafety from './_components/WomenSafety';
 import VerificationProcess from './_components/VerificationProcess';
 import SafetyGuidelines from './_components/SafetyGuideline';
-import Navbar from '@/components/common/Navbar';
+import Navbar from '@/components/common/navbar/Navbar';
 import Footer from '@/components/common/footer/Footer';
 
 export const metadata: Metadata = {
