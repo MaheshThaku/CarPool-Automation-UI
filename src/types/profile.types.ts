@@ -9,14 +9,18 @@ export interface ProfileData {
   contactNumber: string;
   gender: Gender;
   role?: string;
-  dateOfBirth?: string;       // not yet in UserProfileResponse
-  avatarUrl?: string;         // mapped from profilePictureUrl
-  profilePictureUrl?: string; // from UserProfileResponse
-  emailVerified: boolean;     // not yet in UserProfileResponse — defaults to false
-  contactVerified: boolean;   // not yet in UserProfileResponse — defaults to false
+
+  dateOfBirth?: string;
+
+  avatarUrl?: string;      
+  avatarVersion?: number;
+
+  emailVerified: boolean;
+  contactVerified: boolean;
+
   bio?: string;
   rating?: number;
-  memberSince?: string;       // ISO date-time from UserProfileResponse
+  memberSince?: string;
 }
 
 /**
@@ -38,4 +42,5 @@ export interface ChangePasswordRequest {
 
 export interface AvatarUploadResponse {
   avatarUrl: string;
+  avatarVersion: number;
 }

@@ -47,7 +47,7 @@ export default function AvatarSection({ profile, onAvatarChange }: AvatarSection
     }
   };
 
-  const src = preview || profile?.avatarUrl;
+  const src = preview ?? profile?.avatarUrl ?? undefined;
 
   return (
     <div className="flex flex-col items-center gap-3">
