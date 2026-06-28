@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import CommunityHero from './_components/CommunityHero';
 import CommunityPrinciples from './_components/CommunityPrinciples';
 import CommunityContent from './_components/CommunityContent';
-import Navbar from '@/components/common/Navbar';
+import Navbar from '@/components/common/navbar/Navbar';
 import Footer from '@/components/common/footer/Footer';
 
 export const metadata: Metadata = {

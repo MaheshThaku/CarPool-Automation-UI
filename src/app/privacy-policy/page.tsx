@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import PrivacyHero from './_components/PrivacyHero';
 import PrivacyContent from './_components/PrivacyContent';
-import Navbar from '@/components/common/Navbar';
+import Navbar from '@/components/common/navbar/Navbar';
 import Footer from '@/components/common/footer/Footer';
 
 export const metadata: Metadata = {

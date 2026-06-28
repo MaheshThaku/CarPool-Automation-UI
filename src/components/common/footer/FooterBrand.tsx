@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import Logo from '../Logo';
+import Logo from '../navbar/Logo';
 
 import { socialLinks } from './footer.data';
 

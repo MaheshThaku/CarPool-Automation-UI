@@ -10,22 +10,22 @@ import { BsTwitterX } from "react-icons/bs";
 export const socialLinks = [
   {
     icon: FaInstagram,
-    href: "https://instagram.com",
+    href: "https://www.instagram.com/sharefare_team/",
     label: "Instagram",
   },
   {
     icon: FaLinkedinIn,
-    href: "https://linkedin.com",
+    href: "https://www.linkedin.com/in/team-sharefare-67651141a/",
     label: "LinkedIn",
   },
-  {
-    icon: BsTwitterX,
-    href: "https://x.com",
-    label: "X",
-  },
+  // {
+  //   icon: BsTwitterX,
+  //   href: "https://x.com",
+  //   label: "X",
+  // },
   {
     icon: FaFacebook,
-    href: "https://facebook.com",
+    href: "https://www.facebook.com/profile.php?id=61591340675485",
     label: "facebook",
   },
 ];
@@ -58,10 +58,10 @@ export const footerLinks = {
       label: "Contact Us",
       href: "/contactUs",
     },
-    {
-      label: "Safety",
-      href: "/safety",
-    },
+    // {
+    //   label: "Safety",
+    //   href: "/safety",
+    // },
   ],
 
   support: [

@@ -10,7 +10,7 @@ interface Props {
 export default function PassengerField({ value = 1, onChange }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold uppercase tracking-wide text-[var(--text-light)]">
+      <label className="text-xs font-semibold tracking-wide text-[var(--text-light)] uppercase">
         Passengers
       </label>
 
@@ -22,9 +22,9 @@ export default function PassengerField({ value = 1, onChange }: Props) {
           onChange={(e) => onChange?.(Number(e.target.value))}
           className="w-full bg-transparent text-[var(--heading)] outline-none"
         >
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
             <option key={n} value={n}>
-              {n} Passenger{n > 1 ? "s" : ""}
+              {n} Passenger{n > 1 ? 's' : ''}
             </option>
           ))}
         </select>

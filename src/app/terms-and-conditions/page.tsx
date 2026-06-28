@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import TermsHero from './_components/TermsHero';
 import TermsContent from './_components/TermsContent';
-import Navbar from '@/components/common/Navbar';
+import Navbar from '@/components/common/navbar/Navbar';
 import Footer from '@/components/common/footer/Footer';
 
 export const metadata: Metadata = {
