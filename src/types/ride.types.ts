@@ -71,35 +71,12 @@ export interface CreateBookingRequest {
 export interface RideBookingResponse {
   bookingId: number;
   rideId: number;
-
-  // Passenger
-
   passengerId: number;
   passengerName: string;
-  passengerProfilePic?: string;
-  passengerAge?: number;
-
-  // Driver
-
-  driverName?: string;
-  driverProfilePic?: string;
-  driverAge?: number;
-
-  // Vehicle
-
-  vehicleModel?: string;
-  vehicleRegistrationNumber?: string;
-
-  // Trip
-
   sourceCity: string;
   destinationCity: string;
-
   seatsBooked: number;
-
   totalAmount: number;
-
   status: BookingStatus;
-
-  bookingTime: string;
+  bookingTime: string; // ISO-8601 date-time
 }

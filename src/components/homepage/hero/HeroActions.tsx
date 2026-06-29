@@ -21,7 +21,7 @@ export default function HeroActions() {
 
       <Link
         href="/offer-ride"
-        className="group flex h-14 items-center justify-center gap-2 rounded-2xl bg-white/90 px-8 text-base font-semibold text-black shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white hover:shadow-xl sm:w-auto"
+        className="group flex h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-8 text-base font-semibold text-[var(--heading)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-white hover:shadow-lg sm:w-auto"
       >
         <Car
           size={18}
