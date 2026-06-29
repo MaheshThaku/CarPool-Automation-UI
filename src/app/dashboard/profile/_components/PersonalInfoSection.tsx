@@ -123,7 +123,7 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
           }
         />
         <Field
-          label="Contact Number" name="contactNumber" value={profile.contactNumber} editing={editing}
+          label="Contact Number" name="contactNumber" value={profile.contactNumber ?? ""} editing={editing}
           icon={Phone} onChange={() => {}} readOnly
           badge={
             profile.contactVerified
@@ -132,7 +132,7 @@ export default function PersonalInfoSection({ profile, onSaved }: PersonalInfoSe
           }
         />
         <Field
-          label="Gender" name="gender" value={profile.gender} editing={editing}
+          label="Gender" name="gender" value={profile.gender ?? ""} editing={editing}
           icon={User} onChange={() => {}} readOnly
         />
         <Field

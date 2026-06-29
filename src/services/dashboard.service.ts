@@ -1,9 +1,15 @@
 import { api } from "@/lib/axios";
 import {
-  RiderStats, UpcomingRide, VerificationItem,
-  VehicleInfo, ProfileCompletion,
-  PassengerStats, UpcomingTrip, RecentBooking, ProfileVerification,
-  BookingListItem
+  RiderStats,
+  UpcomingTrip,   // keep this
+  VerificationItem,
+  VehicleInfo,
+  ProfileCompletion,
+  PassengerStats,
+  RecentBooking,
+  ProfileVerification,
+  BookingListItem,
+  UpcomingRide
 } from "@/types/dashboard.types";
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
@@ -26,10 +32,9 @@ class DashboardService {
   }
 
   /** GET /v1/rider/ride/upcoming */
-  getUpcomingRides(): Promise<UpcomingRide[]> {
-    return safeGet<UpcomingRide[]>("/v1/rider/ride/upcoming", []);
-  }
-
+getUpcomingRides(): Promise<UpcomingRide[]> {
+  return safeGet<UpcomingRide[]>("/v1/rider/ride/upcoming", []);
+}
   /** GET /v1/rider/document/all */
   getVerificationStatus(): Promise<VerificationItem[]> {
     return safeGet<VerificationItem[]>("/v1/rider/document/all", []);
@@ -85,10 +90,9 @@ class DashboardService {
   }
 
   /** GET /v1/passenger/booking/upcoming */
-  getUpcomingTrips(): Promise<UpcomingTrip[]> {
-    return safeGet<UpcomingTrip[]>("/v1/passenger/booking/upcoming", []);
-  }
-
+getUpcomingTrips(): Promise<UpcomingTrip[]> {
+  return safeGet<UpcomingTrip[]>("/v1/passenger/booking/upcoming", []);
+}
   /** GET /v1/passenger/booking/recent */
   getRecentBookings(): Promise<RecentBooking[]> {
     return safeGet<RecentBooking[]>("/v1/passenger/booking/recent", []);
