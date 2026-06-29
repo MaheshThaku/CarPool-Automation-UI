@@ -1,12 +1,11 @@
 import Container from '@/components/ui/Container';
-import Link from 'next/link';
 
 export default function SafetyHero() {
   return (
-    <section className="page-hero-bg pt-32 pb-24">
+    <section className="relative overflow-hidden pt-32 pb-24">
       {/* Background Gradient */}
 
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-light)] via-[var(--background)] to-[var(--primary-light)]" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[var(--primary-light)] via-[var(--background)] to-[var(--primary-light)]" />
 
       {/* Top Left Highlight */}
 

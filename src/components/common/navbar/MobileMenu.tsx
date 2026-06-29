@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 
-import { X } from 'lucide-react';
-
 import { CurrentUser } from '@/hooks/useCurrentUser';
 
 import { navLinks } from './navbar.data';
@@ -20,19 +18,6 @@ export default function MobileMenu({ isOpen, onClose, user }: Props) {
   return (
     <div className="animate-in fade-in slide-in-from-top-4 absolute inset-x-4 top-[88px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl lg:hidden">
       <div className="p-5">
-        {/* Header */}
-
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[var(--heading)]">Menu</h3>
-
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--background)]"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
         {/* Navigation */}
 
         <div className="space-y-1">
@@ -59,16 +44,36 @@ export default function MobileMenu({ isOpen, onClose, user }: Props) {
             <Link
               href="/dashboard/overview"
               onClick={onClose}
-              className="flex items-center gap-3 rounded-2xl bg-[var(--primary)] px-4 py-3.5 font-medium text-white"
+              className="flex items-center justify-between rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary-light)] p-4 transition-all duration-300 hover:border-[var(--primary)]"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
-                {user.firstName.charAt(0)}
+              <div className="flex items-center gap-3">
+                {/* Avatar */}
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-base font-bold text-white shadow-md">
+                  {user.firstName.charAt(0).toUpperCase()}
+                </div>
+
+                {/* User Info */}
+
+                <div>
+                  <p className="font-semibold text-[var(--heading)]">
+                    {user.firstName} {user.lastName}
+                  </p>
+
+                  <p className="text-xs text-[var(--text-light)]">
+                    {user.role === 'ROLE_ADMIN'
+                      ? 'Admin'
+                      : user.role === 'ROLE_RIDER'
+                        ? 'Rider'
+                        : 'Passenger'}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <p className="text-sm font-semibold">{user.firstName}</p>
+              {/* Dashboard CTA */}
 
-                <p className="text-xs text-white/80">Go To Dashboard</p>
+              <div className="rounded-xl bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-white">
+                Dashboard
               </div>
             </Link>
           </div>
