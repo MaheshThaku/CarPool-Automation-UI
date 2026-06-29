@@ -82,17 +82,12 @@ export function useAsyncData<T>(
     const isExplicitRefetch = tick > 0;
     const fresh = !isExplicitRefetch && cacheKey ? getCached<T>(cacheKey) : undefined;
 
-    let cancelled = false;
-
     if (fresh !== undefined) {
-      Promise.resolve().then(() => {
-        if (!cancelled) setState({ data: fresh, loading: false, error: null });
-      });
-      return () => {
-        cancelled = true;
-      };
+      setState({ data: fresh, loading: false, error: null });
+      return;
     }
 
+    let cancelled = false;
     // Resetting loading/error synchronously when deps or `tick` change is
     // intentional: it must happen before `fetcher()` is invoked below so
     // consumers see a `loading` flip on refetch, not just on first mount.
