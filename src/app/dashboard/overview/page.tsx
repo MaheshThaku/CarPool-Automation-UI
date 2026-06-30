@@ -46,24 +46,29 @@ function formatDisplayName(user: CurrentUser): string {
   return prefix.charAt(0).toUpperCase() + prefix.slice(1);
 }
 
-function parseDeparture(iso: string) {
-  try {
-    const d = new Date(iso);
-    return {
-      date: d.getDate(),
-      month: d.toLocaleString('en-IN', { month: 'short' }),
-      day: d.toLocaleString('en-IN', { weekday: 'short' }),
-      time: d
-        .toLocaleString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        })
-        .toUpperCase(),
-    };
-  } catch {
+function parseDeparture(iso?: string) {
+  if (!iso) {
     return { date: '--', month: '---', day: '---', time: '--:--' };
   }
+
+  const d = new Date(iso);
+
+  if (isNaN(d.getTime())) {
+    return { date: '--', month: '---', day: '---', time: '--:--' };
+  }
+
+  return {
+    date: d.getDate(),
+    month: d.toLocaleString('en-IN', { month: 'short' }),
+    day: d.toLocaleString('en-IN', { weekday: 'short' }),
+    time: d
+      .toLocaleString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      })
+      .toUpperCase(),
+  };
 }
 
 function docStatusLabel(status: DocStatus) {
@@ -843,10 +848,10 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
           ) : (
             <div className="mt-4 divide-y divide-[var(--border)]">
               {trips.data.map((trip) => {
-                const dt = parseDeparture(trip.departureTime);
+                const dt = parseDeparture(trip.bookingTime);
                 return (
                   <div
-                    key={trip.id}
+                    key={trip.bookingId}
                     className="flex items-start gap-3 py-4 first:pt-0 last:pb-0"
                   >
                     <div className="flex w-[46px] shrink-0 flex-col items-center rounded-xl bg-[var(--primary-light)] py-2">
@@ -878,7 +883,7 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
                           <Clock size={11} />
                           {dt.time}
                         </span>
-                        <span>• {trip.availableSeats} Seats Available</span>
+                        <span>• {trip.seatsBooked} Seats Available</span>
                       </div>
                       <div className="mt-1 flex items-center gap-2">
                         <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-white">
@@ -890,7 +895,7 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
                         <span
                           className={
                             'rounded-full px-2 py-0.5 text-[10px] font-semibold ' +
-                            (trip.status === 'CONFIRMED'
+                            (trip.status === 'APPROVED'
                               ? 'bg-green-50 text-green-700'
                               : 'bg-amber-50 text-amber-700')
                           }
@@ -961,10 +966,10 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
           ) : (
             <div className="mt-4 space-y-3">
               {bookings.data.map((booking) => {
-                const dt = parseDeparture(booking.departureTime);
+                const dt = parseDeparture(booking.bookingTime);
                 return (
                   <div
-                    key={booking.id}
+                    key={booking.bookingId}
                     className="flex items-center gap-4 rounded-xl border border-[var(--border)] p-3"
                   >
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gray-100">
@@ -985,7 +990,7 @@ function PassengerDashboard({ user }: { user: CurrentUser }) {
                       </div>
                       <p className="mt-0.5 text-xs text-[var(--text-light)]">
                         {dt.date} {dt.month}{' '}
-                        {new Date(booking.departureTime).getFullYear()}{' '}
+                        {new Date(booking.bookingTime).getFullYear()}{' '}
                         {String.fromCharCode(8226)} {dt.time}
                       </p>
                     </div>
