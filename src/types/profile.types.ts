@@ -6,20 +6,17 @@ export interface ProfileData {
   firstName: string;
   lastName: string;
   email: string;
-  contactNumber: string;
-  gender: Gender;
-  role?: string;
 
-  dateOfBirth?: string;
-
-  avatarUrl?: string;      
-  avatarVersion?: number;
-
+  avatarUrl?: string;
+  profilePictureUrl?: string; // ✅ ADD THIS
+   bio?: string;
   emailVerified: boolean;
   contactVerified: boolean;
 
-  bio?: string;
-  rating?: number;
+  contactNumber?: string;
+  gender?: Gender;
+  dateOfBirth?: string;
+
   memberSince?: string;
 }
 

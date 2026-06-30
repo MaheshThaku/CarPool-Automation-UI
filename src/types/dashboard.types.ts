@@ -16,14 +16,16 @@ export interface RiderStats {
   verificationStatus: DocStatus;
 }
 
-export interface UpcomingRide {
-  id: number;
+export interface UpcomingBooking {
+  bookingId: number;
+  rideId: number;
   sourceCity: string;
   destinationCity: string;
-  departureTime: string; // ISO-8601
-  availableSeats: number;
-  pricePerSeat: number;
-  status: string;
+  seatsBooked: number;
+  totalAmount: number;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "COMPLETED";
+  bookingTime: string;
+  driverName: string;
 }
 
 export interface VerificationItem {
@@ -59,22 +61,38 @@ export interface PassengerStats {
 }
 
 export interface UpcomingTrip {
-  id: number;
+  bookingId: number;
+  rideId: number;
   sourceCity: string;
   destinationCity: string;
-  departureTime: string; // ISO-8601
-  availableSeats: number;
+  seatsBooked: number;
+  totalAmount: number;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "COMPLETED";
+  bookingTime: string;
   driverName: string;
-  status: string;
 }
 
 export interface RecentBooking {
-  id: number;
+  bookingId: number;
+  rideId: number;
+  passengerId: number;
+  passengerName: string;
+  passengerProfilePic?: string;
+  passengerAge?: number;
+
+  driverName: string;
+  driverProfilePic?: string;
+  driverAge?: number;
+
+  vehicleModel?: string;
+  vehicleRegistrationNumber?: string;
+
   sourceCity: string;
   destinationCity: string;
-  departureTime: string; // ISO-8601
+  seatsBooked: number;
   totalAmount: number;
-  status: string;
+  status: BookingStatus;
+  bookingTime: string;
 }
 
 export interface ProfileVerification {
@@ -85,16 +103,29 @@ export interface ProfileVerification {
 }
 
 /* ---------- Bookings (full list) ---------- */
-
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+export type BookingStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "COMPLETED";
 
 export interface BookingListItem {
-  id: number;
+  bookingId: number;
   sourceCity: string;
-  destinationCity: string;
-  departureTime: string; // ISO-8601
+ destinationCity: string;
+  bookingTime: string;
   driverName: string;
   seatsBooked: number;
   totalAmount: number;
   status: BookingStatus;
+}
+
+export interface UpcomingRide {
+  id: string;
+  sourceCity: string;
+  destinationCity: string;
+  departureTime: string;
+  availableSeats: number;
+  pricePerSeat: number;
 }
