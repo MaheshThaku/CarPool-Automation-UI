@@ -42,7 +42,7 @@ getUpcomingRides(): Promise<UpcomingRide[]> {
 
   /** GET /v1/rider/vehicle/my-vehicle */
   getVehicleInfo(): Promise<VehicleInfo | null> {
-    return safeGet<VehicleInfo | null>("/v1/rider/vehicle/my-vehicle", null);
+    return safeGet<VehicleInfo | null>("/v1/vehicles", null);
   }
 
   /** GET /v1/rider/profile/completion */
