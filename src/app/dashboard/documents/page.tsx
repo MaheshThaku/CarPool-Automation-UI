@@ -72,9 +72,9 @@ export default function DocumentsPage() {
 
       <div>
         <h2 className="text-2xl font-bold text-[var(--heading)]">Documents</h2>
-
         <p className="mt-1 text-sm text-[var(--text)]">
-          Upload and manage your verification documents.
+          Upload and manage your documents to get verified and increase trust
+          with passengers.
         </p>
       </div>
 

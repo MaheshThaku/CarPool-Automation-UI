@@ -35,10 +35,18 @@ export default function DocumentCard({
 
   const DocIcon = config.icon;
 
+  const canUpload = status === 'NOT_PROVIDED' || status === 'REJECTED';
+
+  const uploadedFileName =
+    selectedFile?.name ||
+    (verificationItem as { documentName?: string })?.documentName;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
 
@@ -74,7 +82,7 @@ export default function DocumentCard({
                 : status === 'REJECTED'
                   ? 'bg-red-50'
                   : 'bg-[var(--primary-light)]'
-            } `}
+            }`}
           >
             <DocIcon
               size={20}
@@ -108,7 +116,7 @@ export default function DocumentCard({
         </div>
 
         <span
-          className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sd.chip} `}
+          className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sd.chip}`}
         >
           <StatusIcon size={11} />
           {sd.label}
@@ -117,7 +125,7 @@ export default function DocumentCard({
 
       {/* Meta */}
 
-      <div className="mt-3 flex items-center gap-3 text-xs text-[var(--text-light)]">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-light)]">
         <span>Accepted: {config.acceptedFormats}</span>
 
         <span>•</span>
@@ -125,7 +133,7 @@ export default function DocumentCard({
         <span>Max {config.maxSizeMB} MB</span>
       </div>
 
-      {/* Rejected */}
+      {/* Rejected Message */}
 
       {status === 'REJECTED' && (
         <div className="mt-3 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-600">
@@ -135,7 +143,7 @@ export default function DocumentCard({
         </div>
       )}
 
-      {/* Pending */}
+      {/* Pending Message */}
 
       {status === 'PENDING' && (
         <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-700">
@@ -145,7 +153,7 @@ export default function DocumentCard({
         </div>
       )}
 
-      {/* Verified */}
+      {/* Verified Message */}
 
       {status === 'VERIFIED' && (
         <div className="mt-3 flex items-center gap-2 rounded-xl bg-green-50 p-3 text-xs text-green-700">
@@ -155,9 +163,36 @@ export default function DocumentCard({
         </div>
       )}
 
-      {/* Select File */}
+      {/* Existing Uploaded File */}
 
-      {status !== 'VERIFIED' && (
+      {uploadedFileName && (status === 'PENDING' || status === 'VERIFIED') && (
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <CheckCircle
+              size={15}
+              className={
+                status === 'VERIFIED' ? 'text-green-600' : 'text-amber-600'
+              }
+            />
+
+            <p className="truncate text-xs font-medium text-[var(--heading)]">
+              {uploadedFileName}
+            </p>
+          </div>
+
+          <span
+            className={`text-[10px] font-semibold ${
+              status === 'VERIFIED' ? 'text-green-600' : 'text-amber-600'
+            }`}
+          >
+            {status === 'VERIFIED' ? 'Verified' : 'Under Review'}
+          </span>
+        </div>
+      )}
+
+      {/* Upload Area */}
+
+      {canUpload && (
         <div className="mt-4">
           {selectedFile ? (
             <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 p-3">

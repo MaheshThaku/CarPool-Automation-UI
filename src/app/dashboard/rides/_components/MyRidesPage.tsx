@@ -100,6 +100,13 @@ export default function MyRidesPage() {
 
   return (
     <div className="space-y-6">
+      {/* heading */}
+      <div>
+        <h2 className="text-2xl font-bold text-[var(--heading)]">My Rides</h2>
+        <p className="mt-1 text-sm text-[var(--text)]">
+          Turn Empty Seats into Shared Journeys
+        </p>
+      </div>
       {/* Stats */}
 
       <MyRideStats

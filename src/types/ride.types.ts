@@ -58,6 +58,9 @@ export type BookingStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | 
 export interface CreateBookingRequest {
   rideId: number;
   seatsBooked: number;
+
+  // NEW
+  passengerEmail: string;
 }
 
 /**
@@ -75,9 +78,11 @@ export interface RideBookingResponse {
   // Passenger
 
   passengerId: number;
+  passengerEmail?: string;
   passengerName: string;
   passengerProfilePic?: string;
   passengerAge?: number;
+  contactNumber?: string;
 
   // Driver
 

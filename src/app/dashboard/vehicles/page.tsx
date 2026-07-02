@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Car, Pencil, Trash2, Plus, Star } from "lucide-react";
+import { useState } from 'react';
+import { Car, Pencil, Trash2, Plus, Star } from 'lucide-react';
 
-import { useAsyncData, invalidateAsyncCache } from "@/hooks/useAsyncData";
-import { vehicleService } from "@/services/vehicle.service";
-import { VehicleResponse } from "@/types/vehicle.types";
+import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
+import { vehicleService } from '@/services/vehicle.service';
+import { VehicleResponse } from '@/types/vehicle.types';
 
-import VehicleFormModal from "./_components/VehicleFormModal";
-import DeleteVehicleDialog from "./_components/DeleteVehicleDialog";
+import VehicleFormModal from './_components/VehicleFormModal';
+import DeleteVehicleDialog from './_components/DeleteVehicleDialog';
+import VehicleInfoSection from './_components/VehicleInfoSection';
 
-const VEHICLES_CACHE_KEY = "my-vehicles";
+const VEHICLES_CACHE_KEY = 'my-vehicles';
 const MAX_VEHICLES = 10;
 
 // The rider's first-added vehicle (lowest id) is treated as their default —
@@ -22,7 +23,9 @@ function defaultVehicleId(vehicles: VehicleResponse[]): number | null {
 }
 
 export default function ManageVehiclesPage() {
-  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles(), [], { cacheKey: VEHICLES_CACHE_KEY });
+  const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles(), [], {
+    cacheKey: VEHICLES_CACHE_KEY,
+  });
 
   // Local mirror of the fetched list that we patch directly after each
   // add/edit/delete using the mutation's own response, instead of firing a
@@ -30,14 +33,20 @@ export default function ManageVehiclesPage() {
   // underlying fetch produces a new array (initial load, retry, or another
   // tab/page invalidating the shared cache).
   const [vehicles, setVehicles] = useState<VehicleResponse[]>([]);
-  const [syncedSource, setSyncedSource] = useState<VehicleResponse[] | null>(null);
+  const [syncedSource, setSyncedSource] = useState<VehicleResponse[] | null>(
+    null,
+  );
   if (vehicles$.data && vehicles$.data !== syncedSource) {
     setSyncedSource(vehicles$.data);
     setVehicles(vehicles$.data);
   }
 
-  const [formTarget, setFormTarget] = useState<VehicleResponse | null | "new">(null);
-  const [deleteTarget, setDeleteTarget] = useState<VehicleResponse | null>(null);
+  const [formTarget, setFormTarget] = useState<VehicleResponse | null | 'new'>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] = useState<VehicleResponse | null>(
+    null,
+  );
 
   const atLimit = vehicles.length >= MAX_VEHICLES;
   const defaultId = defaultVehicleId(vehicles);
@@ -51,7 +60,9 @@ export default function ManageVehiclesPage() {
     invalidateAsyncCache(VEHICLES_CACHE_KEY);
     setVehicles((prev) => {
       const exists = prev.some((v) => v.id === vehicle.id);
-      return exists ? prev.map((v) => (v.id === vehicle.id ? vehicle : v)) : [...prev, vehicle];
+      return exists
+        ? prev.map((v) => (v.id === vehicle.id ? vehicle : v))
+        : [...prev, vehicle];
     });
     setFormTarget(null);
   };
@@ -66,14 +77,16 @@ export default function ManageVehiclesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--heading)]">Manage Vehicles</h2>
+          <h2 className="text-2xl font-bold text-[var(--heading)]">
+            Manage Vehicles
+          </h2>
           <p className="mt-1 text-sm text-[var(--text)]">
             Add and manage the vehicles you drive for rides.
           </p>
         </div>
         {!atLimit && (
           <button
-            onClick={() => setFormTarget("new")}
+            onClick={() => setFormTarget('new')}
             className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
           >
             <Plus size={16} /> Add Vehicle
@@ -83,20 +96,27 @@ export default function ManageVehiclesPage() {
 
       {atLimit && (
         <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
-          You&apos;ve reached the {MAX_VEHICLES}-vehicle limit. Remove a vehicle to add another.
+          You&apos;ve reached the {MAX_VEHICLES}-vehicle limit. Remove a vehicle
+          to add another.
         </div>
       )}
 
       {vehicles$.loading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-2xl bg-gray-100" />
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-2xl bg-gray-100"
+            />
           ))}
         </div>
       ) : vehicles$.error ? (
         <div className="rounded-2xl border border-[var(--border)] bg-white p-6 text-center text-sm text-red-600">
           {vehicles$.error}
-          <button onClick={vehicles$.refetch} className="ml-2 font-medium underline">
+          <button
+            onClick={vehicles$.refetch}
+            className="ml-2 font-medium underline"
+          >
             Retry
           </button>
         </div>
@@ -105,12 +125,15 @@ export default function ManageVehiclesPage() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
             <Car size={26} className="text-gray-400" />
           </div>
-          <h3 className="mt-4 font-semibold text-[var(--heading)]">No vehicles yet</h3>
+          <h3 className="mt-4 font-semibold text-[var(--heading)]">
+            No vehicles yet
+          </h3>
           <p className="mt-1.5 max-w-sm text-sm text-[var(--text-light)]">
-            Add a vehicle to start offering rides — passengers will see this when they book with you.
+            Add a vehicle to start offering rides — passengers will see this
+            when they book with you.
           </p>
           <button
-            onClick={() => setFormTarget("new")}
+            onClick={() => setFormTarget('new')}
             className="mt-5 flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
           >
             <Plus size={16} /> Add Vehicle
@@ -120,7 +143,7 @@ export default function ManageVehiclesPage() {
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-gray-50 text-xs font-medium uppercase tracking-wide text-[var(--text-light)]">
+              <tr className="border-b border-[var(--border)] bg-gray-50 text-xs font-medium tracking-wide text-[var(--text-light)] uppercase">
                 <th className="px-5 py-3">Vehicle</th>
                 <th className="px-5 py-3">Registration No.</th>
                 <th className="px-5 py-3">Type</th>
@@ -131,7 +154,10 @@ export default function ManageVehiclesPage() {
             </thead>
             <tbody>
               {vehicles.map((v) => (
-                <tr key={v.id} className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/60">
+                <tr
+                  key={v.id}
+                  className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/60"
+                >
                   <td className="flex items-center gap-2.5 px-5 py-3.5 font-medium text-[var(--heading)]">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary-light)]">
                       <Car size={14} className="text-[var(--primary)]" />
@@ -143,12 +169,17 @@ export default function ManageVehiclesPage() {
                       </span>
                     )}
                   </td>
-                  <td className="px-5 py-3.5 text-[var(--text)]">{v.registrationNumber}</td>
                   <td className="px-5 py-3.5 text-[var(--text)]">
-                    {v.vehicleType.charAt(0) + v.vehicleType.slice(1).toLowerCase()}
+                    {v.registrationNumber}
+                  </td>
+                  <td className="px-5 py-3.5 text-[var(--text)]">
+                    {v.vehicleType.charAt(0) +
+                      v.vehicleType.slice(1).toLowerCase()}
                   </td>
                   <td className="px-5 py-3.5 text-[var(--text)]">{v.color}</td>
-                  <td className="px-5 py-3.5 text-[var(--text)]">{v.yearOfManufacture}</td>
+                  <td className="px-5 py-3.5 text-[var(--text)]">
+                    {v.yearOfManufacture}
+                  </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -174,7 +205,7 @@ export default function ManageVehiclesPage() {
 
       {formTarget !== null && (
         <VehicleFormModal
-          vehicle={formTarget === "new" ? null : formTarget}
+          vehicle={formTarget === 'new' ? null : formTarget}
           onClose={() => setFormTarget(null)}
           onSaved={handleSaved}
         />
@@ -187,6 +218,8 @@ export default function ManageVehiclesPage() {
           onDeleted={handleDeleted}
         />
       )}
+
+      <VehicleInfoSection />
     </div>
   );
 }
