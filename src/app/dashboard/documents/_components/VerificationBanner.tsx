@@ -1,49 +1,95 @@
-import { ShieldCheck } from "lucide-react";
+'use client';
 
-import { VerificationItem } from "@/types/dashboard.types";
+import { memo, useMemo } from 'react';
+import { ShieldCheck } from 'lucide-react';
 
-import { DOC_CATALOGUE } from "./docCatalogue";
+import { VerificationItem } from '@/types/dashboard.types';
+
+import { DOC_CATALOGUE } from './docCatalogue';
 
 interface VerificationBannerProps {
   items: VerificationItem[];
 }
 
-export default function VerificationBanner({ items }: VerificationBannerProps) {
-  const total = DOC_CATALOGUE.filter((d) => d.required).length;
-  const verified = items.filter(
-    (i) => i.status === "VERIFIED" && DOC_CATALOGUE.find((d) => d.documentType === i.documentType)
-  ).length;
-  const pct = total > 0 ? Math.round((verified / total) * 100) : 0;
-  const allDone = verified >= total;
+function VerificationBannerComponent({ items }: VerificationBannerProps) {
+  const { percentage, completed, verified, total } = useMemo(() => {
+    const requiredDocs = DOC_CATALOGUE.filter((doc) => doc.required);
+
+    const total = requiredDocs.length;
+
+    const verified = items.filter(
+      (item) =>
+        item.status === 'VERIFIED' &&
+        requiredDocs.some((doc) => doc.documentType === item.documentType),
+    ).length;
+
+    const percentage = total > 0 ? Math.round((verified / total) * 100) : 0;
+
+    return {
+      total,
+      verified,
+      percentage,
+      completed: verified >= total,
+    };
+  }, [items]);
 
   return (
-    <div className={`rounded-2xl p-5 ${allDone ? "bg-green-50 border border-green-200" : "border border-[var(--border)] bg-white"}`}>
-      <div className="flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${allDone ? "bg-green-100" : "bg-[var(--primary-light)]"}`}>
-          <ShieldCheck size={20} className={allDone ? "text-green-600" : "text-[var(--primary)]"} />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-[var(--heading)]">
-            {allDone ? "Fully Verified!" : "Complete Your Verification"}
-          </h3>
-          <p className="text-xs text-[var(--text-light)]">
-            {allDone
-              ? "All required documents verified. Passengers trust you more now."
-              : `${verified} of ${total} required documents verified`}
-          </p>
-        </div>
-        {!allDone && (
-          <span className="text-lg font-bold text-[var(--primary)]">{pct}%</span>
-        )}
-      </div>
-      {!allDone && (
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
-          <div
-            className="h-full rounded-full bg-[var(--primary)] transition-all duration-500"
-            style={{ width: `${pct}%` }}
+    <section
+      className={`rounded-3xl border p-5 lg:p-6 ${
+        completed
+          ? 'border-green-200 bg-green-50'
+          : 'border-[var(--border)] bg-white'
+      }`}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+            completed ? 'bg-green-100' : 'bg-[var(--primary-light)]'
+          }`}
+        >
+          <ShieldCheck
+            size={22}
+            className={completed ? 'text-green-600' : 'text-[var(--primary)]'}
           />
         </div>
-      )}
-    </div>
+
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold text-[var(--heading)]">
+                {completed
+                  ? 'Verification Complete'
+                  : 'Complete Your Verification'}
+              </h2>
+
+              <p className="mt-1 text-sm text-[var(--text-light)]">
+                {completed
+                  ? 'All required documents have been verified.'
+                  : `${verified} of ${total} required documents verified.`}
+              </p>
+            </div>
+
+            <span className="text-lg font-bold text-[var(--primary)]">
+              {percentage}%
+            </span>
+          </div>
+
+          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-gray-100">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                completed ? 'bg-green-500' : 'bg-[var(--primary)]'
+              }`}
+              style={{
+                width: `${percentage}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
+
+const VerificationBanner = memo(VerificationBannerComponent);
+
+export default VerificationBanner;

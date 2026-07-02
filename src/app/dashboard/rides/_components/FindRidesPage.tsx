@@ -6,6 +6,8 @@ import { bookingService } from '@/services/booking.service';
 import { rideService } from '@/services/ride.service';
 import { invalidateAsyncCache, useAsyncData } from '@/hooks/useAsyncData';
 
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+
 import RideSearchForm from '../find-ride/RideSearchForm';
 import RideResults from '../find-ride/RideResults';
 import PopularRoutes from '../find-ride/PopularRoutes';
@@ -14,23 +16,27 @@ import HowItWorks from '../find-ride/HowItWorks';
 import { RideSearchSchemaType } from '../schemas/ride-search.schema';
 
 export default function FindRidesPage() {
+  const currentUser = useCurrentUser();
+
   const [searchParams, setSearchParams] = useState<RideSearchSchemaType | null>(
     null,
   );
 
-  const [bookingLoadingRideId, setBookingLoadingRideId] = useState<
-    number | null
-  >(null);
-
   const [selectedRoute, setSelectedRoute] = useState<
     Partial<RideSearchSchemaType>
   >({});
+
+  const [bookingLoadingRideId, setBookingLoadingRideId] = useState<
+    number | null
+  >(null);
 
   const [bookedRideIds, setBookedRideIds] = useState<Set<number>>(new Set());
 
   const [successMessage, setSuccessMessage] = useState('');
 
   const [error, setError] = useState('');
+
+  /* ---------------- Search ---------------- */
 
   const rides$ = useAsyncData(
     async () => {
@@ -40,18 +46,12 @@ export default function FindRidesPage() {
 
       const response = await rideService.searchRides({
         sourceCity: searchParams.sourceCity.trim(),
-
         destinationCity: searchParams.destinationCity.trim(),
-
         departureDate: searchParams.departureDate || undefined,
-
         requiredSeats: searchParams.requiredSeats,
       });
 
-      console.log('SEARCH RESPONSE', response);
-      console.log('SEARCH CONTENT', response.content);
-
-      return response.content;
+      return response.content ?? [];
     },
     [searchParams],
     {
@@ -61,15 +61,18 @@ export default function FindRidesPage() {
     },
   );
 
+  /* ---------------- Search Handler ---------------- */
+
   const handleSearch = useCallback((values: RideSearchSchemaType) => {
     setError('');
+    setSuccessMessage('');
     setSearchParams(values);
   }, []);
 
+  /* ---------------- Popular Route ---------------- */
+
   const handlePopularRoute = useCallback(
     (source: string, destination: string) => {
-      console.log('selected', source, destination);
-
       setSelectedRoute({
         sourceCity: source,
         destinationCity: destination,
@@ -78,33 +81,77 @@ export default function FindRidesPage() {
     [],
   );
 
-  const handleBookRide = useCallback(async (rideId: number) => {
-    try {
-      setBookingLoadingRideId(rideId);
+  /* ---------------- Booking ---------------- */
 
-      await bookingService.createBooking({
-        rideId,
-        seatsBooked: 1,
-      });
+  const handleBookRide = useCallback(
+    async (rideId: number) => {
+      setError('');
+      setSuccessMessage('');
 
-      setBookedRideIds((prev) => new Set([...prev, rideId]));
+      if (!currentUser?.email) {
+        setError('Please login to continue booking.');
+        return;
+      }
 
-      setSuccessMessage(
-        'Booking request sent successfully. Waiting for driver approval.',
-      );
+      try {
+        setBookingLoadingRideId(rideId);
 
-      invalidateAsyncCache('my-bookings');
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setBookingLoadingRideId(null);
-    }
-  }, []);
+        await bookingService.createBooking({
+          rideId,
+          seatsBooked: 1,
+          passengerEmail: currentUser.email,
+        });
+
+        setBookedRideIds((prev) => {
+          const next = new Set(prev);
+
+          next.add(rideId);
+
+          return next;
+        });
+
+        setSuccessMessage(
+          'Booking request submitted successfully. Waiting for driver approval.',
+        );
+
+        invalidateAsyncCache('my-bookings');
+        invalidateAsyncCache('upcoming-bookings');
+      } catch (err) {
+        const error = err as
+          | { response?: { data?: { message?: string } }; message?: string }
+          | Error;
+        setError(
+          (error && 'response' in error && error.response?.data?.message) ||
+            (error instanceof Error ? error.message : undefined) ||
+            'Unable to create booking. Please try again.',
+        );
+      } finally {
+        setBookingLoadingRideId(null);
+      }
+    },
+    [currentUser],
+  );
+
+  /* ---------------- State ---------------- */
 
   const hasSearched = useMemo(() => searchParams !== null, [searchParams]);
 
+  /* ---------------- UI ---------------- */
+
   return (
     <div className="space-y-6">
+      {/* Page Header */}
+
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--heading)]">Find Rides</h1>
+
+        <p className="mt-1 text-sm text-[var(--text)]">
+          Discover affordable and verified rides shared by trusted drivers.
+        </p>
+      </div>
+
+      {/* Search Form */}
+
       <RideSearchForm
         key={`${selectedRoute.sourceCity ?? ''}-${selectedRoute.destinationCity ?? ''}`}
         initialValues={selectedRoute}
@@ -112,19 +159,32 @@ export default function FindRidesPage() {
         onSearch={handleSearch}
       />
 
+      {/* Initial Sections */}
+
       {!hasSearched && (
         <>
           <PopularRoutes onSelectRoute={handlePopularRoute} />
-
           <HowItWorks />
         </>
       )}
+
+      {/* Success */}
+
+      {successMessage && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+          {successMessage}
+        </div>
+      )}
+
+      {/* Error */}
 
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error}
         </div>
       )}
+
+      {/* Results */}
 
       <RideResults
         rides={rides$.data ?? []}

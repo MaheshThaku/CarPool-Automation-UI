@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+import { Car, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Props {
   total: number;
@@ -17,39 +18,67 @@ function MyRideStatsComponent({
 }: Props) {
   const stats = [
     {
-      label: 'Total',
+      label: 'Total Rides',
       value: total,
-      color: 'text-[var(--heading)]',
+      icon: Car,
+      iconColor: 'text-[var(--primary)]',
+      bg: 'bg-[var(--primary-light)]',
     },
     {
-      label: 'Scheduled',
+      label: 'Upcoming',
       value: scheduled,
-      color: 'text-blue-600',
+      icon: CalendarDays,
+      iconColor: 'text-blue-600',
+      bg: 'bg-blue-50',
     },
     {
       label: 'Completed',
       value: completed,
-      color: 'text-green-600',
+      icon: CheckCircle2,
+      iconColor: 'text-green-600',
+      bg: 'bg-green-50',
     },
     {
       label: 'Cancelled',
       value: cancelled,
-      color: 'text-red-600',
+      icon: XCircle,
+      iconColor: 'text-red-600',
+      bg: 'bg-red-50',
     },
   ];
 
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white p-5">
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {stats.map((item) => (
-          <div key={item.label}>
-            <p className="text-xs text-[var(--text-light)]">{item.label}</p>
+    <section
+      aria-label="Ride statistics"
+      className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white"
+    >
+      <div className="grid grid-cols-2 divide-x divide-y divide-[var(--border)] sm:grid-cols-4 sm:divide-y-0">
+        {stats.map((item) => {
+          const Icon = item.icon;
 
-            <h3 className={`mt-1 text-2xl font-bold ${item.color}`}>
-              {item.value}
-            </h3>
-          </div>
-        ))}
+          return (
+            <div
+              key={item.label}
+              className="flex items-center gap-3 p-4 lg:p-5"
+            >
+              <div
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.bg}`}
+              >
+                <Icon size={22} className={item.iconColor} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-xs font-medium tracking-wide text-[var(--text-light)] uppercase">
+                  {item.label}
+                </p>
+
+                <p className="mt-1 text-2xl font-bold text-[var(--heading)]">
+                  {item.value}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

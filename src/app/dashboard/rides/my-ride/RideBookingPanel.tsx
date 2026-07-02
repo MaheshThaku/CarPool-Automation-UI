@@ -37,7 +37,7 @@ export default function RideBookingsPanel({ rideId }: Props) {
     }
   }, [bookings$.data]);
 
-  /* ---------------- Sorted Bookings ---------------- */
+  /* ---------------- Sort Pending First ---------------- */
 
   const sortedBookings = useMemo(() => {
     return [...bookings].sort((a, b) => {
@@ -53,25 +53,6 @@ export default function RideBookingsPanel({ rideId }: Props) {
     });
   }, [bookings]);
 
-  /* ---------------- Stats ---------------- */
-
-  const stats = useMemo(
-    () => ({
-      total: bookings.length,
-
-      pending: bookings.filter((b) => b.status === 'PENDING').length,
-
-      approved: bookings.filter((b) => b.status === 'APPROVED').length,
-
-      rejected: bookings.filter((b) => b.status === 'REJECTED').length,
-
-      cancelled: bookings.filter((b) => b.status === 'CANCELLED').length,
-
-      completed: bookings.filter((b) => b.status === 'COMPLETED').length,
-    }),
-    [bookings],
-  );
-
   /* ---------------- Approve ---------------- */
 
   const handleApprove = async (bookingId: number) => {
@@ -81,13 +62,13 @@ export default function RideBookingsPanel({ rideId }: Props) {
       await bookingService.approveBooking(bookingId);
 
       setBookings((prev) =>
-        prev.map((b) =>
-          b.bookingId === bookingId
+        prev.map((booking) =>
+          booking.bookingId === bookingId
             ? {
-                ...b,
+                ...booking,
                 status: 'APPROVED',
               }
-            : b,
+            : booking,
         ),
       );
 
@@ -106,13 +87,13 @@ export default function RideBookingsPanel({ rideId }: Props) {
       await bookingService.rejectBooking(bookingId);
 
       setBookings((prev) =>
-        prev.map((b) =>
-          b.bookingId === bookingId
+        prev.map((booking) =>
+          booking.bookingId === bookingId
             ? {
-                ...b,
+                ...booking,
                 status: 'REJECTED',
               }
-            : b,
+            : booking,
         ),
       );
 
@@ -140,11 +121,11 @@ export default function RideBookingsPanel({ rideId }: Props) {
 
   if (bookings$.loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         {[1, 2].map((item) => (
           <div
             key={item}
-            className="h-44 animate-pulse rounded-2xl border border-[var(--border)] bg-white"
+            className="h-24 animate-pulse rounded-2xl border border-[var(--border)] bg-white"
           />
         ))}
       </div>
@@ -157,6 +138,7 @@ export default function RideBookingsPanel({ rideId }: Props) {
     return (
       <div className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
         <AlertCircle size={16} />
+
         {bookings$.error}
       </div>
     );
@@ -180,39 +162,26 @@ export default function RideBookingsPanel({ rideId }: Props) {
     );
   }
 
+  /* ---------------- UI ---------------- */
+
   return (
-    <div className="space-y-5">
-      {/* Stats */}
+    <div className="space-y-4">
+      {/* Header */}
 
-      <div className="grid grid-cols-3 gap-3 lg:grid-cols-6">
-        <StatCard label="Total" value={stats.total} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h4 className="font-semibold text-[var(--heading)]">
+          Booking Requests
+        </h4>
 
-        <StatCard
-          label="Pending"
-          value={stats.pending}
-          valueClass="text-amber-600"
-        />
-
-        <StatCard
-          label="Approved"
-          value={stats.approved}
-          valueClass="text-green-600"
-        />
-
-        <StatCard
-          label="Rejected"
-          value={stats.rejected}
-          valueClass="text-red-600"
-        />
-
-        <StatCard label="Cancelled" value={stats.cancelled} />
-
-        <StatCard label="Completed" value={stats.completed} />
+        <span className="rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-medium text-[var(--primary)]">
+          {bookings.length} Request
+          {bookings.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
-      {/* Cards */}
+      {/* Requests */}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {sortedBookings.map((booking) => (
           <BookingInfoCard
             key={booking.bookingId}
@@ -224,30 +193,6 @@ export default function RideBookingsPanel({ rideId }: Props) {
           />
         ))}
       </div>
-    </div>
-  );
-}
-
-/* ---------------- Stat Card ---------------- */
-
-interface StatCardProps {
-  label: string;
-  value: number;
-  valueClass?: string;
-}
-
-function StatCard({ label, value, valueClass }: StatCardProps) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-white p-3 text-center">
-      <p className="text-xs text-[var(--text-light)]">{label}</p>
-
-      <p
-        className={`mt-1 text-lg font-bold ${
-          valueClass ?? 'text-[var(--heading)]'
-        }`}
-      >
-        {value}
-      </p>
     </div>
   );
 }
