@@ -1,11 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Car, Palette, Hash, Calendar, X } from "lucide-react";
+import { useState } from 'react';
+import { Car, Palette, Hash, Calendar, X } from 'lucide-react';
 
-import { vehicleService } from "@/services/vehicle.service";
-import { ApiError } from "@/types/auth.types";
-import { VEHICLE_TYPES, VehicleRequest, VehicleResponse } from "@/types/vehicle.types";
+import { vehicleService } from '@/services/vehicle.service';
+import { ApiError } from '@/types/auth.types';
+import {
+  VEHICLE_TYPES,
+  VehicleRequest,
+  VehicleResponse,
+} from '@/types/vehicle.types';
 
 interface VehicleFormState {
   model: string;
@@ -22,7 +26,13 @@ const VEHICLE_REG_NO_REGEX =
 
 function formFromVehicle(v: VehicleResponse | null): VehicleFormState {
   if (!v) {
-    return { model: "", registrationNumber: "", color: "", vehicleType: "SEDAN", yearOfManufacture: "" };
+    return {
+      model: '',
+      registrationNumber: '',
+      color: '',
+      vehicleType: 'SEDAN',
+      yearOfManufacture: '',
+    };
   }
   return {
     model: v.model,
@@ -41,11 +51,15 @@ interface VehicleFormModalProps {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-[var(--border)] bg-white py-2.5 pl-9 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20";
+  'w-full rounded-xl border border-[var(--border)] bg-white py-2.5 pl-9 pr-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20';
 
-export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleFormModalProps) {
+export default function VehicleFormModal({
+  vehicle,
+  onClose,
+  onSaved,
+}: VehicleFormModalProps) {
   const [form, setForm] = useState<VehicleFormState>(formFromVehicle(vehicle));
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const isEdit = vehicle !== null;
@@ -60,15 +74,23 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
     const registrationNumber = form.registrationNumber.trim().toUpperCase();
 
     if (!form.model.trim() || !registrationNumber || !form.color.trim()) {
-      setError("Model, registration number, and color are required.");
+      setError('Model, registration number, and color are required.');
       return;
     }
-    if (!Number.isInteger(year) || year < MIN_VEHICLE_YEAR || year > currentYear) {
-      setError(`Please enter a valid year between ${MIN_VEHICLE_YEAR} and ${currentYear}.`);
+    if (
+      !Number.isInteger(year) ||
+      year < MIN_VEHICLE_YEAR ||
+      year > currentYear
+    ) {
+      setError(
+        `Please enter a valid year between ${MIN_VEHICLE_YEAR} and ${currentYear}.`,
+      );
       return;
     }
     if (!VEHICLE_REG_NO_REGEX.test(registrationNumber)) {
-      setError("Enter a valid registration number, e.g. DL 01 AB 1234 or 22 BH 1234 AB.");
+      setError(
+        'Enter a valid registration number, e.g. DL 01 AB 1234 or 22 BH 1234 AB.',
+      );
       return;
     }
 
@@ -81,14 +103,18 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
     };
 
     setSaving(true);
-    setError("");
+    setError('');
     try {
       const result = isEdit
         ? await vehicleService.updateVehicle(vehicle!.id, payload)
         : await vehicleService.addVehicle(payload);
       onSaved(result);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save vehicle. Please try again.");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'Failed to save vehicle. Please try again.',
+      );
     } finally {
       setSaving(false);
     }
@@ -99,7 +125,7 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-[var(--heading)]">
-            {isEdit ? "Edit Vehicle" : "Add Vehicle"}
+            {isEdit ? 'Edit Vehicle' : 'Add Vehicle'}
           </h2>
           <button
             onClick={onClose}
@@ -110,19 +136,23 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</div>
+          <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-[var(--text-light)]">Vehicle Model</label>
+            <label className="text-xs font-medium text-[var(--text-light)]">
+              Vehicle Model
+            </label>
             <div className="relative">
-              <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+              <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
                 <Car size={15} className="text-[var(--text-light)]" />
               </div>
               <input
                 value={form.model}
-                onChange={(e) => handleChange("model", e.target.value)}
+                onChange={(e) => handleChange('model', e.target.value)}
                 placeholder="e.g. Maruti Swift"
                 className={inputCls}
               />
@@ -130,14 +160,21 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-[var(--text-light)]">Registration Number</label>
+            <label className="text-xs font-medium text-[var(--text-light)]">
+              Registration Number
+            </label>
             <div className="relative">
-              <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+              <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
                 <Hash size={15} className="text-[var(--text-light)]" />
               </div>
               <input
                 value={form.registrationNumber}
-                onChange={(e) => handleChange("registrationNumber", e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  handleChange(
+                    'registrationNumber',
+                    e.target.value.toUpperCase(),
+                  )
+                }
                 placeholder="e.g. DL 01 AB 1234"
                 className={inputCls}
               />
@@ -146,14 +183,16 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[var(--text-light)]">Color</label>
+              <label className="text-xs font-medium text-[var(--text-light)]">
+                Color
+              </label>
               <div className="relative">
-                <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+                <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
                   <Palette size={15} className="text-[var(--text-light)]" />
                 </div>
                 <input
                   value={form.color}
-                  onChange={(e) => handleChange("color", e.target.value)}
+                  onChange={(e) => handleChange('color', e.target.value)}
                   placeholder="e.g. White"
                   className={inputCls}
                 />
@@ -161,9 +200,11 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[var(--text-light)]">Year</label>
+              <label className="text-xs font-medium text-[var(--text-light)]">
+                Year
+              </label>
               <div className="relative">
-                <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+                <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
                   <Calendar size={15} className="text-[var(--text-light)]" />
                 </div>
                 <input
@@ -171,7 +212,9 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
                   min={MIN_VEHICLE_YEAR}
                   max={currentYear}
                   value={form.yearOfManufacture}
-                  onChange={(e) => handleChange("yearOfManufacture", e.target.value)}
+                  onChange={(e) =>
+                    handleChange('yearOfManufacture', e.target.value)
+                  }
                   placeholder={`e.g. ${currentYear}`}
                   className={inputCls}
                 />
@@ -180,11 +223,13 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-[var(--text-light)]">Vehicle Type</label>
+            <label className="text-xs font-medium text-[var(--text-light)]">
+              Vehicle Type
+            </label>
             <select
               value={form.vehicleType}
-              onChange={(e) => handleChange("vehicleType", e.target.value)}
-              className="w-full rounded-xl border border-[var(--border)] bg-white py-2.5 px-3 text-sm text-[var(--heading)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+              onChange={(e) => handleChange('vehicleType', e.target.value)}
+              className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-[var(--heading)] transition-all outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
             >
               {VEHICLE_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -208,7 +253,7 @@ export default function VehicleFormModal({ vehicle, onClose, onSaved }: VehicleF
               disabled={saving}
               className="flex-1 rounded-xl bg-[var(--primary)] py-2.5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
             >
-              {saving ? "Saving…" : isEdit ? "Save Changes" : "Add Vehicle"}
+              {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Add Vehicle'}
             </button>
           </div>
         </form>

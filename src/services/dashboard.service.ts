@@ -45,6 +45,7 @@ getUpcomingRides(): Promise<UpcomingRide[]> {
     return safeGet<VehicleInfo | null>("/v1/vehicles", null);
   }
 
+
   /** GET /v1/rider/profile/completion */
   getProfileCompletion(): Promise<ProfileCompletion | null> {
     return safeGet<ProfileCompletion | null>("/v1/rider/profile/completion", null);
@@ -85,28 +86,66 @@ getUpcomingRides(): Promise<UpcomingRide[]> {
   /* ── Passenger ────────────────────────────────────── */
 
   /** GET /v1/passenger/dashboard/stats */
-  getPassengerStats(): Promise<PassengerStats | null> {
-    return safeGet<PassengerStats | null>("/v1/passenger/dashboard/stats", null);
-  }
+//   getPassengerStats(): Promise<PassengerStats | null> {
+//     return safeGet<PassengerStats | null>("/v1/passenger/dashboard/stats", null);
+//   }
 
-  /** GET /v1/passenger/booking/upcoming */
-getUpcomingTrips(): Promise<UpcomingTrip[]> {
-  return safeGet<UpcomingTrip[]>("/v1/passenger/booking/upcoming", []);
+//   /** GET /v1/passenger/booking/upcoming */
+// getUpcomingTrips(): Promise<UpcomingTrip[]> {
+//   return safeGet<UpcomingTrip[]>("/v1/passenger/booking/upcoming", []);
+// }
+//   /** GET /v1/passenger/booking/recent */
+//   getRecentBookings(): Promise<RecentBooking[]> {
+//     return safeGet<RecentBooking[]>("/v1/passenger/booking/recent", []);
+//   }
+
+//   /** GET /v1/passenger/profile/verification */
+//   getProfileVerification(): Promise<ProfileVerification | null> {
+//     return safeGet<ProfileVerification | null>("/v1/passenger/profile/verification", null);
+//   }
+
+//   /** GET /v1/passenger/booking/all */
+//   getAllBookings(): Promise<BookingListItem[]> {
+//     return safeGet<BookingListItem[]>("/v1/passenger/booking/all", []);
+//   }
+// }
+
+/* ───────────────── Passenger ───────────────── */
+
+getPassengerStats(): Promise<PassengerStats | null> {
+  return safeGet(
+    '/v1/passenger/dashboard/stats',
+    null,
+  );
 }
-  /** GET /v1/passenger/booking/recent */
-  getRecentBookings(): Promise<RecentBooking[]> {
-    return safeGet<RecentBooking[]>("/v1/passenger/booking/recent", []);
-  }
 
-  /** GET /v1/passenger/profile/verification */
-  getProfileVerification(): Promise<ProfileVerification | null> {
-    return safeGet<ProfileVerification | null>("/v1/passenger/profile/verification", null);
-  }
+getUpcomingTrips(): Promise<UpcomingTrip[]> {
+  return safeGet(
+    '/v1/passenger/booking/upcoming',
+    [],
+  );
+}
 
-  /** GET /v1/passenger/booking/all */
-  getAllBookings(): Promise<BookingListItem[]> {
-    return safeGet<BookingListItem[]>("/v1/passenger/booking/all", []);
-  }
+getRecentBookings(): Promise<RecentBooking[]> {
+  return safeGet(
+    '/v1/passenger/booking/recent',
+    [],
+  );
+}
+
+getProfileVerification(): Promise<ProfileVerification | null> {
+  return safeGet(
+    '/v1/passenger/profile/verification',
+    null,
+  );
+}
+
+getAllBookings(): Promise<BookingListItem[]> {
+  return safeGet(
+    '/v1/passenger/booking/all',
+    [],
+  );
+}
 }
 
 export const dashboardService = new DashboardService();
