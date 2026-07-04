@@ -29,18 +29,23 @@ export interface BackendTokens {
   refreshToken?: string;
 }
 
-/** Decode the `exp` (Unix seconds) claim from a JWT, server-side only. */
-export function decodeJwtExp(token: string): number | null {
+/** Decode the JWT claims, server-side only. */
+export function decodeJwt(token: string): any {
   try {
     const segment = token.split(".")[1];
     if (!segment) return null;
     const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
     const json = Buffer.from(normalized, "base64").toString("utf8");
-    const claims = JSON.parse(json) as { exp?: unknown };
-    return typeof claims.exp === "number" ? claims.exp : null;
+    return JSON.parse(json);
   } catch {
     return null;
   }
+}
+
+/** Decode the `exp` (Unix seconds) claim from a JWT, server-side only. */
+export function decodeJwtExp(token: string): number | null {
+  const claims = decodeJwt(token);
+  return typeof claims?.exp === "number" ? claims.exp : null;
 }
 
 /** Extract the JWT from a backend response that may be a plain string or an object. */

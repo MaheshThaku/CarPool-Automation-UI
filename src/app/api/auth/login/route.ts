@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAxiosError } from "axios";
 
 import { serverApi } from "@/lib/axios";
-import { extractTokens, setAuthCookies } from "@/lib/authCookies.server";
+import { extractTokens, setAuthCookies, decodeJwt } from "@/lib/authCookies.server";
 
 interface LoginBody {
   email?: string;
@@ -50,12 +50,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   // The backend usually returns a plain token, so user info is fetched
-  // afterwards via GET /api/proxy/v1/users/me. If an object was returned,
-  // pass any embedded user straight through.
+  // afterwards via GET /api/proxy/v1/[passenger|rider]/profile.
+  // Extract user role from token to help the frontend decide which endpoint to call.
+  const claims = decodeJwt(tokens.token);
+  const roles: string[] = Array.isArray(claims?.roles)
+    ? claims.roles
+    : typeof claims?.role === "string"
+      ? [claims.role]
+      : [];
+
   const user =
     raw && typeof raw === "object"
-      ? (raw as { user?: unknown }).user ?? null
-      : null;
+      ? (raw as { user?: any }).user ?? {}
+      : {};
+
+  // Ensure role is present in the response user object
+  if (!user.role && roles.length > 0) {
+    user.role = roles[0];
+  }
 
   const res = NextResponse.json({ user });
   setAuthCookies(res, tokens);

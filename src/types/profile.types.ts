@@ -22,7 +22,7 @@ export interface ProfileData {
 
 /**
  * Matches the backend's UpdateUserProfileRequest exactly.
- * Note: contactNumber and gender are NOT accepted by PUT /v1/users/profile —
+ * Note: contactNumber and gender are NOT accepted by PUT /[passenger|rider]/profile —
  * they're set at registration and shown read-only in the UI.
  */
 export interface UpdateProfileRequest {
