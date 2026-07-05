@@ -25,13 +25,17 @@ function getUserFromCookie(): {
 
 class ProfileService {
   /**
-   * GET /v1/users/me
+   * GET /v1/passenger/profile or /v1/rider/profile
    * Falls back to the `user` cookie when the endpoint is unavailable,
    * so the profile page always shows something meaningful.
    */
   async getProfile(): Promise<ProfileData> {
     try {
-      const res = await api.get<ProfileData>("/v1/users/me");
+      const stored = getUserFromCookie() as any;
+      const role = stored?.role;
+      const endpoint = role === "ROLE_RIDER" ? "/v1/rider/profile" : "/v1/passenger/profile";
+      
+      const res = await api.get<ProfileData>(endpoint);
       // Map profilePictureUrl → avatarUrl; default missing verification flags to false
       return {
         ...res.data,
@@ -64,10 +68,13 @@ class ProfileService {
   }
 
   /**
-   * PUT /v1/users/profile
+   * PUT /v1/passenger/profile or /v1/rider/profile
    */
   async updateProfile(payload: UpdateProfileRequest): Promise<ProfileData> {
-    const res = await api.put<ProfileData>("/v1/users/profile", payload);
+    const stored = getUserFromCookie() as any;
+    const role = stored?.role;
+    const endpoint = role === "ROLE_RIDER" ? "/v1/rider/profile" : "/v1/passenger/profile";
+    const res = await api.put<ProfileData>(endpoint, payload);
     return res.data;
   }
 

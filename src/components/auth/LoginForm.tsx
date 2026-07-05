@@ -59,7 +59,6 @@ export default function LoginForm() {
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
-    defaultValues: { role: 'ROLE_PASSENGER' },
   });
 
   const router = useRouter();
@@ -89,10 +88,17 @@ export default function LoginForm() {
         return;
       }
 
+      const loginData = await loginRes.json();
+      const role = loginData.user?.role;
+
       // Token is httpOnly now, so fetch the user through the proxy (the proxy
-      // attaches the cookie as the Bearer token).
-      const meRes = await api.get("/v1/users/me");
-      const user = normalizeUser(meRes.data, data.email.trim());
+      // attaches the cookie as the Bearer token). Use the role-specific endpoint.
+      const profilePath = role === 'ROLE_RIDER' 
+        ? "/v1/rider/profile" 
+        : "/v1/passenger/profile";
+        
+      const profileRes = await api.get(profilePath);
+      const user = normalizeUser(profileRes.data, data.email.trim());
 
       // Persist only the safe user fields in a non-httpOnly cookie.
       setCookie("user", JSON.stringify(user));
