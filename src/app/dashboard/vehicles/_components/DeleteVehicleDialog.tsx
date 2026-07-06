@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
-import { vehicleService } from "@/services/vehicle.service";
-import { ApiError } from "@/types/auth.types";
-import { VehicleResponse } from "@/types/vehicle.types";
+import { vehicleService } from '@/services/vehicle.service';
+import { ApiError } from '@/types/auth.types';
+import { VehicleResponse } from '@/types/vehicle.types';
 
 interface DeleteVehicleDialogProps {
   vehicle: VehicleResponse;
@@ -13,18 +13,26 @@ interface DeleteVehicleDialogProps {
   onDeleted: (id: number) => void;
 }
 
-export default function DeleteVehicleDialog({ vehicle, onClose, onDeleted }: DeleteVehicleDialogProps) {
-  const [error, setError] = useState("");
+export default function DeleteVehicleDialog({
+  vehicle,
+  onClose,
+  onDeleted,
+}: DeleteVehicleDialogProps) {
+  const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
     setDeleting(true);
-    setError("");
+    setError('');
     try {
       await vehicleService.deleteVehicle(vehicle.id);
       onDeleted(vehicle.id);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete vehicle. Please try again.");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'Failed to delete vehicle. Please try again.',
+      );
       setDeleting(false);
     }
   };
@@ -35,15 +43,21 @@ export default function DeleteVehicleDialog({ vehicle, onClose, onDeleted }: Del
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
           <AlertTriangle size={22} className="text-red-500" />
         </div>
-        <h2 className="mt-4 text-lg font-bold text-[var(--heading)]">Remove this vehicle?</h2>
+        <h2 className="mt-4 text-lg font-bold text-[var(--heading)]">
+          Remove this vehicle?
+        </h2>
         <p className="mt-1.5 text-sm text-[var(--text-light)]">
           <span className="font-medium text-[var(--heading)]">
             {vehicle.model} — {vehicle.registrationNumber}
-          </span>{" "}
+          </span>{' '}
           will be removed from your account. This can&apos;t be undone.
         </p>
 
-        {error && <div className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+        {error && (
+          <div className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
 
         <div className="mt-5 flex items-center gap-3">
           <button
@@ -58,7 +72,7 @@ export default function DeleteVehicleDialog({ vehicle, onClose, onDeleted }: Del
             disabled={deleting}
             className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
           >
-            {deleting ? "Removing…" : "Remove"}
+            {deleting ? 'Removing…' : 'Remove'}
           </button>
         </div>
       </div>

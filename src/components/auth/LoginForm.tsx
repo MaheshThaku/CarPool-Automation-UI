@@ -6,15 +6,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Globe, Lock, Mail } from 'lucide-react';
 
 import Button from '@/components/ui/Button';
-import  Input  from '@/components/ui/Input';
+import Input from '@/components/ui/Input';
 
 import { loginSchema, LoginSchemaType } from '@/schemas/login.schema';
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { api } from "@/lib/axios";
-import { setCookie, deleteCookie } from "@/lib/cookies";
+import { api } from '@/lib/axios';
+import { setCookie, deleteCookie } from '@/lib/cookies';
 
 const SOCIAL_BUTTON_CLASS =
   'flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]';
@@ -33,19 +33,19 @@ function normalizeUser(data: unknown, email: string): StoredUser {
   const obj = (data ?? {}) as Record<string, unknown>;
 
   const role =
-    (Array.isArray(obj.roles) ? String(obj.roles[0]) : "") ||
+    (Array.isArray(obj.roles) ? String(obj.roles[0]) : '') ||
     (Array.isArray(obj.authorities)
       ? String(
           (obj.authorities as Array<{ authority?: string }>)[0]?.authority ??
-            obj.authorities[0]
+            obj.authorities[0],
         )
-      : "") ||
-    String(obj.role ?? "ROLE_PASSENGER");
+      : '') ||
+    String(obj.role ?? 'ROLE_PASSENGER');
 
   return {
-    id: String(obj.id ?? obj.userId ?? ""),
-    firstName: String(obj.firstName ?? ""),
-    lastName: String(obj.lastName ?? ""),
+    id: String(obj.id ?? obj.userId ?? ''),
+    firstName: String(obj.firstName ?? ''),
+    lastName: String(obj.lastName ?? ''),
     email: String(obj.email ?? email),
     role,
   };
@@ -69,13 +69,13 @@ export default function LoginForm() {
       setErrorMessage('');
 
       // Clear any stale client-readable cookies before logging in.
-      deleteCookie("user");
-      deleteCookie("tokenExpiry");
+      deleteCookie('user');
+      deleteCookie('tokenExpiry');
 
       // The login API route sets the httpOnly accessToken cookie for us.
-      const loginRes = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: data.email.trim(),
           password: data.password,
@@ -84,7 +84,7 @@ export default function LoginForm() {
 
       if (!loginRes.ok) {
         const body = await loginRes.json().catch(() => null);
-        setErrorMessage(body?.message ?? "Login failed. Please try again.");
+        setErrorMessage(body?.message ?? 'Login failed. Please try again.');
         return;
       }
 
@@ -93,19 +93,18 @@ export default function LoginForm() {
 
       // Token is httpOnly now, so fetch the user through the proxy (the proxy
       // attaches the cookie as the Bearer token). Use the role-specific endpoint.
-      const profilePath = role === 'ROLE_RIDER' 
-        ? "/v1/rider/profile" 
-        : "/v1/passenger/profile";
-        
+      const profilePath =
+        role === 'ROLE_RIDER' ? '/v1/rider/profile' : '/v1/passenger/profile';
+
       const profileRes = await api.get(profilePath);
       const user = normalizeUser(profileRes.data, data.email.trim());
 
       // Persist only the safe user fields in a non-httpOnly cookie.
-      setCookie("user", JSON.stringify(user));
+      setCookie('user', JSON.stringify(user));
 
-      router.push("/dashboard/overview");
+      router.push('/dashboard/overview');
     } catch {
-      setErrorMessage("Login failed. Please try again.");
+      setErrorMessage('Login failed. Please try again.');
     }
   };
 

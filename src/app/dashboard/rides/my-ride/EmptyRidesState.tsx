@@ -21,7 +21,7 @@ export default function EmptyRidesState() {
       {/* Description */}
 
       <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[var(--text-light)]">
-        You haven't published any rides yet. Start offering rides and connect
+        You haven&apos;t published any rides yet. Start offering rides and connect
         with passengers travelling on the same route.
       </p>
 
