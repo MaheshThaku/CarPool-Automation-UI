@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dashboardService } from '@/services/dashboard.service';
+import { vehicleService  } from '@/services/vehicle.service';
 
 export function useRiderDashboard() {
   const stats$ = useAsyncData(
@@ -23,7 +24,7 @@ export function useRiderDashboard() {
   );
 
   const vehicles$ = useAsyncData(
-    dashboardService.getVehicleInfo,
+    vehicleService.getMyVehicles,
     [],
     {
       cacheKey: 'rider-dashboard-vehicles',
@@ -35,6 +36,14 @@ export function useRiderDashboard() {
   [],
   {
     cacheKey: 'rider-dashboard-verification',
+  },
+);
+
+const profileCompletion$ = useAsyncData(
+  () => dashboardService.getProfileCompletion(),
+  [],
+  {
+    cacheKey: 'rider-dashboard-profile-completion',
   },
 );
 
@@ -70,6 +79,7 @@ export function useRiderDashboard() {
 
     vehicle,
     verification: verification$.data ?? [],
+    profileCompletion: profileCompletion$.data ?? [],
 
     refetch,
   };

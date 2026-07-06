@@ -13,19 +13,30 @@ import OfferRideCard from './OfferRideCard';
 import UpcomingRides from './UpcomingRides';
 import VerificationStatus from './VerificationStatus';
 import VehicleInformation from './VehicleInformation';
+import ProfileCompletion from './ProfileCompletion';
 
 interface Props {
   user: CurrentUser;
 }
 
 function RiderDashboardComponent({ user }: Props) {
-  const { stats, upcomingRides, vehicle, verification } = useRiderDashboard();
+  const { stats, upcomingRides, vehicle, verification, profileCompletion } =
+    useRiderDashboard();
+
+  const profileCompletionData = Array.isArray(profileCompletion)
+    ? undefined
+    : profileCompletion;
 
   return (
     <div className="space-y-6">
       {/* Hero */}
 
       <RiderHero greeting={getGreeting()} name={formatDisplayName(user)} />
+
+      <ProfileCompletion
+        percentage={profileCompletionData?.percentage ?? 0}
+        steps={profileCompletionData?.steps ?? []}
+      />
 
       {/* Stats */}
 
@@ -48,11 +59,7 @@ function RiderDashboardComponent({ user }: Props) {
       <div className="grid gap-6 xl:grid-cols-2">
         <VerificationStatus items={verification} />
 
-        <VehicleInformation
-          vehicleName={vehicle?.model}
-          vehicleNumber={vehicle?.registrationNumber}
-          verified={true}
-        />
+        <VehicleInformation vehicles={vehicle || []} />
       </div>
     </div>
   );

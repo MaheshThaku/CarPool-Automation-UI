@@ -40,6 +40,7 @@ export interface VehicleInfo {
   registrationNumber: string;
   color: string;
   vehicleType: string;
+  yearOfManufacture: number;
   imageUrl?: string;
 }
 

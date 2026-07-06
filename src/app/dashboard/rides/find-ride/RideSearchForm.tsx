@@ -38,6 +38,7 @@ export default function RideSearchForm({
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const sourceCity = watch('sourceCity');
 
   const destinationCity = watch('destinationCity');
