@@ -1,51 +1,55 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { ProfileData } from "@/types/profile.types";
-import { getCookie, setCookie } from "@/lib/cookies";
+import { useState, useEffect } from 'react';
+import { ProfileData } from '@/types/profile.types';
+import { getCookie, setCookie } from '@/lib/cookies';
 
-import PersonalInfoSection from "./_components/PersonalInfoSection";
-import AvatarSection from "./_components/AvatarSection";
-import PasswordSection from "./_components/PasswordSection";
-import SectionError from "./_components/SectionError";
-import Skeleton from "./_components/Skeleton";
+import PersonalInfoSection from './_components/PersonalInfoSection';
+import AvatarSection from './_components/AvatarSection';
+import PasswordSection from './_components/PasswordSection';
+import SectionError from './_components/SectionError';
+import Skeleton from './_components/Skeleton';
 
 // add these if missing
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useAsyncData, invalidateAsyncCache } from "@/hooks/useAsyncData";
-import { profileService } from "@/services/profile.service";
-
-
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
+import { profileService } from '@/services/profile.service';
 
 function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ');
 }
 
 function initials(p: ProfileData | null) {
-  if (!p) return "?";
+  if (!p) return '?';
 
   return (
-    ((p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "")).toUpperCase() || "?"
+    ((p.firstName?.[0] ?? '') + (p.lastName?.[0] ?? '')).toUpperCase() || '?'
   );
 }
 
 export default function ProfilePage() {
   const currentUser = useCurrentUser();
-  const isRider = currentUser?.role === "ROLE_RIDER";
+  const isRider = currentUser?.role === 'ROLE_RIDER';
 
-  const profile$ = useAsyncData(() => profileService.getProfile(), [], { cacheKey: "current-profile" });
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const profile$ = useAsyncData(() => profileService.getProfile(), [], {
+    cacheKey: 'current-profile',
+  });
+  const [profileUpdates, setProfileUpdates] =
+    useState<Partial<ProfileData> | null>(null);
+  const profile = profile$.data
+    ? { ...profile$.data, ...profileUpdates }
+    : null;
 
   // Keep the lightweight `user` cookie's avatarUrl in sync with the real
   // profile photo, so the header avatar can render it without an extra
   // network call on every page.
   const syncAvatarCookie = (url: string | undefined) => {
     try {
-      const stored = getCookie("user");
+      const stored = getCookie('user');
       if (stored) {
         const u = JSON.parse(stored);
         u.avatarUrl = url;
-        setCookie("user", JSON.stringify(u));
+        setCookie('user', JSON.stringify(u));
       }
     } catch {
       /* ignore */
@@ -53,11 +57,10 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    if (profile$.data) {
-      setProfile(profile$.data);
-      syncAvatarCookie(profile$.data.avatarUrl);
+    if (profile) {
+      syncAvatarCookie(profile.avatarUrl);
     }
-  }, [profile$.data]);
+  }, [profile?.avatarUrl]);
 
   return (
     <div className="space-y-6">
@@ -94,9 +97,9 @@ export default function ProfilePage() {
               <AvatarSection
                 profile={profile}
                 onAvatarChange={(url) => {
-                  setProfile((p) => (p ? { ...p, avatarUrl: url } : p));
+                  setProfileUpdates((p) => (p ? { ...p, avatarUrl: url } : p));
                   syncAvatarCookie(url);
-                  invalidateAsyncCache("current-profile");
+                  invalidateAsyncCache('current-profile');
                 }}
               />
               <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-4">
@@ -108,8 +111,10 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[var(--text-light)]">Member since</span>
-                  <span className="text-[var(--heading)] text-xs font-medium">
-                    {profile.memberSince ? new Date(profile.memberSince).getFullYear() : "—"}
+                  <span className="text-xs font-medium text-[var(--heading)]">
+                    {profile.memberSince
+                      ? new Date(profile.memberSince).getFullYear()
+                      : '—'}
                   </span>
                 </div>
               </div>
@@ -121,16 +126,16 @@ export default function ProfilePage() {
             <PersonalInfoSection
               profile={profile}
               onSaved={(updated) => {
-                setProfile(updated);
-                invalidateAsyncCache("current-profile");
+                setProfileUpdates((p) => (p ? { ...p, ...updated } : updated));
+                invalidateAsyncCache('current-profile');
                 // also sync the cached user-cookie name
                 try {
-                  const stored = getCookie("user");
+                  const stored = getCookie('user');
                   if (stored) {
                     const u = JSON.parse(stored);
                     u.firstName = updated.firstName;
                     u.lastName = updated.lastName;
-                    setCookie("user", JSON.stringify(u));
+                    setCookie('user', JSON.stringify(u));
                   }
                 } catch {
                   /* ignore */
