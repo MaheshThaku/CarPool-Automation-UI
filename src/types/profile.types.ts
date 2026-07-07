@@ -8,7 +8,7 @@ export interface ProfileData {
   email: string;
 
   avatarUrl?: string;
-  profilePictureUrl?: string; // ✅ ADD THIS
+  // profilePictureUrl?: string; // ✅ ADD THIS
    bio?: string;
   emailVerified: boolean;
   contactVerified: boolean;
