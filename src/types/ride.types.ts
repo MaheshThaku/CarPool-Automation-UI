@@ -24,6 +24,16 @@ export interface RideResponse {
   vehicleLicensePlate: string;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+}
+
 /* ===========================
    RIDE SEARCH
 =========================== */
