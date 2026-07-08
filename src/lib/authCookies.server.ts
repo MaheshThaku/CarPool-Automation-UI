@@ -43,10 +43,15 @@ export function decodeJwt(token: string): any {
   }
 }
 
-/** Decode the `exp` (Unix seconds) claim from a JWT, server-side only. */
+/** Decode the exp (Unix seconds) claim from a JWT, server-side only. */
 export function decodeJwtExp(token: string): number | null {
   const claims = decodeJwt(token);
-  return typeof claims?.exp === "number" ? claims.exp : null;
+  if (!claims || typeof claims !== "object") {
+    return null;
+  }
+
+  const exp = (claims as { exp?: unknown }).exp;
+  return typeof exp === "number" ? exp : null;
 }
 
 /** Extract the JWT from a backend response that may be a plain string or an object. */

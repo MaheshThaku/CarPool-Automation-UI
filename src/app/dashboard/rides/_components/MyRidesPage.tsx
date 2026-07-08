@@ -16,31 +16,26 @@ type FilterTab = 'ALL' | RideStatus;
 
 export default function MyRidesPage() {
   const [search, setSearch] = useState('');
-
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL');
+  const [page, setPage] = useState(1);
 
-  const rides$ = useAsyncData(() => rideService.getRiderRides(), [], {
-    cacheKey: 'rider-rides-list',
-    ttlMs: 60_000,
-  });
+  const rides$ = useAsyncData(
+    () => rideService.getRiderRides(page - 1, 5),
+    [page],
+    {
+      cacheKey: `rider-rides-${page}`,
+      ttlMs: 60_000,
+    },
+  );
 
-  const rides = rides$.data ?? [];
+  const rides: RideResponse[] = useMemo(
+    () => rides$.data?.content ?? [],
+    [rides$.data?.content],
+  );
 
-  /* ---------------- Stats ---------------- */
+  const totalPages = rides$.data?.page?.totalPages ?? 1;
 
-  const stats = useMemo(() => {
-    return {
-      total: rides.length,
-
-      scheduled: rides.filter((ride) => ride.status === 'SCHEDULED').length,
-
-      completed: rides.filter((ride) => ride.status === 'COMPLETED').length,
-
-      cancelled: rides.filter((ride) => ride.status === 'CANCELLED').length,
-    };
-  }, [rides]);
-
-  /* ---------------- Filters ---------------- */
+  const totalElements = rides$.data?.page?.totalElements ?? 0;
 
   const filteredRides = useMemo(() => {
     let result = rides;
@@ -55,17 +50,27 @@ export default function MyRidesPage() {
       result = result.filter(
         (ride) =>
           ride.sourceCity.toLowerCase().includes(query) ||
-          ride.destinationCity.toLowerCase().includes(query) ||
-          ride.vehicleName?.toLowerCase().includes(query),
+          ride.destinationCity.toLowerCase().includes(query),
       );
     }
 
     return result;
-  }, [rides, search, activeTab]);
+  }, [rides, activeTab, search]);
 
-  /* ---------------- Loading ---------------- */
+  const stats = useMemo(
+    () => ({
+      total: totalElements,
 
-  if (rides$.loading) {
+      scheduled: rides.filter((ride) => ride.status === 'SCHEDULED').length,
+
+      completed: rides.filter((ride) => ride.status === 'COMPLETED').length,
+
+      cancelled: rides.filter((ride) => ride.status === 'CANCELLED').length,
+    }),
+    [rides, totalElements],
+  );
+
+  if (rides$.loading && rides.length === 0) {
     return (
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -82,8 +87,6 @@ export default function MyRidesPage() {
     );
   }
 
-  /* ---------------- Error ---------------- */
-
   if (rides$.error) {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-600">
@@ -92,22 +95,19 @@ export default function MyRidesPage() {
     );
   }
 
-  /* ---------------- Empty ---------------- */
-
-  if (rides.length === 0) {
+  if (!rides$.loading && rides.length === 0) {
     return <EmptyRidesState />;
   }
 
   return (
     <div className="space-y-6">
-      {/* heading */}
       <div>
         <h2 className="text-2xl font-bold text-[var(--heading)]">My Rides</h2>
+
         <p className="mt-1 text-sm text-[var(--text)]">
           Turn Empty Seats into Shared Journeys
         </p>
       </div>
-      {/* Stats */}
 
       <MyRideStats
         total={stats.total}
@@ -116,8 +116,6 @@ export default function MyRidesPage() {
         cancelled={stats.cancelled}
       />
 
-      {/* Filters */}
-
       <MyRideFilters
         activeTab={activeTab}
         search={search}
@@ -125,13 +123,21 @@ export default function MyRidesPage() {
         scheduled={stats.scheduled}
         completed={stats.completed}
         cancelled={stats.cancelled}
-        onSearchChange={setSearch}
-        onTabChange={setActiveTab}
+        onSearchChange={(value) => {
+          setSearch(value);
+        }}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+        }}
       />
 
-      {/* Table */}
-
-      <MyRideTable rides={filteredRides} />
+      <MyRideTable
+        rides={filteredRides}
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

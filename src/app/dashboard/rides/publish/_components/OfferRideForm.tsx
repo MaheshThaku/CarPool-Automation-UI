@@ -8,7 +8,6 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  ChevronLeft,
   Car,
   Clock,
   AlertCircle,
@@ -26,7 +25,7 @@ import {
 } from '@/schemas/publish-ride.schema';
 
 import {
-  toIso,
+  toLocalDateTime,
   todayMin,
   dateOffset,
   inputCls,
@@ -112,7 +111,7 @@ export default function OfferRideForm() {
       const publishRideRequest: CreateRideRequest & { vehicleId: number } = {
         sourceCity: data.sourceCity.trim(),
         destinationCity: data.destinationCity.trim(),
-        departureTime: toIso(data.departureDate, data.departureTime),
+        departureTime: toLocalDateTime(data.departureDate, data.departureTime),
         pricePerSeat: Number(data.pricePerSeat),
         totalSeats: data.totalSeats,
         vehicleId: data.vehicleId,

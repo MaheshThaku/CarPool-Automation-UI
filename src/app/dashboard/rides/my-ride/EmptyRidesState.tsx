@@ -21,14 +21,14 @@ export default function EmptyRidesState() {
       {/* Description */}
 
       <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[var(--text-light)]">
-        You haven&apos;t published any rides yet. Start offering rides and connect
-        with passengers travelling on the same route.
+        You haven&apos;t published any rides yet. Start offering rides and
+        connect with passengers travelling on the same route.
       </p>
 
       {/* CTA */}
 
       <Link
-        href="/offer-ride"
+        href="/dashboard/rides/publish"
         className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[var(--primary-hover)] hover:shadow-lg"
       >
         <Plus size={16} />
