@@ -17,6 +17,9 @@ export interface RideResponse {
   availableSeats: number;
   pricePerSeat: number;
   status: RideStatus;
+  vehicleName?: string;
+  vehicleLicensePlate?: string;
+  driverName?: string;
 }
 
 export interface RidePageResponse {

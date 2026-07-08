@@ -9,6 +9,14 @@ export function toIso(date: string, time: string): string {
   return `${date}T${time}:00`;
 }
 
+export function toLocalDateTime(date: string, time: string): string {
+  return toIso(date, time);
+}
+
+export function buildLocalDate(date: string, time: string): Date {
+  return new Date(`${date}T${time}`);
+}
+
 export function formatDisplayDate(date: string, time: string): { date: string; time: string } | null {
   if (!date || !time) return null;
   try {
