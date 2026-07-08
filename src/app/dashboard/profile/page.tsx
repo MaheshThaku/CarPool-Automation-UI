@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { ProfileData } from '@/types/profile.types';
 import { getCookie, setCookie } from '@/lib/cookies';
 
@@ -10,142 +11,214 @@ import PasswordSection from './_components/PasswordSection';
 import SectionError from './_components/SectionError';
 import Skeleton from './_components/Skeleton';
 
-// add these if missing
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
+import { useAsyncData } from '@/hooks/useAsyncData';
 import { profileService } from '@/services/profile.service';
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
-function initials(p: ProfileData | null) {
-  if (!p) return '?';
-
-  return (
-    ((p.firstName?.[0] ?? '') + (p.lastName?.[0] ?? '')).toUpperCase() || '?'
-  );
-}
+import { useUserStore } from '@/store/user.store';
 
 export default function ProfilePage() {
-  const currentUser = useCurrentUser();
-  const isRider = currentUser?.role === 'ROLE_RIDER';
+  const setProfile = useUserStore((state) => state.setProfile);
 
   const profile$ = useAsyncData(() => profileService.getProfile(), [], {
     cacheKey: 'current-profile',
   });
-  const [profileUpdates, setProfileUpdates] =
-    useState<Partial<ProfileData> | null>(null);
+
+  const [profileUpdates, setProfileUpdates] = useState<Partial<ProfileData>>(
+    {},
+  );
+
   const profile = profile$.data
-    ? { ...profile$.data, ...profileUpdates }
+    ? {
+        ...profile$.data,
+        ...profileUpdates,
+      }
     : null;
 
-  // Keep the lightweight `user` cookie's avatarUrl in sync with the real
-  // profile photo, so the header avatar can render it without an extra
-  // network call on every page.
-  const syncAvatarCookie = (url: string | undefined) => {
+  const isRider = profile?.role === 'ROLE_RIDER';
+
+  /* -------------------------------- */
+  /* Sync fetched profile to Zustand  */
+  /* -------------------------------- */
+
+  useEffect(() => {
+    if (profile$.data) {
+      setProfile(profile$.data);
+    }
+  }, [profile$.data, setProfile]);
+
+  /* -------------------------------- */
+  /* Cookie sync helper               */
+  /* -------------------------------- */
+
+  const updateUserCookie = (updates: Record<string, unknown>) => {
     try {
       const stored = getCookie('user');
-      if (stored) {
-        const u = JSON.parse(stored);
-        u.avatarUrl = url;
-        setCookie('user', JSON.stringify(u));
-      }
+
+      if (!stored) return;
+
+      const user = JSON.parse(stored);
+
+      setCookie(
+        'user',
+        JSON.stringify({
+          ...user,
+          ...updates,
+        }),
+      );
     } catch {
-      /* ignore */
+      // ignore
     }
   };
 
+  /* -------------------------------- */
+  /* Avatar sync                      */
+  /* -------------------------------- */
+
   useEffect(() => {
-    if (profile) {
-      syncAvatarCookie(profile.avatarUrl);
+    if (profile?.avatarUrl) {
+      updateUserCookie({
+        avatarUrl: profile.avatarUrl,
+      });
     }
   }, [profile?.avatarUrl]);
 
-  return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--heading)]">My Profile</h2>
-        <p className="mt-1 text-sm text-[var(--text)]">
-          Manage your personal details and account settings.
-        </p>
-      </div>
+  /* -------------------------------- */
+  /* Loading                          */
+  /* -------------------------------- */
 
-      {profile$.loading ? (
+  if (profile$.loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="mt-2 h-4 w-72" />
+        </div>
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
           <div className="space-y-6">
-            <div className="flex flex-col items-center gap-4 rounded-2xl border border-[var(--border)] bg-white p-6">
-              <Skeleton className="h-24 w-24 rounded-full" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-40" />
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
+              <div className="flex flex-col items-center gap-4">
+                <Skeleton className="h-24 w-24 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-40" />
+              </div>
             </div>
+
             <Skeleton className="h-40 rounded-2xl" />
           </div>
+
           <div className="space-y-6">
             <Skeleton className="h-64 rounded-2xl" />
             <Skeleton className="h-32 rounded-2xl" />
           </div>
         </div>
-      ) : profile$.error ? (
-        <SectionError message={profile$.error} onRetry={profile$.refetch} />
-      ) : !profile ? null : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          {/* Left column */}
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
-              <AvatarSection
-                profile={profile}
-                onAvatarChange={(url) => {
-                  setProfileUpdates((p) => (p ? { ...p, avatarUrl: url } : p));
-                  syncAvatarCookie(url);
-                  invalidateAsyncCache('current-profile');
-                }}
-              />
-              <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-light)]">Role</span>
-                  <span className="rounded-full bg-[var(--primary-light)] px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)]">
-                    {isRider ? 'Rider' : 'Passenger'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-light)]">Member since</span>
-                  <span className="text-xs font-medium text-[var(--heading)]">
-                    {profile.memberSince
-                      ? new Date(profile.memberSince).getFullYear()
-                      : '—'}
-                  </span>
-                </div>
+      </div>
+    );
+  }
+
+  /* -------------------------------- */
+  /* Error                            */
+  /* -------------------------------- */
+
+  if (profile$.error) {
+    return <SectionError message={profile$.error} onRetry={profile$.refetch} />;
+  }
+
+  if (!profile) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+
+      <div>
+        <h2 className="text-2xl font-bold text-[var(--heading)]">My Profile</h2>
+
+        <p className="mt-1 text-sm text-[var(--text)]">
+          Manage your personal details and account settings.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+        {/* Left Column */}
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
+            <AvatarSection
+              profile={profile}
+              onAvatarChange={(url) => {
+                if (!url) return;
+
+                const updatedProfile = {
+                  ...profile,
+                  avatarUrl: url,
+                  profilePictureUrl: url,
+                };
+
+                setProfileUpdates((prev) => ({
+                  ...prev,
+                  avatarUrl: url,
+                  profilePictureUrl: url,
+                }));
+
+                setProfile(updatedProfile);
+
+                updateUserCookie({
+                  avatarUrl: url,
+                });
+              }}
+            />
+
+            <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[var(--text-light)]">Role</span>
+
+                <span className="rounded-full bg-[var(--primary-light)] px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)]">
+                  {isRider ? 'Rider' : 'Passenger'}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[var(--text-light)]">Member since</span>
+
+                <span className="text-xs font-medium text-[var(--heading)]">
+                  {profile.memberSince
+                    ? new Date(profile.memberSince).getFullYear()
+                    : '—'}
+                </span>
               </div>
             </div>
           </div>
-
-          {/* Right column */}
-          <div className="space-y-6">
-            <PersonalInfoSection
-              profile={profile}
-              onSaved={(updated) => {
-                setProfileUpdates((p) => (p ? { ...p, ...updated } : updated));
-                invalidateAsyncCache('current-profile');
-                // also sync the cached user-cookie name
-                try {
-                  const stored = getCookie('user');
-                  if (stored) {
-                    const u = JSON.parse(stored);
-                    u.firstName = updated.firstName;
-                    u.lastName = updated.lastName;
-                    setCookie('user', JSON.stringify(u));
-                  }
-                } catch {
-                  /* ignore */
-                }
-              }}
-            />
-            <PasswordSection />
-          </div>
         </div>
-      )}
+
+        {/* Right Column */}
+
+        <div className="space-y-6">
+          <PersonalInfoSection
+            profile={profile}
+            onSaved={(updated) => {
+              const updatedProfile = {
+                ...profile,
+                ...updated,
+              };
+
+              setProfileUpdates((prev) => ({
+                ...prev,
+                ...updated,
+              }));
+
+              setProfile(updatedProfile);
+
+              updateUserCookie({
+                firstName: updated.firstName,
+                lastName: updated.lastName,
+              });
+            }}
+          />
+
+          <PasswordSection />
+        </div>
+      </div>
     </div>
   );
 }

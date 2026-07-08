@@ -1,23 +1,38 @@
 export type Gender = "MALE" | "FEMALE" | "OTHER";
 export type DocStatus = "VERIFIED" | "PENDING" | "NOT_PROVIDED" | "REJECTED";
 
+export type UserRole =
+  | 'ROLE_RIDER'
+  | 'ROLE_PASSENGER'
+  | 'ROLE_ADMIN';
+
 export interface ProfileData {
-  id: string;
+  id: number;
+
   firstName: string;
   lastName: string;
   email: string;
 
+  role: UserRole;
+
   avatarUrl?: string;
-  profilePictureUrl?: string; // ✅ ADD THIS
-   bio?: string;
-  emailVerified: boolean;
-  contactVerified: boolean;
+  profilePictureUrl?: string;
+
+  bio?: string;
+
+  emailVerified?: boolean;
+  contactVerified?: boolean;
 
   contactNumber?: string;
   gender?: Gender;
+
   dateOfBirth?: string;
 
   memberSince?: string;
+
+  age?: number;
+
+  rating?: number;
 }
 
 /**
@@ -32,10 +47,10 @@ export interface UpdateProfileRequest {
   dateOfBirth?: string;
 }
 
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
+// export interface ChangePasswordRequest {
+//   currentPassword: string;
+//   newPassword: string;
+// }
 
 export interface AvatarUploadResponse {
   avatarUrl: string;

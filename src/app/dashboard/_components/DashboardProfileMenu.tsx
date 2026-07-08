@@ -10,15 +10,19 @@ import { ChevronDown, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { deleteCookie } from '@/lib/cookies';
 
-import { CurrentUser } from '@/hooks/useCurrentUser';
+import { ProfileData } from '@/types/profile.types';
+
+import { useUserStore } from '@/store/user.store';
 
 interface Props {
-  user: CurrentUser | null;
+  user: ProfileData | null;
   isRider: boolean;
 }
 
-function DashboardProfileMenuComponent({ user, isRider }: Props) {
+function DashboardProfileMenuComponent({ user }: Props) {
   const router = useRouter();
+
+  const clearProfile = useUserStore((state) => state.clearProfile);
 
   const [open, setOpen] = useState(false);
 
@@ -50,43 +54,72 @@ function DashboardProfileMenuComponent({ user, isRider }: Props) {
       // ignore
     }
 
+    clearProfile();
+
     deleteCookie('user');
+    deleteCookie('token');
     deleteCookie('tokenExpiry');
 
     router.replace('/auth/login');
   };
 
+  /**
+   * Prevent:
+   * Profile / Passenger flash
+   * during hydration.
+   */
+  if (!user) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 animate-pulse rounded-full bg-gray-100" />
+
+        <div className="hidden space-y-1 sm:block">
+          <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
+
+          <div className="h-2.5 w-16 animate-pulse rounded bg-gray-100" />
+        </div>
+      </div>
+    );
+  }
+
+  const avatar = user.profilePictureUrl ?? user.avatarUrl;
+
+  const initials = (user.firstName?.[0] ?? 'U').toUpperCase();
+
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
+
+  const roleLabel = user.role === 'ROLE_RIDER' ? 'Rider' : 'Passenger';
+
   return (
     <div ref={containerRef} className="relative">
       <button
+        type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1 transition-all hover:bg-gray-50"
+        className="flex items-center gap-2.5 rounded-xl px-2 py-1 transition-colors hover:bg-[var(--primary-light)]"
       >
         {/* Avatar */}
 
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-sm font-bold text-white">
-          {user?.avatarUrl ? (
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] font-semibold text-white">
+          {avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={user.avatarUrl}
-              alt={user.firstName}
+              src={avatar}
+              alt={fullName}
               className="h-full w-full object-cover"
             />
           ) : (
-            (user?.firstName?.charAt(0).toUpperCase() ?? 'U')
+            initials
           )}
         </div>
 
-        {/* Name */}
+        {/* User Info */}
 
-        <div className="hidden sm:block">
-          <p className="text-sm leading-tight font-semibold text-[var(--heading)]">
-            {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+        <div className="hidden min-w-0 sm:block">
+          <p className="truncate text-sm font-semibold text-[var(--heading)]">
+            {fullName}
           </p>
 
-          <p className="text-xs text-[var(--text-light)]">
-            {isRider ? 'Rider' : 'Passenger'}
-          </p>
+          <p className="text-xs text-[var(--text-light)]">{roleLabel}</p>
         </div>
 
         <ChevronDown
@@ -99,25 +132,25 @@ function DashboardProfileMenuComponent({ user, isRider }: Props) {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-lg">
+        <div className="absolute top-full right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-xl">
           <Link
             href="/dashboard/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-3 text-sm text-[var(--text)] hover:bg-gray-50"
+            className="flex items-center gap-3 px-4 py-3 text-sm text-[var(--text)] transition-colors hover:bg-[var(--primary-light)]"
           >
-            <User size={15} className="text-[var(--text-light)]" />
+            <User size={15} className="text-[var(--primary)]" />
             Profile
           </Link>
 
           <div className="border-t border-[var(--border)]" />
 
           <button
+            type="button"
             onClick={() => {
               setOpen(false);
-
               handleLogout();
             }}
-            className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50"
+            className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 transition-colors hover:bg-red-50"
           >
             <LogOut size={15} />
             Logout
