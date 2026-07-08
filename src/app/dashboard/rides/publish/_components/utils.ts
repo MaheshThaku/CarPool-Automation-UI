@@ -1,5 +1,12 @@
+function toLocalDateInputValue(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function toIso(date: string, time: string): string {
-  return new Date(`${date}T${time}`).toISOString();
+  return `${date}T${time}:00`;
 }
 
 export function formatDisplayDate(date: string, time: string): { date: string; time: string } | null {
@@ -16,15 +23,14 @@ export function formatDisplayDate(date: string, time: string): { date: string; t
 }
 
 export function todayMin(): string {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
+  return toLocalDateInputValue(new Date());
 }
 
 /** Returns the YYYY-MM-DD for "today + offsetDays" — used by quick-pick date chips. */
 export function dateOffset(offsetDays: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
+  return toLocalDateInputValue(d);
 }
 
 export function inputCls(hasIcon: boolean, error?: string): string {
