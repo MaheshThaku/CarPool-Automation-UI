@@ -7,18 +7,30 @@ import {
   // ChangePasswordRequest,
   AvatarUploadResponse,
   Gender,
+  UserRole,
 } from "@/types/profile.types";
+
+function isUserRole(value: unknown): value is UserRole {
+  return value === "ROLE_RIDER" || value === "ROLE_PASSENGER";
+}
 
 function getUserFromCookie(): {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  role?: UserRole;
+  avatarUrl?: string;
 } | null {
   try {
     const raw = getCookie("user");
     if (!raw || raw === "undefined") return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return {
+      ...parsed,
+      role: isUserRole(parsed?.role) ? parsed.role : undefined,
+      avatarUrl: parsed?.avatarUrl,
+    };
   } catch {
     return null;
   }
@@ -30,43 +42,107 @@ class ProfileService {
    * Falls back to the `user` cookie when the endpoint is unavailable,
    * so the profile page always shows something meaningful.
    */
-  async getProfile(): Promise<ProfileData> {
-    try {
-      const stored = getUserFromCookie() as any;
-      const role = stored?.role;
-      const endpoint = role === 'ROLE_RIDER' ? '/v1/rider/profile' : '/v1/passenger/profile';
+async getProfile(): Promise<ProfileData> {
+  try {
+    const stored = getUserFromCookie() as any;
 
-      const res = await api.get<ProfileData>(endpoint);
-      // Map profilePictureUrl → avatarUrl; default missing verification flags to false
-      return {
-        ...res.data,
-        avatarUrl: res.data.profilePictureUrl ?? res.data.avatarUrl,
-        emailVerified: res.data.emailVerified ?? false,
-        contactVerified: res.data.contactVerified ?? false,
-      };
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 401) throw err;
+    const role = stored?.role;
 
-      // Endpoint not reachable — build a minimal profile from the user cookie.
-      const stored = getUserFromCookie();
-      if (stored) {
-        return {
-          id: stored.id ?? "",
-          firstName: stored.firstName ?? "",
-          lastName: stored.lastName ?? "",
-          email: stored.email ?? "",
-          contactNumber: "",
-          gender: "MALE" as Gender,
-          emailVerified: false,
-          contactVerified: false,
-          avatarUrl: undefined,
-          dateOfBirth: undefined,
+    const endpoint =
+      role === 'ROLE_RIDER'
+        ? '/v1/rider/profile'
+        : '/v1/passenger/profile';
+
+    const { data } = await api.get<ProfileData>(endpoint);
+
+    return {
+      ...data,
+
+      id: Number(data.id),
+
+      avatarUrl:
+        data.profilePictureUrl ??
+        data.avatarUrl,
+
+      profilePictureUrl:
+        data.profilePictureUrl ??
+        data.avatarUrl,
+
+      role:
+        data.role ??
+        stored?.role ??
+        'ROLE_PASSENGER',
+
+      emailVerified:
+        data.emailVerified ?? false,
+
+      contactVerified:
+        data.contactVerified ?? false,
+    };
+  } catch (err: unknown) {
+    const status = (
+      err as {
+        response?: {
+          status?: number;
         };
       }
-      throw new Error("Could not load profile. Please try again.");
+    )?.response?.status;
+
+    if (status === 401) {
+      throw err;
     }
+
+    const stored = getUserFromCookie();
+
+    if (stored) {
+      return {
+        id: Number(stored.id ?? 0),
+
+        firstName:
+          stored.firstName ?? '',
+
+        lastName:
+          stored.lastName ?? '',
+
+        email:
+          stored.email ?? '',
+
+        role:
+          stored.role ??
+          'ROLE_PASSENGER',
+
+        avatarUrl:
+          stored.avatarUrl,
+
+        profilePictureUrl:
+          stored.avatarUrl,
+
+        bio: '',
+
+        contactNumber: '',
+
+        gender:
+          'MALE' as Gender,
+
+        emailVerified: false,
+
+        contactVerified: false,
+
+        dateOfBirth: undefined,
+
+        memberSince: undefined,
+
+        age: undefined,
+
+        rating: 0,
+      };
+    }
+
+    throw new Error(
+      'Could not load profile. Please try again.',
+    );
   }
+}
 
   /**
    * PUT /v1/passenger/profile or /v1/rider/profile

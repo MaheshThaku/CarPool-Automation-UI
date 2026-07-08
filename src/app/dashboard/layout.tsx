@@ -6,6 +6,8 @@ import DashboardSidebar from './_components/DashboardSidebar';
 import DashboardHeader from './_components/DashboardHeader';
 import DashboardFooter from './_components/DashboardFooter';
 
+import { useProfileBootstrap } from '@/hooks/useProfileBootstrap';
+
 export default function DashboardLayout({
   children,
 }: {
@@ -13,27 +15,33 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useProfileBootstrap();
+
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Sidebar */}
+
       <DashboardSidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Main */}
+      {/* Main Content */}
+
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Fixed Header */}
+        {/* Header */}
+
         <DashboardHeader onOpenSidebar={() => setSidebarOpen(true)} />
 
-        {/* Content */}
+        {/* Content Area */}
+
         <div className="flex min-h-0 flex-1 flex-col">
-          {/* Only content scrolls */}
           <main className="flex-1 overflow-y-auto">
-            <div className="p-4 sm:p-6">{children}</div>
+            <div className="mx-auto w-full max-w-[1800px] p-4 sm:p-6">
+              {children}
+            </div>
           </main>
 
-          {/* Footer never scrolls */}
           <DashboardFooter />
         </div>
       </div>

@@ -4,7 +4,7 @@ import { memo } from 'react';
 
 import { Bell, Menu } from 'lucide-react';
 
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useUserStore } from '@/store/user.store';
 
 import DashboardProfileMenu from './DashboardProfileMenu';
 
@@ -13,16 +13,26 @@ interface Props {
 }
 
 function DashboardHeaderComponent({ onOpenSidebar }: Props) {
-  const user = useCurrentUser();
+  const profile = useUserStore((state) => state.profile);
 
-  const isRider = user?.role === 'ROLE_RIDER';
+  const hydrated = useUserStore((state) => state.hydrated);
+
+  if (!hydrated) {
+    return (
+      <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-4">
+        <div className="flex-1" />
+
+        <div className="h-10 w-36 animate-pulse rounded-xl bg-gray-100" />
+      </header>
+    );
+  }
+
+  const isRider = profile?.role === 'ROLE_RIDER';
 
   const notifCount = isRider ? 3 : 2;
 
   return (
     <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-4">
-      {/* Mobile Menu */}
-
       <button onClick={onOpenSidebar} className="lg:hidden">
         <Menu size={24} className="text-[var(--heading)]" />
       </button>
@@ -30,8 +40,6 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-3">
-        {/* Notifications */}
-
         <button className="relative rounded-full p-2 text-[var(--text)] hover:bg-gray-50">
           <Bell size={20} />
 
@@ -40,9 +48,7 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
           </span>
         </button>
 
-        {/* Profile */}
-
-        <DashboardProfileMenu user={user} isRider={isRider} />
+        <DashboardProfileMenu user={profile} isRider={isRider} />
       </div>
     </header>
   );
