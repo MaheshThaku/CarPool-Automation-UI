@@ -1,14 +1,53 @@
-export function toIso(date: string, time: string): string {
-  return new Date(`${date}T${time}`).toISOString();
+export function buildLocalDate(
+  date: string,
+  time: string,
+): Date {
+  const [year, month, day] = date.split('-').map(Number);
+
+  const [hours, minutes] = time.split(':').map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    hours,
+    minutes,
+    0,
+    0,
+  );
 }
 
-export function formatDisplayDate(date: string, time: string): { date: string; time: string } | null {
+export function toLocalDateTime(
+  date: string,
+  time: string,
+): string {
+  return `${date}T${time}:00`;
+}
+
+export function formatDisplayDate(
+  date: string,
+  time: string,
+): { date: string; time: string } | null {
   if (!date || !time) return null;
+
   try {
-    const d = new Date(`${date}T${time}`);
+    const d = buildLocalDate(date, time);
+
     return {
-      date: d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }),
-      time: d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }).toUpperCase(),
+      date: d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
+
+      time: d
+        .toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        })
+        .toUpperCase(),
     };
   } catch {
     return null;
@@ -16,15 +55,33 @@ export function formatDisplayDate(date: string, time: string): { date: string; t
 }
 
 export function todayMin(): string {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
 }
 
 /** Returns the YYYY-MM-DD for "today + offsetDays" — used by quick-pick date chips. */
-export function dateOffset(offsetDays: number): string {
+export function dateOffset(
+  offsetDays: number,
+): string {
   const d = new Date();
+
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
+
+  const year = d.getFullYear();
+  const month = String(
+    d.getMonth() + 1,
+  ).padStart(2, '0');
+
+  const day = String(
+    d.getDate(),
+  ).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
 }
 
 export function inputCls(hasIcon: boolean, error?: string): string {

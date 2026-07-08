@@ -4,7 +4,7 @@ import { getCookie } from "@/lib/cookies";
 import {
   ProfileData,
   UpdateProfileRequest,
-  ChangePasswordRequest,
+  // ChangePasswordRequest,
   AvatarUploadResponse,
   Gender,
 } from "@/types/profile.types";
@@ -34,8 +34,8 @@ class ProfileService {
     try {
       const stored = getUserFromCookie() as any;
       const role = stored?.role;
-      const endpoint = role === "ROLE_RIDER" ? "/v1/rider/profile" : "/v1/passenger/profile";
-      
+      const endpoint = role === 'ROLE_RIDER' ? '/v1/rider/profile' : '/v1/passenger/profile';
+
       const res = await api.get<ProfileData>(endpoint);
       // Map profilePictureUrl → avatarUrl; default missing verification flags to false
       return {
@@ -74,7 +74,7 @@ class ProfileService {
   async updateProfile(payload: UpdateProfileRequest): Promise<ProfileData> {
     const stored = getUserFromCookie() as any;
     const role = stored?.role;
-    const endpoint = role === "ROLE_RIDER" ? "/v1/rider/profile" : "/v1/passenger/profile";
+    const endpoint = role === "ROLE_RIDER" ? "/v1/rider/update/profile" : "/v1/passenger/update/profile";
     const res = await api.put<ProfileData>(endpoint, payload);
     return res.data;
   }
@@ -106,20 +106,20 @@ class ProfileService {
    * Until the backend adds it, requests will fail with 404 — surfaced to the
    * caller as a distinct, honest error message instead of a generic one.
    */
-  async changePassword(payload: ChangePasswordRequest): Promise<void> {
-    try {
-      await api.post("/v1/user/change-password", payload);
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 404 || status === 405) {
-        throw new Error("Password changes aren't supported by the server yet. Please try again later.");
-      }
-      if (status === 400 || status === 401) {
-        throw new Error("Current password is incorrect.");
-      }
-      throw new Error("Failed to change password. Please try again.");
-    }
-  }
+  // async changePassword(payload: ChangePasswordRequest): Promise<void> {
+  //   try {
+  //     await api.post("/v1/user/change-password", payload);
+  //   } catch (err: unknown) {
+  //     const status = (err as { response?: { status?: number } })?.response?.status;
+  //     if (status === 404 || status === 405) {
+  //       throw new Error("Password changes aren't supported by the server yet. Please try again later.");
+  //     }
+  //     if (status === 400 || status === 401) {
+  //       throw new Error("Current password is incorrect.");
+  //     }
+  //     throw new Error("Failed to change password. Please try again.");
+  //   }
+  // }
 }
 
 export const profileService = new ProfileService();

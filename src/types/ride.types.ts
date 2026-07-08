@@ -11,29 +11,24 @@ export interface CreateRideRequest {
 
 export interface RideResponse {
   id: number;
-  driverId: number;
-  driverName: string;
   sourceCity: string;
   destinationCity: string;
   departureTime: string;
-  pricePerSeat: number;
   availableSeats: number;
+  pricePerSeat: number;
   status: RideStatus;
-  vehicleId: number;
-  vehicleName: string;
-  vehicleLicensePlate: string;
 }
 
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
-}
+export interface RidePageResponse {
+  content: RideResponse[];
 
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}
 /* ===========================
    RIDE SEARCH
 =========================== */

@@ -1,3 +1,4 @@
+import { buildLocalDate } from "@/app/dashboard/rides/publish/_components/utils";
 import { z } from "zod";
 
 /* =====================================================================
@@ -25,13 +26,27 @@ export const offerRideSchema = z
       .refine((v) => !isNaN(Number(v)) && Number(v) > 0, "Must be a positive number"),
     totalSeats: z.number().int().min(1).max(8),
   })
-  .refine(
-    (data) => {
-      if (!data.departureDate || !data.departureTime) return true;
-      return new Date(`${data.departureDate}T${data.departureTime}`) > new Date();
-    },
-    { message: "Departure must be in the future", path: ["departureDate"] }
-  )
+.refine(
+  (data) => {
+    if (
+      !data.departureDate ||
+      !data.departureTime
+    )
+      return true;
+
+    return (
+      buildLocalDate(
+        data.departureDate,
+        data.departureTime,
+      ) > new Date()
+    );
+  },
+  {
+    message:
+      'Departure must be in the future',
+    path: ['departureDate'],
+  },
+)
   .refine(
     (data) => data.sourceCity.toLowerCase() !== data.destinationCity.toLowerCase(),
     { message: "Source and destination can't be the same", path: ["destinationCity"] }

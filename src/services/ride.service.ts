@@ -3,7 +3,7 @@ import { describeApiError } from "@/lib/errors";
 import { ApiError } from "@/types/auth.types";
 import {
   CreateRideRequest,
-  PageResponse,
+  RidePageResponse,
   RideResponse,
   RideSearchRequest,
   RideSearchResponse,
@@ -41,18 +41,24 @@ class RideService {
   }
 
   /** GET /v1/rider/ride/my-rides — rides published by the current rider. */
- getRiderRides(): Promise<PageResponse<RideResponse>> {
-  return safeGet<PageResponse<RideResponse>>(
-    "/v1/rider/ride/my-rides",
+  // getRiderRides(): Promise<RideResponse[]> {
+  //   return safeGet<RideResponse[]>("/v1/rider/ride/my-rides", []);
+  // }
+getRiderRides(
+  page = 0,
+  size = 5,
+): Promise<RidePageResponse> {
+  return safeGet<RidePageResponse>(
+    `/v1/rider/ride/my-rides?page=${page}&size=${size}`,
     {
       content: [],
-      totalElements: 0,
-      totalPages: 0,
-      number: 0,
-      size: 5,
-      first: true,
-      last: true,
-    }
+      page: {
+        size,
+        number: 0,
+        totalElements: 0,
+        totalPages: 0,
+      },
+    },
   );
 }
 
