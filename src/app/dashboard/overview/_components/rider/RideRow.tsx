@@ -6,12 +6,15 @@ import { Clock, Users } from 'lucide-react';
 import { parseDeparture } from '../../_utils/overview.utils';
 
 interface Props {
-  id: string;
+  id: number;
+
   sourceCity: string;
   destinationCity: string;
   departureTime: string;
   availableSeats: number;
   pricePerSeat: number;
+
+  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 }
 
 function RideRowComponent({
@@ -20,8 +23,26 @@ function RideRowComponent({
   departureTime,
   availableSeats,
   pricePerSeat,
+  status,
 }: Props) {
   const trip = parseDeparture(departureTime);
+
+  const statusConfig = {
+    SCHEDULED: {
+      label: 'Scheduled',
+      className: 'bg-blue-50 text-blue-700',
+    },
+
+    COMPLETED: {
+      label: 'Completed',
+      className: 'bg-green-50 text-green-700',
+    },
+
+    CANCELLED: {
+      label: 'Cancelled',
+      className: 'bg-red-50 text-red-700',
+    },
+  };
 
   return (
     <div className="border-b border-[var(--border)] py-5 last:border-b-0">
@@ -72,7 +93,15 @@ function RideRowComponent({
             {/* Price */}
 
             <div className="shrink-0 text-right">
-              <p className="text-xl font-bold text-[var(--primary)]">
+              <span
+                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  statusConfig[status].className
+                }`}
+              >
+                {statusConfig[status].label}
+              </span>
+
+              <p className="mt-2 text-xl font-bold text-[var(--primary)]">
                 ₹{pricePerSeat}
               </p>
 
