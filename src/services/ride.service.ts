@@ -40,6 +40,15 @@ class RideService {
     }
   }
 
+  /** PUT /v1/rider/ride/{rideId}/complete */
+  async completeRide(rideId: number): Promise<void> {
+    try {
+      await api.put(`/v1/rider/ride/${rideId}/complete`);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   /** GET /v1/rider/ride/my-rides — rides published by the current rider. */
   // getRiderRides(): Promise<RideResponse[]> {
   //   return safeGet<RideResponse[]>("/v1/rider/ride/my-rides", []);

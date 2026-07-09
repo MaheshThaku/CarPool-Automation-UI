@@ -13,6 +13,7 @@ interface Props {
   totalPages: number;
   totalElements?: number;
   onPageChange: (page: number) => void;
+  onRefresh?: () => void;
 }
 
 function MyRideTableComponent({
@@ -21,6 +22,7 @@ function MyRideTableComponent({
   totalPages,
   totalElements,
   onPageChange,
+  onRefresh,
 }: Props) {
   if (!rides.length) {
     return null;
@@ -85,7 +87,7 @@ function MyRideTableComponent({
 
           <tbody>
             {rides.map((ride) => (
-              <MyRideRow key={ride.id} ride={ride} />
+              <MyRideRow key={ride.id} ride={ride} onRefresh={onRefresh} />
             ))}
           </tbody>
         </table>
@@ -95,7 +97,7 @@ function MyRideTableComponent({
 
       <div className="space-y-4 p-4 lg:hidden">
         {rides.map((ride) => (
-          <MyRideRow key={ride.id} ride={ride} mobile />
+          <MyRideRow key={ride.id} ride={ride} mobile onRefresh={onRefresh} />
         ))}
       </div>
     </section>

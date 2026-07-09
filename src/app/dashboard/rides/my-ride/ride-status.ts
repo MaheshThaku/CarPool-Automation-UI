@@ -82,9 +82,9 @@ export function getBookingStatusConfig(
 
     case 'COMPLETED':
       return {
-        label: 'Cancelled',
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
+        label: 'Completed',
+        bg: 'bg-green-50',
+        text: 'text-green-700',
       };
 
     default:

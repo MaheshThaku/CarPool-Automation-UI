@@ -5,6 +5,7 @@ import { memo, useState } from 'react';
 import { ArrowRight, Car, ChevronDown, ChevronUp, Users } from 'lucide-react';
 
 import { RideResponse } from '@/types/ride.types';
+import { rideService } from '@/services/ride.service';
 
 import RideBookingsPanel from './RideBookingPanel';
 import { getRideStatusConfig } from './ride-status';
@@ -12,6 +13,7 @@ import { getRideStatusConfig } from './ride-status';
 interface Props {
   ride: RideResponse;
   mobile?: boolean;
+  onRefresh?: () => void;
 }
 
 function formatDeparture(departureTime: string) {
@@ -35,14 +37,34 @@ function formatDeparture(departureTime: string) {
   };
 }
 
-function MyRideRowComponent({ ride, mobile = false }: Props) {
+function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const departure = formatDeparture(ride.departureTime);
 
   const status = getRideStatusConfig(ride.status);
 
   const StatusIcon = status.icon;
+
+  const handleCompleteRide = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to mark this ride as completed? This will also complete all approved bookings and reject pending requests.'
+    );
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+      await rideService.completeRide(ride.id);
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to complete ride');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* ---------------- MOBILE ---------------- */
 
@@ -106,6 +128,17 @@ function MyRideRowComponent({ ride, mobile = false }: Props) {
             </p>
           </div>
         </div>
+
+        {ride.status === 'SCHEDULED' && (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleCompleteRide}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white py-2.5 text-sm font-semibold transition-colors"
+          >
+            {loading ? 'Completing...' : 'Complete Ride'}
+          </button>
+        )}
 
         <button
           type="button"
@@ -195,14 +228,26 @@ function MyRideRowComponent({ ride, mobile = false }: Props) {
         {/* Bookings */}
 
         <td className="px-6 py-4 text-right">
-          <button
-            type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--primary)]"
-          >
-            Bookings
-            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+          <div className="flex justify-end items-center gap-2">
+            {ride.status === 'SCHEDULED' && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleCompleteRide}
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-4 py-2 text-sm font-semibold transition-colors"
+              >
+                {loading ? 'Completing...' : 'Complete Ride'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setExpanded(!expanded)}
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--primary)]"
+            >
+              Bookings
+              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          </div>
         </td>
       </tr>
 

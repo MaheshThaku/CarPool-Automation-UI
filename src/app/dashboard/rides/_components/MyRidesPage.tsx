@@ -137,6 +137,7 @@ export default function MyRidesPage() {
         totalPages={totalPages}
         totalElements={totalElements}
         onPageChange={setPage}
+        onRefresh={rides$.refetch}
       />
     </div>
   );
