@@ -172,11 +172,15 @@ export interface BookingListItem {
   status: BookingStatus;
 }
 
-export interface UpcomingRide {
-  id: string;
-  sourceCity: string;
-  destinationCity: string;
-  departureTime: string;
-  availableSeats: number;
-  pricePerSeat: number;
-}
+// export interface UpcomingRide {
+//   id: number;
+//   sourceCity: string;
+//   destinationCity: string;
+//   departureTime: string;
+//   availableSeats: number;
+//   pricePerSeat: number;
+//   status:
+//     | 'SCHEDULED'
+//     | 'COMPLETED'
+//     | 'CANCELLED';
+// }
