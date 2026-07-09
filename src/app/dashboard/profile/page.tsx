@@ -7,7 +7,6 @@ import { getCookie, setCookie } from '@/lib/cookies';
 
 import PersonalInfoSection from './_components/PersonalInfoSection';
 import AvatarSection from './_components/AvatarSection';
-import PasswordSection from './_components/PasswordSection';
 import SectionError from './_components/SectionError';
 import Skeleton from './_components/Skeleton';
 
@@ -215,8 +214,6 @@ export default function ProfilePage() {
               });
             }}
           />
-
-          <PasswordSection />
         </div>
       </div>
     </div>

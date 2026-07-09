@@ -9,7 +9,7 @@ import {
   RecentBooking,
   ProfileVerification,
   BookingListItem,
-  UpcomingRide
+  // UpcomingRide
 } from "@/types/dashboard.types";
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
@@ -31,10 +31,10 @@ class DashboardService {
     return safeGet<RiderStats | null>("/v1/rider/dashboard/stats", null);
   }
 
-  /** GET /v1/rider/ride/upcoming */
-getUpcomingRides(): Promise<UpcomingRide[]> {
-  return safeGet<UpcomingRide[]>("/v1/rider/ride/upcoming", []);
-}
+//   /** GET /v1/rider/ride/my-rides */
+// getUpcomingRides(): Promise<UpcomingRide[]> {
+//   return safeGet<UpcomingRide[]>("/v1/rider/ride/my-rides", []);
+// }
   /** GET /v1/rider/document/all */
   getVerificationStatus(): Promise<VerificationItem[]> {
     return safeGet<VerificationItem[]>("/v1/rider/document/all", []);

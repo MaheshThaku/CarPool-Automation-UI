@@ -20,8 +20,18 @@ interface Props {
 }
 
 function RiderDashboardComponent({ user }: Props) {
-  const { stats, upcomingRides, vehicle, verification, profileCompletion } =
-    useRiderDashboard();
+  const {
+    stats,
+    upcomingRides,
+    vehicle,
+    verification,
+    profileCompletion,
+    ridePage,
+    setRidePage,
+
+    totalRidePages,
+    totalRideElements,
+  } = useRiderDashboard();
 
   const profileCompletionData = Array.isArray(profileCompletion)
     ? undefined
@@ -52,7 +62,13 @@ function RiderDashboardComponent({ user }: Props) {
 
       {/* Upcoming Rides */}
 
-      <UpcomingRides rides={upcomingRides} />
+      <UpcomingRides
+        rides={upcomingRides}
+        page={ridePage}
+        totalPages={totalRidePages}
+        totalElements={totalRideElements}
+        onPageChange={setRidePage}
+      />
 
       {/* Verification + Vehicle */}
 

@@ -24,6 +24,30 @@ export function toLocalDateTime(
   return `${date}T${time}:00`;
 }
 
+export function format12HourTime(
+  date: Date,
+): string {
+  let hours = date.getHours();
+
+  const minutes = String(
+    date.getMinutes(),
+  ).padStart(2, '0');
+
+  const period =
+    hours >= 12 ? 'PM' : 'AM';
+
+  hours = hours % 12;
+
+  if (hours === 0) {
+    hours = 12;
+  }
+
+  return `${String(hours).padStart(
+    2,
+    '0',
+  )}:${minutes} ${period}`;
+}
+
 export function formatDisplayDate(
   date: string,
   time: string,
@@ -41,13 +65,7 @@ export function formatDisplayDate(
         year: 'numeric',
       }),
 
-      time: d
-        .toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        })
-        .toUpperCase(),
+      time: format12HourTime(d),
     };
   } catch {
     return null;
