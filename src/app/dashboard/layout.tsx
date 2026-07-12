@@ -7,6 +7,7 @@ import DashboardHeader from './_components/DashboardHeader';
 import DashboardFooter from './_components/DashboardFooter';
 
 import { useProfileBootstrap } from '@/hooks/useProfileBootstrap';
+import NotificationProvider from './notification/NotificationProvider';
 
 export default function DashboardLayout({
   children,
@@ -18,6 +19,7 @@ export default function DashboardLayout({
   useProfileBootstrap();
 
   return (
+    <NotificationProvider>
     <div className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Sidebar */}
 
@@ -46,5 +48,6 @@ export default function DashboardLayout({
         </div>
       </div>
     </div>
+    </NotificationProvider>
   );
 }
