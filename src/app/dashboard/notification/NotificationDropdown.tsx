@@ -9,8 +9,8 @@ import {
 
 import {
   getNotifications,
-  markAsRead,
-  markAllAsRead,
+  markAsRead as apiMarkAsRead,
+  markAllAsRead as apiMarkAllAsRead,
 } from "./notification.service";
 
 import {
@@ -49,7 +49,7 @@ export default function NotificationDropdown({
 
   async function handleRead(id: number) {
     try {
-      await markAsRead(id);
+      await apiMarkAsRead(id);
 
       markAsRead(id);
     } catch (e) {
@@ -59,7 +59,7 @@ export default function NotificationDropdown({
 
   async function handleReadAll() {
     try {
-      await markAllAsRead();
+      await apiMarkAllAsRead();
 
       markAllAsRead();
     } catch (e) {
@@ -116,11 +116,10 @@ export default function NotificationDropdown({
                 handleRead(notification.id);
               }
             }}
-            className={`cursor-pointer border-b border-gray-100 p-4 transition hover:bg-gray-50 ${
-              !notification.read
-                ? 'bg-orange-50'
-                : 'bg-white'
-            }`}
+            className={`cursor-pointer border-b border-gray-100 p-4 transition hover:bg-gray-50 ${!notification.read
+              ? 'bg-orange-50'
+              : 'bg-white'
+              }`}
           >
             <div className="flex items-start justify-between">
 
