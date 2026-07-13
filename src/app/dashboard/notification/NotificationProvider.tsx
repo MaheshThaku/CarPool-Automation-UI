@@ -13,21 +13,37 @@ import {
 } from './notification.service';
 
 import { useNotificationStore } from './notification.store';
+import { useUserStore } from '@/store/user.store';
 
 export default function NotificationProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const profile = useUserStore(
+    (state) => state.profile
+  );
+
+  const hydrated = useUserStore(
+    (state) => state.hydrated
+  );
+
   const setNotifications = useNotificationStore(
-    (state) => state.setNotifications,
+    (state) => state.setNotifications
   );
 
   const setUnreadCount = useNotificationStore(
-    (state) => state.setUnreadCount,
+    (state) => state.setUnreadCount
   );
 
   useEffect(() => {
+
+    // Wait until Zustand has loaded
+    if (!hydrated || !profile) {
+      return;
+    }
+
     async function initializeNotifications() {
       try {
         const [notifications, unreadCount] =
@@ -37,16 +53,12 @@ export default function NotificationProvider({
           ]);
 
         setNotifications(notifications);
-
         setUnreadCount(unreadCount);
-      } catch (error) {
-        console.error(
-          'Failed to load notifications',
-          error,
-        );
-      }
 
-      connectNotificationSocket();
+        connectNotificationSocket();
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     initializeNotifications();
@@ -54,7 +66,13 @@ export default function NotificationProvider({
     return () => {
       disconnectNotificationSocket();
     };
-  }, [setNotifications, setUnreadCount]);
+
+  }, [
+    hydrated,
+    profile,
+    setNotifications,
+    setUnreadCount,
+  ]);
 
   return <>{children}</>;
 }

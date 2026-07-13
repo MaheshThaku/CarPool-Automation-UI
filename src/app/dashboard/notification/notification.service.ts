@@ -5,6 +5,7 @@ import { Notification } from "./notification.store";
 function getNotificationBaseUrl() {
   const role = useUserStore.getState().profile?.role;
 
+  console.log("current role : "+role)
   return role === "ROLE_RIDER"
     ? "/v1/rider/notifications"
     : "/v1/passenger/notifications";
