@@ -7,28 +7,32 @@ import DashboardCard from '../shared/DashboardCard';
 import EmptyState from '../shared/EmptyState';
 import Pagination from '../shared/Paginationc';
 
-import { usePagination } from '../../_hooks/usePagination';
-
 import RideRow from './RideRow';
-import { UpcomingRide } from '@/types/dashboard.types';
+
+import { RideResponse } from '@/types/ride.types';
 
 interface Props {
-  rides: UpcomingRide[];
+  rides: RideResponse[];
+
+  page: number;
+
+  totalPages: number;
+
+  totalElements: number;
+
+  onPageChange: (page: number) => void;
 }
 
-function UpcomingRidesComponent({ rides }: Props) {
-  const {
-    paginatedItems,
-    page,
-    totalPages,
-    hasPrev,
-    hasNext,
-    prevPage,
-    nextPage,
-  } = usePagination({
-    items: rides,
-    pageSize: 5,
-  });
+function UpcomingRidesComponent({
+  rides,
+  page,
+  totalPages,
+  totalElements,
+  onPageChange,
+}: Props) {
+  const hasPrev = page > 1;
+
+  const hasNext = page < totalPages;
 
   return (
     <DashboardCard className="flex flex-col overflow-hidden p-0">
@@ -46,7 +50,7 @@ function UpcomingRidesComponent({ rides }: Props) {
         </div>
 
         <span className="rounded-full bg-[var(--primary-light)] px-3 py-1 text-sm font-semibold text-[var(--primary)]">
-          {rides.length} Rides
+          {totalElements} Rides
         </span>
       </div>
 
@@ -63,7 +67,7 @@ function UpcomingRidesComponent({ rides }: Props) {
           </div>
         ) : (
           <div className="divide-y divide-[var(--border)] px-6">
-            {paginatedItems.map((ride) => (
+            {rides.map((ride) => (
               <RideRow
                 key={ride.id}
                 id={ride.id}
@@ -72,6 +76,7 @@ function UpcomingRidesComponent({ rides }: Props) {
                 departureTime={ride.departureTime}
                 availableSeats={ride.availableSeats}
                 pricePerSeat={ride.pricePerSeat}
+                status={ride.status}
               />
             ))}
           </div>
@@ -81,14 +86,14 @@ function UpcomingRidesComponent({ rides }: Props) {
       {/* Footer */}
 
       {totalPages > 1 && (
-        <div>
+        <div className="border-t border-[var(--border)] px-6 py-4">
           <Pagination
             page={page}
             totalPages={totalPages}
             hasPrev={hasPrev}
             hasNext={hasNext}
-            prevPage={prevPage}
-            nextPage={nextPage}
+            prevPage={() => onPageChange(page - 1)}
+            nextPage={() => onPageChange(page + 1)}
           />
         </div>
       )}

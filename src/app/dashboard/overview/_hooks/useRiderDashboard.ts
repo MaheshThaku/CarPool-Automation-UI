@@ -1,10 +1,12 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dashboardService } from '@/services/dashboard.service';
 import { vehicleService  } from '@/services/vehicle.service';
+import { rideService } from '@/services/ride.service';
+
 
 export function useRiderDashboard() {
   const stats$ = useAsyncData(
@@ -15,13 +17,20 @@ export function useRiderDashboard() {
     },
   );
 
-  const upcomingRides$ = useAsyncData(
-    dashboardService.getUpcomingRides,
-    [],
-    {
-      cacheKey: 'rider-dashboard-rides',
-    },
-  );
+const [ridePage, setRidePage] = useState(1);
+
+const rides$ = useAsyncData(
+  () =>
+    rideService.getRiderRides(
+      ridePage - 1,
+      5,
+    ),
+  [ridePage],
+  {
+    cacheKey: `dashboard-rides-${ridePage}`,
+    ttlMs: 60_000,
+  },
+);
 
   const vehicles$ = useAsyncData(
     vehicleService.getMyVehicles,
@@ -49,20 +58,20 @@ const profileCompletion$ = useAsyncData(
 
   const loading =
     stats$.loading ||
-    upcomingRides$.loading ||
+    rides$.loading ||
     vehicles$.loading;
 
   const error =
     stats$.error ||
-    upcomingRides$.error ||
+    rides$.error ||
     vehicles$.error ||
     '';
 
   const refetch = useCallback(() => {
     stats$.refetch?.();
-    upcomingRides$.refetch?.();
+    rides$.refetch?.();
     vehicles$.refetch?.();
-  }, [stats$, upcomingRides$, vehicles$]);
+  }, [stats$, rides$, vehicles$]);
 
   const vehicle =
     vehicles$.data ?? null;
@@ -74,8 +83,20 @@ const profileCompletion$ = useAsyncData(
     stats:
       stats$.data ?? null,
 
-    upcomingRides:
-      upcomingRides$.data ?? [],
+  upcomingRides:
+    rides$.data?.content ?? [],
+
+  ridePage,
+
+  setRidePage,
+
+  totalRidePages:
+    rides$.data?.page?.totalPages ?? 1,
+
+  totalRideElements:
+    rides$.data?.page?.totalElements ??
+    0,
+
 
     vehicle,
     verification: verification$.data ?? [],

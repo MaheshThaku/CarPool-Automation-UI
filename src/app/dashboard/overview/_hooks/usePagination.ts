@@ -20,8 +20,20 @@ export function usePagination<T>({
 
   useEffect(() => {
     if (page > totalPages) {
-      setPage(1);
+      let isMounted = true;
+
+      Promise.resolve().then(() => {
+        if (isMounted) {
+          setPage(1);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
     }
+
+    return undefined;
   }, [page, totalPages]);
 
   const paginatedItems = useMemo(() => {
