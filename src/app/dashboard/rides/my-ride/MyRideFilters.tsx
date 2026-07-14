@@ -16,6 +16,8 @@ interface Props {
 
   scheduled: number;
 
+  started: number;
+
   completed: number;
 
   cancelled: number;
@@ -30,6 +32,7 @@ function MyRideFiltersComponent({
   search,
   total,
   scheduled,
+  started,
   completed,
   cancelled,
   onTabChange,
@@ -45,6 +48,11 @@ function MyRideFiltersComponent({
       key: 'SCHEDULED',
       label: 'Scheduled',
       count: scheduled,
+    },
+    {
+      key: 'STARTED',
+      label: 'Started',
+      count: started,
     },
     {
       key: 'COMPLETED',

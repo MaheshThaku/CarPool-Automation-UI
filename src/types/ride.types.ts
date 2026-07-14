@@ -1,4 +1,4 @@
-export type RideStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
+export type RideStatus = "SCHEDULED" | "STARTED" | "COMPLETED" | "CANCELLED";
 
 export interface CreateRideRequest {
   sourceCity: string;

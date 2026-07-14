@@ -58,15 +58,20 @@ export default function MyRidesPage() {
   }, [rides, activeTab, search]);
 
   const stats = useMemo(
-    () => ({
-      total: totalElements,
-
-      scheduled: rides.filter((ride) => ride.status === 'SCHEDULED').length,
-
-      completed: rides.filter((ride) => ride.status === 'COMPLETED').length,
-
-      cancelled: rides.filter((ride) => ride.status === 'CANCELLED').length,
-    }),
+    () => {
+      const sCount = rides.filter((ride) => ride.status === 'SCHEDULED').length;
+      const startCount = rides.filter((ride) => ride.status === 'STARTED').length;
+      const compCount = rides.filter((ride) => ride.status === 'COMPLETED').length;
+      const cancCount = rides.filter((ride) => ride.status === 'CANCELLED').length;
+      return {
+        total: totalElements,
+        scheduled: sCount,
+        started: startCount,
+        completed: compCount,
+        cancelled: cancCount,
+        upcoming: sCount + startCount,
+      };
+    },
     [rides, totalElements],
   );
 
@@ -111,7 +116,7 @@ export default function MyRidesPage() {
 
       <MyRideStats
         total={stats.total}
-        scheduled={stats.scheduled}
+        scheduled={stats.upcoming}
         completed={stats.completed}
         cancelled={stats.cancelled}
       />
@@ -121,6 +126,7 @@ export default function MyRidesPage() {
         search={search}
         total={stats.total}
         scheduled={stats.scheduled}
+        started={stats.started}
         completed={stats.completed}
         cancelled={stats.cancelled}
         onSearchChange={(value) => {

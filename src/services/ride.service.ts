@@ -40,10 +40,10 @@ class RideService {
     }
   }
 
-  /** PUT /v1/rider/ride/{rideId}/complete */
-  async completeRide(rideId: number): Promise<void> {
+  /** PUT /v1/rider/ride/{rideId}/status */
+  async updateRideStatus(rideId: number, status: RideStatus): Promise<void> {
     try {
-      await api.put(`/v1/rider/ride/${rideId}/complete`);
+      await api.put(`/v1/rider/ride/${rideId}/status?status=${status}`);
     } catch (error) {
       this.handleError(error);
     }
