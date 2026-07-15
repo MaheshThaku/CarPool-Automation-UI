@@ -2,17 +2,34 @@ export type RideStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
 
 export interface CreateRideRequest {
   sourceCity: string;
+  sourceAddress: string;
+  sourceLatitude: number;
+  sourceLongitude: number;
+
   destinationCity: string;
+  destinationAddress: string;
+  destinationLatitude: number;
+  destinationLongitude: number;
+
   departureTime: string;
   pricePerSeat: number;
   totalSeats: number;
-  // vehicleId: number;
+  vehicleId: number;
 }
 
 export interface RideResponse {
   id: number;
+
   sourceCity: string;
+  sourceAddress: string;
+  sourceLatitude: number;
+  sourceLongitude: number;
+
   destinationCity: string;
+  destinationAddress: string;
+  destinationLatitude: number;
+  destinationLongitude: number;
+
   departureTime: string;
   availableSeats: number;
   pricePerSeat: number;
