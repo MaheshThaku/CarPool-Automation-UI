@@ -1,7 +1,7 @@
 'use client';
-
+import { Controller, useForm, useWatch } from "react-hook-form";
+import LocationAutocomplete from "./LocationAutocomplete";
 import { useEffect, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import {
@@ -14,6 +14,7 @@ import {
   ArrowLeftRight,
   Plus,
 } from 'lucide-react';
+
 
 import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
 import { vehicleService } from '@/services/vehicle.service';
@@ -58,12 +59,23 @@ export default function OfferRideForm() {
     mode: 'onChange',
     defaultValues: {
       vehicleId: 0,
+
+      sourceCity: "",
+      sourceAddress: "",
+      sourceLatitude: 0,
+      sourceLongitude: 0,
+
+      destinationCity: "",
+      destinationAddress: "",
+      destinationLatitude: 0,
+      destinationLongitude: 0,
+
       totalSeats: 2,
-      sourceCity: '',
-      destinationCity: '',
-      departureDate: '',
-      departureTime: '',
-      pricePerSeat: '',
+
+      departureDate: "",
+      departureTime: "",
+
+      pricePerSeat: "",
     },
   });
 
@@ -76,11 +88,21 @@ export default function OfferRideForm() {
   const watchedValues = useWatch({ control });
   const values: OfferRideFormValues = {
     vehicleId: watchedValues.vehicleId ?? 0,
-    sourceCity: watchedValues.sourceCity ?? '',
-    destinationCity: watchedValues.destinationCity ?? '',
-    departureDate: watchedValues.departureDate ?? '',
-    departureTime: watchedValues.departureTime ?? '',
-    pricePerSeat: watchedValues.pricePerSeat ?? '',
+
+    sourceCity: watchedValues.sourceCity ?? "",
+    sourceAddress: watchedValues.sourceAddress ?? "",
+    sourceLatitude: watchedValues.sourceLatitude ?? 0,
+    sourceLongitude: watchedValues.sourceLongitude ?? 0,
+
+    destinationCity: watchedValues.destinationCity ?? "",
+    destinationAddress: watchedValues.destinationAddress ?? "",
+    destinationLatitude: watchedValues.destinationLatitude ?? 0,
+    destinationLongitude: watchedValues.destinationLongitude ?? 0,
+
+    departureDate: watchedValues.departureDate ?? "",
+    departureTime: watchedValues.departureTime ?? "",
+
+    pricePerSeat: watchedValues.pricePerSeat ?? "",
     totalSeats: watchedValues.totalSeats ?? 2,
   };
 
@@ -108,10 +130,22 @@ export default function OfferRideForm() {
   const onSubmit = async (data: OfferRideFormValues) => {
     setSubmitError('');
     try {
-      const publishRideRequest: CreateRideRequest & { vehicleId: number } = {
-        sourceCity: data.sourceCity.trim(),
-        destinationCity: data.destinationCity.trim(),
-        departureTime: toLocalDateTime(data.departureDate, data.departureTime),
+      const publishRideRequest: CreateRideRequest = {
+        sourceCity: data.sourceCity,
+        sourceAddress: data.sourceAddress,
+        sourceLatitude: data.sourceLatitude,
+        sourceLongitude: data.sourceLongitude,
+
+        destinationCity: data.destinationCity,
+        destinationAddress: data.destinationAddress,
+        destinationLatitude: data.destinationLatitude,
+        destinationLongitude: data.destinationLongitude,
+
+        departureTime: toLocalDateTime(
+          data.departureDate,
+          data.departureTime
+        ),
+
         pricePerSeat: Number(data.pricePerSeat),
         totalSeats: data.totalSeats,
         vehicleId: data.vehicleId,
@@ -134,8 +168,27 @@ export default function OfferRideForm() {
 
   const handleOfferAnother = () => {
     setPublishedRide(null);
-    setSubmitError('');
-    reset();
+    setSubmitError("");
+
+    reset({
+      vehicleId: 0,
+
+      sourceCity: "",
+      sourceAddress: "",
+      sourceLatitude: 0,
+      sourceLongitude: 0,
+
+      destinationCity: "",
+      destinationAddress: "",
+      destinationLatitude: 0,
+      destinationLongitude: 0,
+
+      departureDate: "",
+      departureTime: "",
+
+      totalSeats: 2,
+      pricePerSeat: "",
+    });
   };
 
   if (publishedRide) {
@@ -226,15 +279,36 @@ export default function OfferRideForm() {
 
               <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <InputField
-                  label="Pickup City"
+                  label="Pickup Location"
                   required
                   icon={MapPin}
                   error={errors.sourceCity?.message}
                 >
-                  <input
-                    {...register('sourceCity')}
-                    placeholder="e.g. Delhi"
-                    className={inputCls(true, errors.sourceCity?.message)}
+                  <Controller
+                    control={control}
+                    name="sourceCity"
+                    render={({ field }) => (
+                      <LocationAutocomplete
+                        label=""
+                        placeholder="Search pickup location..."
+                        value={values.sourceAddress}
+                        onSelect={(location) => {
+                          field.onChange(location.city);
+
+                          setValue("destinationAddress", location.address, {
+                            shouldValidate: true,
+                          });
+
+                          setValue("destinationLatitude", location.latitude, {
+                            shouldValidate: true,
+                          });
+
+                          setValue("destinationLongitude", location.longitude, {
+                            shouldValidate: true,
+                          });
+                        }}
+                      />
+                    )}
                   />
                 </InputField>
 
@@ -243,10 +317,45 @@ export default function OfferRideForm() {
                   <button
                     type="button"
                     onClick={() => {
-                      const src = values.sourceCity;
-                      const dst = values.destinationCity;
-                      setValue('sourceCity', dst, { shouldValidate: true });
-                      setValue('destinationCity', src, {
+                      const source = {
+                        city: values.sourceCity,
+                        address: values.sourceAddress,
+                        lat: values.sourceLatitude,
+                        lng: values.sourceLongitude,
+                      };
+
+                      const destination = {
+                        city: values.destinationCity,
+                        address: values.destinationAddress,
+                        lat: values.destinationLatitude,
+                        lng: values.destinationLongitude,
+                      };
+
+                      setValue("sourceAddress", destination.address, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("sourceLatitude", destination.lat, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("sourceLongitude", destination.lng, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("destinationCity", source.city, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("destinationAddress", source.address, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("destinationLatitude", source.lat, {
+                        shouldValidate: true,
+                      });
+
+                      setValue("destinationLongitude", source.lng, {
                         shouldValidate: true,
                       });
                     }}
@@ -257,15 +366,37 @@ export default function OfferRideForm() {
                 </div>
 
                 <InputField
-                  label="Drop City"
+
+                  label="Drop Location"
                   required
                   icon={MapPin}
                   error={errors.destinationCity?.message}
                 >
-                  <input
-                    {...register('destinationCity')}
-                    placeholder="e.g. Jaipur"
-                    className={inputCls(true, errors.destinationCity?.message)}
+                  <Controller
+                    control={control}
+                    name="destinationCity"
+                    render={({ field }) => (
+                      <LocationAutocomplete
+                        label=""
+                        placeholder="Search destination..."
+                        value={values.destinationAddress}
+                        onSelect={(location) => {
+                          setValue("destinationCity", location.city, {
+                            shouldValidate: true,
+                          });
+
+                          field.onChange(location.city);
+
+                          setValue("destinationAddress", location.address, {
+                            shouldValidate: true,
+                          });
+
+                          setValue("destinationLatitude", location.latitude);
+
+                          setValue("destinationLongitude", location.longitude);
+                        }}
+                      />
+                    )}
                   />
                 </InputField>
               </div>
@@ -293,11 +424,10 @@ export default function OfferRideForm() {
                         shouldValidate: true,
                       })
                     }
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                      values.departureDate === dateOffset(days)
-                        ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
-                        : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
-                    }`}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${values.departureDate === dateOffset(days)
+                      ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
+                      : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
+                      }`}
                   >
                     {label}
                   </button>
