@@ -3,6 +3,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Navigation,
 } from 'lucide-react';
 
 import {
@@ -20,6 +21,14 @@ export function getRideStatusConfig(
         bg: 'bg-blue-50',
         text: 'text-blue-700',
         icon: Clock,
+      };
+
+    case 'STARTED':
+      return {
+        label: 'Started',
+        bg: 'bg-indigo-50',
+        text: 'text-indigo-700',
+        icon: Navigation,
       };
 
     case 'COMPLETED':
@@ -82,9 +91,9 @@ export function getBookingStatusConfig(
 
     case 'COMPLETED':
       return {
-        label: 'Cancelled',
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
+        label: 'Completed',
+        bg: 'bg-green-50',
+        text: 'text-green-700',
       };
 
     default:

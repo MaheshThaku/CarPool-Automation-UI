@@ -103,11 +103,9 @@ export function dateOffset(
 }
 
 export function inputCls(hasIcon: boolean, error?: string): string {
-  return `w-full rounded-xl border ${
-    error
+  return `w-full rounded-xl border ${error
       ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
       : "border-[var(--border)] focus:border-[var(--primary)] focus:ring-[var(--primary)]/20"
-  } bg-white py-3 pr-4 text-sm text-[var(--heading)] placeholder:text-[var(--text-light)] outline-none transition-all focus:ring-2 ${
-    hasIcon ? "pl-10" : "pl-4"
-  }`;
+    } bg-white py-3 pr-4 text-sm text-[var(--heading)] placeholder:text-[var(--text-light)] outline-none transition-all focus:ring-2 ${hasIcon ? "pl-10" : "pl-4"
+    }`;
 }

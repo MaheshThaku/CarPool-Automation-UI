@@ -46,14 +46,14 @@ class BookingService {
   }
 
   /**
-   * GET /api/v1/bookings/ride/{rideId}
+   * GET /api/v1/rider/ride/{rideId}
    * Driver: fetch all booking requests for one of their published rides.
    * Returns [] on non-401 errors so the UI degrades gracefully.
    */
   async getBookingsByRide(rideId: number): Promise<RideBookingResponse[]> {
     try {
       const { data } = await api.get<RideBookingResponse[]>(
-        `/v1/bookings/ride/${rideId}`
+        `/v1/rider/ride/${rideId}`
       );
       return data;
     } catch (err: unknown) {
@@ -64,13 +64,13 @@ class BookingService {
   }
 
   /**
-   * PUT /api/v1/bookings/{bookingId}/approve
+   * PUT /api/v1/rider/{bookingId}/approve
    * Driver: approve a pending booking request.
    */
   async approveBooking(bookingId: number): Promise<RideBookingResponse> {
     try {
       const { data } = await api.put<RideBookingResponse>(
-        `/v1/bookings/${bookingId}/approve`
+        `/v1/rider/${bookingId}/approve`
       );
       return data;
     } catch (error) {
@@ -79,13 +79,13 @@ class BookingService {
   }
 
   /**
-   * PUT /api/v1/bookings/{bookingId}/reject
+   * PUT /api/v1/rider/{bookingId}/reject
    * Driver: reject a pending booking request.
    */
   async rejectBooking(bookingId: number): Promise<RideBookingResponse> {
     try {
       const { data } = await api.put<RideBookingResponse>(
-        `/v1/bookings/${bookingId}/reject`
+        `/v1/rider/${bookingId}/reject`
       );
       return data;
     } catch (error) {

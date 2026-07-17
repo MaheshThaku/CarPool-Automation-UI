@@ -4,7 +4,7 @@ import { getCookie } from "@/lib/cookies";
 import {
   ProfileData,
   UpdateProfileRequest,
-  // ChangePasswordRequest,
+  ChangePasswordRequest,
   AvatarUploadResponse,
   Gender,
   UserRole,
@@ -182,20 +182,20 @@ async getProfile(): Promise<ProfileData> {
    * Until the backend adds it, requests will fail with 404 — surfaced to the
    * caller as a distinct, honest error message instead of a generic one.
    */
-  // async changePassword(payload: ChangePasswordRequest): Promise<void> {
-  //   try {
-  //     await api.post("/v1/user/change-password", payload);
-  //   } catch (err: unknown) {
-  //     const status = (err as { response?: { status?: number } })?.response?.status;
-  //     if (status === 404 || status === 405) {
-  //       throw new Error("Password changes aren't supported by the server yet. Please try again later.");
-  //     }
-  //     if (status === 400 || status === 401) {
-  //       throw new Error("Current password is incorrect.");
-  //     }
-  //     throw new Error("Failed to change password. Please try again.");
-  //   }
-  // }
+  async changePassword(payload: ChangePasswordRequest): Promise<void> {
+    try {
+      await api.post("/v1/user/change-password", payload);
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 404 || status === 405) {
+        throw new Error("Password changes aren't supported by the server yet. Please try again later.");
+      }
+      if (status === 400 || status === 401) {
+        throw new Error("Current password is incorrect.");
+      }
+      throw new Error("Failed to change password. Please try again.");
+    }
+  }
 }
 
 export const profileService = new ProfileService();

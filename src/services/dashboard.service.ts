@@ -119,18 +119,28 @@ getPassengerStats(): Promise<PassengerStats | null> {
   );
 }
 
-getUpcomingTrips(): Promise<UpcomingTrip[]> {
-  return safeGet(
-    '/v1/passenger/booking/upcoming',
-    [],
-  );
+async getUpcomingTrips(): Promise<UpcomingTrip[]> {
+  try {
+    const res = await api.get<{ content: UpcomingTrip[] }>('/v1/bookings/my-bookings?size=100');
+    const list = res.data?.content ?? [];
+    return list.filter(b => b.status === 'PENDING' || b.status === 'APPROVED');
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 401) throw err;
+    return [];
+  }
 }
 
-getRecentBookings(): Promise<RecentBooking[]> {
-  return safeGet(
-    '/v1/passenger/booking/recent',
-    [],
-  );
+async getRecentBookings(): Promise<RecentBooking[]> {
+  try {
+    const res = await api.get<{ content: RecentBooking[] }>('/v1/bookings/my-bookings?size=100');
+    const list = res.data?.content ?? [];
+    return list.filter(b => b.status === 'COMPLETED' || b.status === 'REJECTED' || b.status === 'CANCELLED');
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 401) throw err;
+    return [];
+  }
 }
 
 getProfileVerification(): Promise<ProfileVerification | null> {
@@ -140,11 +150,15 @@ getProfileVerification(): Promise<ProfileVerification | null> {
   );
 }
 
-getAllBookings(): Promise<BookingListItem[]> {
-  return safeGet(
-    '/v1/passenger/booking/all',
-    [],
-  );
+async getAllBookings(): Promise<BookingListItem[]> {
+  try {
+    const res = await api.get<{ content: BookingListItem[] }>('/v1/bookings/my-bookings?size=100');
+    return res.data?.content ?? [];
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 401) throw err;
+    return [];
+  }
 }
 }
 

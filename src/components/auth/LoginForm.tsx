@@ -29,10 +29,11 @@ interface StoredUser {
 
 /* Normalize the /users/me response into the shape we persist in the `user`
    cookie. This shapes an API response — it does NOT decode the JWT. */
-function normalizeUser(data: unknown, email: string): StoredUser {
+function normalizeUser(data: unknown, email: string, roleOverride?: string): StoredUser {
   const obj = (data ?? {}) as Record<string, unknown>;
 
   const role =
+    roleOverride ||
     (Array.isArray(obj.roles) ? String(obj.roles[0]) : '') ||
     (Array.isArray(obj.authorities)
       ? String(
@@ -97,7 +98,7 @@ export default function LoginForm() {
         role === 'ROLE_RIDER' ? '/v1/rider/profile' : '/v1/passenger/profile';
 
       const profileRes = await api.get(profilePath);
-      const user = normalizeUser(profileRes.data, data.email.trim());
+      const user = normalizeUser(profileRes.data, data.email.trim(), role);
 
       // Persist only the safe user fields in a non-httpOnly cookie.
       setCookie('user', JSON.stringify(user));
