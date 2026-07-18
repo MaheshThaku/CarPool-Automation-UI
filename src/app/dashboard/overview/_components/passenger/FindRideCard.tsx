@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import { Calendar, ArrowLeftRight, MapPin } from 'lucide-react';
 
@@ -9,6 +9,24 @@ import { useRouter } from 'next/navigation';
 
 function FindRideCardComponent() {
   const router = useRouter();
+  const [sourceCity, setSourceCity] = useState('');
+  const [destinationCity, setDestinationCity] = useState('');
+  const [departureDate, setDepartureDate] = useState('');
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (sourceCity.trim()) params.append('sourceCity', sourceCity.trim());
+    if (destinationCity.trim()) params.append('destinationCity', destinationCity.trim());
+    if (departureDate) params.append('departureDate', departureDate);
+
+    router.push(`/dashboard/rides?${params.toString()}`);
+  };
+
+  const handleSwap = () => {
+    const temp = sourceCity;
+    setSourceCity(destinationCity);
+    setDestinationCity(temp);
+  };
 
   return (
     <DashboardCard className="relative overflow-hidden border-0 bg-gradient-to-r from-[#c96d05] to-[#f0b54d] p-8 text-white">
@@ -30,13 +48,22 @@ function FindRideCardComponent() {
               <input
                 placeholder="From"
                 className="w-full bg-transparent text-[var(--heading)] outline-none"
+                value={sourceCity}
+                onChange={(e) => setSourceCity(e.target.value)}
               />
             </div>
 
             {/* Swap */}
 
             <div className="flex items-center justify-center">
-              <ArrowLeftRight size={18} className="text-[var(--primary)]" />
+              <button
+                type="button"
+                className="flex items-center justify-center transition-transform hover:scale-110 active:scale-95 text-[var(--primary)]"
+                onClick={handleSwap}
+                aria-label="Swap departure and arrival cities"
+              >
+                <ArrowLeftRight size={18} />
+              </button>
             </div>
 
             {/* Destination */}
@@ -47,6 +74,8 @@ function FindRideCardComponent() {
               <input
                 placeholder="To"
                 className="w-full bg-transparent text-[var(--heading)] outline-none"
+                value={destinationCity}
+                onChange={(e) => setDestinationCity(e.target.value)}
               />
             </div>
 
@@ -58,6 +87,8 @@ function FindRideCardComponent() {
               <input
                 type="date"
                 className="w-full bg-transparent text-[var(--heading)] outline-none"
+                value={departureDate}
+                onChange={(e) => setDepartureDate(e.target.value)}
               />
             </div>
 
@@ -65,7 +96,7 @@ function FindRideCardComponent() {
 
             <button
               className="rounded-xl bg-[var(--primary)] px-6 py-3 font-semibold text-white transition hover:bg-[var(--primary-hover)]"
-              onClick={() => router.push('/dashboard/rides')}
+              onClick={handleSearch}
             >
               Search Rides
             </button>
@@ -77,3 +108,4 @@ function FindRideCardComponent() {
 }
 
 export default memo(FindRideCardComponent);
+

@@ -211,31 +211,19 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
         {/* Status */}
 
         <td className="px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span
-              className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${status.bg} ${status.text} `}
-            >
-              <StatusIcon size={12} />
+          <span
+            className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${status.bg} ${status.text} `}
+          >
+            <StatusIcon size={12} />
 
-              {status.label}
-            </span>
-            {!isTerminal && (
-              <button
-                type="button"
-                onClick={() => setIsStatusDialogOpen(true)}
-                className="p-1.5 hover:bg-gray-100 rounded-full transition-all inline-flex items-center justify-center text-gray-500 hover:text-gray-700 active:scale-95"
-                title="Update Status"
-              >
-                <MoreVertical size={14} />
-              </button>
-            )}
-          </div>
+            {status.label}
+          </span>
         </td>
 
         {/* Bookings */}
 
         <td className="px-6 py-4 text-right">
-          <div className="flex justify-end items-center gap-2">
+          <div className="flex justify-end items-center gap-2.5">
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
@@ -244,6 +232,16 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
               Bookings
               {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
+            {!isTerminal && (
+              <button
+                type="button"
+                onClick={() => setIsStatusDialogOpen(true)}
+                className="inline-flex h-9.5 w-9.5 items-center justify-center rounded-xl border border-[var(--border)] text-gray-500 transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-gray-50 active:scale-95"
+                title="Update Status"
+              >
+                <MoreVertical size={16} />
+              </button>
+            )}
           </div>
         </td>
       </tr>

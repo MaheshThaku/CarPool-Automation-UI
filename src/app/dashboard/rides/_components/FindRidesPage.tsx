@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { bookingService } from '@/services/booking.service';
 import { rideService } from '@/services/ride.service';
@@ -17,6 +18,11 @@ import { RideSearchSchemaType } from '../schemas/ride-search.schema';
 
 export default function FindRidesPage() {
   const currentUser = useCurrentUser();
+  const searchParamsFromURL = useSearchParams();
+
+  const urlSource = searchParamsFromURL.get('sourceCity') || '';
+  const urlDestination = searchParamsFromURL.get('destinationCity') || '';
+  const urlDate = searchParamsFromURL.get('departureDate') || '';
 
   const [searchParams, setSearchParams] = useState<RideSearchSchemaType | null>(
     null,
@@ -25,6 +31,26 @@ export default function FindRidesPage() {
   const [selectedRoute, setSelectedRoute] = useState<
     Partial<RideSearchSchemaType>
   >({});
+
+  // Sync state with URL query parameters on mount or when URL changes
+  useEffect(() => {
+    if (urlSource || urlDestination || urlDate) {
+      setSelectedRoute({
+        sourceCity: urlSource,
+        destinationCity: urlDestination,
+        departureDate: urlDate,
+      });
+
+      if (urlSource.length >= 2 && urlDestination.length >= 2) {
+        setSearchParams({
+          sourceCity: urlSource,
+          destinationCity: urlDestination,
+          departureDate: urlDate,
+          requiredSeats: 1,
+        });
+      }
+    }
+  }, [urlSource, urlDestination, urlDate]);
 
   const [bookingLoadingRideId, setBookingLoadingRideId] = useState<
     number | null

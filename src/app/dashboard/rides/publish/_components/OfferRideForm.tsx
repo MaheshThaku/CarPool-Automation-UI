@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
   MapPin,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Car,
   Clock,
   AlertCircle,
@@ -295,15 +295,15 @@ export default function OfferRideForm() {
                         onSelect={(location) => {
                           field.onChange(location.city);
 
-                          setValue("destinationAddress", location.address, {
+                          setValue("sourceAddress", location.address, {
                             shouldValidate: true,
                           });
 
-                          setValue("destinationLatitude", location.latitude, {
+                          setValue("sourceLatitude", location.latitude, {
                             shouldValidate: true,
                           });
 
-                          setValue("destinationLongitude", location.longitude, {
+                          setValue("sourceLongitude", location.longitude, {
                             shouldValidate: true,
                           });
                         }}
@@ -492,7 +492,7 @@ export default function OfferRideForm() {
                 <InputField
                   label="Price per Seat (₹)"
                   required
-                  icon={DollarSign}
+                  icon={IndianRupee}
                   error={errors.pricePerSeat?.message}
                 >
                   <input
