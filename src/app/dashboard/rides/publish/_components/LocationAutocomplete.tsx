@@ -143,7 +143,7 @@ export default function LocationAutocomplete({
         ref={inputRef}
         // Applying !bg-transparent fixes the missing icon bug by allowing the
         // absolute icon behind this input element to shine right through.
-        className={`${inputClassName} !bg-transparent`}
+        className={`${inputClassName} bg-transparent!`}
         value={query}
         placeholder={placeholder}
         autoComplete="off"
