@@ -2,13 +2,14 @@
 
 import { memo, useState } from 'react';
 
-import { ArrowRight, Car, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { ArrowRight, Car, ChevronDown, ChevronUp, Users, MoreVertical } from 'lucide-react';
 
 import { RideResponse, RideStatus } from '@/types/ride.types';
 import { rideService } from '@/services/ride.service';
 
 import RideBookingsPanel from './RideBookingPanel';
 import { getRideStatusConfig } from './ride-status';
+import UpdateStatusDialog from './UpdateStatusDialog';
 
 interface Props {
   ride: RideResponse;
@@ -40,6 +41,7 @@ function formatDeparture(departureTime: string) {
 function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
 
   const departure = formatDeparture(ride.departureTime);
 
@@ -48,41 +50,6 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
   const StatusIcon = status.icon;
 
   const isTerminal = ride.status === 'COMPLETED' || ride.status === 'CANCELLED';
-
-  const handleStatusChange = async (newStatus: RideStatus) => {
-    if (newStatus === ride.status) return;
-
-    let confirmed = false;
-    if (newStatus === 'STARTED') {
-      confirmed = window.confirm(
-        'Are you sure you want to start this ride? This will notify all passengers.'
-      );
-    } else if (newStatus === 'COMPLETED') {
-      confirmed = window.confirm(
-        'Are you sure you want to mark this ride as completed? This will complete all approved bookings.'
-      );
-    } else if (newStatus === 'CANCELLED') {
-      confirmed = window.confirm(
-        'Are you sure you want to cancel this ride? This will cancel all bookings.'
-      );
-    } else {
-      confirmed = true;
-    }
-
-    if (!confirmed) return;
-
-    try {
-      setLoading(true);
-      await rideService.updateRideStatus(ride.id, newStatus);
-      if (onRefresh) {
-        onRefresh();
-      }
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update ride status');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /* ---------------- MOBILE ---------------- */
 
@@ -149,37 +116,14 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
 
         {!isTerminal && (
           <div className="mt-4">
-            <label className="text-xs text-[var(--text-light)] block mb-1">Update Status</label>
-            <div className="relative w-full">
-              <select
-                disabled={loading}
-                value={ride.status}
-                onChange={(e) => handleStatusChange(e.target.value as RideStatus)}
-                className={`w-full appearance-none rounded-xl border px-3 py-2 pr-8 text-sm font-semibold focus:outline-none transition-all cursor-pointer ${
-                  ride.status === 'STARTED'
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                    : 'bg-blue-50 border-blue-200 text-blue-700'
-                }`}
-              >
-                {ride.status === 'SCHEDULED' && (
-                  <>
-                    <option value="SCHEDULED">Scheduled</option>
-                    <option value="STARTED">Start Ride</option>
-                    <option value="CANCELLED">Cancel Ride</option>
-                  </>
-                )}
-                {ride.status === 'STARTED' && (
-                  <>
-                    <option value="STARTED">Started</option>
-                    <option value="COMPLETED">Complete Ride</option>
-                    <option value="CANCELLED">Cancel Ride</option>
-                  </>
-                )}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <ChevronDown size={14} />
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsStatusDialogOpen(true)}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] px-4 py-2.5 text-sm font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white disabled:opacity-50"
+            >
+              Update Ride Status
+            </button>
           </div>
         )}
 
@@ -196,6 +140,14 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
           <div className="mt-4">
             <RideBookingsPanel rideId={ride.id} />
           </div>
+        )}
+
+        {isStatusDialogOpen && (
+          <UpdateStatusDialog
+            ride={ride}
+            onClose={() => setIsStatusDialogOpen(false)}
+            onRefresh={onRefresh}
+          />
         )}
       </div>
     );
@@ -259,7 +211,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
         {/* Status */}
 
         <td className="px-6 py-4">
-          {isTerminal ? (
+          <div className="flex items-center gap-2">
             <span
               className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${status.bg} ${status.text} `}
             >
@@ -267,38 +219,17 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
 
               {status.label}
             </span>
-          ) : (
-            <div className="relative inline-block w-36">
-              <select
-                disabled={loading}
-                value={ride.status}
-                onChange={(e) => handleStatusChange(e.target.value as RideStatus)}
-                className={`w-full appearance-none rounded-xl border px-3 py-1.5 pr-8 text-xs font-semibold focus:outline-none transition-all cursor-pointer ${
-                  ride.status === 'STARTED'
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                    : 'bg-blue-50 border-blue-200 text-blue-700'
-                }`}
+            {!isTerminal && (
+              <button
+                type="button"
+                onClick={() => setIsStatusDialogOpen(true)}
+                className="p-1.5 hover:bg-gray-100 rounded-full transition-all inline-flex items-center justify-center text-gray-500 hover:text-gray-700 active:scale-95"
+                title="Update Status"
               >
-                {ride.status === 'SCHEDULED' && (
-                  <>
-                    <option value="SCHEDULED">Scheduled</option>
-                    <option value="STARTED">Start Ride</option>
-                    <option value="CANCELLED">Cancel Ride</option>
-                  </>
-                )}
-                {ride.status === 'STARTED' && (
-                  <>
-                    <option value="STARTED">Started</option>
-                    <option value="COMPLETED">Complete Ride</option>
-                    <option value="CANCELLED">Cancel Ride</option>
-                  </>
-                )}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <ChevronDown size={12} />
-              </div>
-            </div>
-          )}
+                <MoreVertical size={14} />
+              </button>
+            )}
+          </div>
         </td>
 
         {/* Bookings */}
@@ -323,6 +254,14 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
             <RideBookingsPanel rideId={ride.id} />
           </td>
         </tr>
+      )}
+
+      {isStatusDialogOpen && (
+        <UpdateStatusDialog
+          ride={ride}
+          onClose={() => setIsStatusDialogOpen(false)}
+          onRefresh={onRefresh}
+        />
       )}
     </>
   );

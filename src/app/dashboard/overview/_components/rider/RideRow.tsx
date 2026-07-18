@@ -14,7 +14,7 @@ interface Props {
   availableSeats: number;
   pricePerSeat: number;
 
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+  status: 'SCHEDULED' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
 }
 
 function RideRowComponent({
@@ -31,6 +31,11 @@ function RideRowComponent({
     SCHEDULED: {
       label: 'Scheduled',
       className: 'bg-blue-50 text-blue-700',
+    },
+
+    STARTED: {
+      label: 'Started',
+      className: 'bg-indigo-50 text-indigo-700',
     },
 
     COMPLETED: {

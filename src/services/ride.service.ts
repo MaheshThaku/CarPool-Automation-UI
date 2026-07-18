@@ -7,6 +7,7 @@ import {
   RideResponse,
   RideSearchRequest,
   RideSearchResponse,
+  RideStatus,
 } from "@/types/ride.types";
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
