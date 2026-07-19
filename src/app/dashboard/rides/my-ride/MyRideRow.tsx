@@ -66,9 +66,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
               <span>{ride.destinationCity}</span>
             </div>
 
-            <p className="mt-1 text-xs text-[var(--text-light)]">
-              Ride #{ride.id}
-            </p>
+
           </div>
 
           <span
@@ -175,9 +173,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
                 <span>{ride.destinationCity}</span>
               </div>
 
-              <p className="text-sm text-[var(--text-light)]">
-                Ride #{ride.id}
-              </p>
+
             </div>
           </div>
         </td>

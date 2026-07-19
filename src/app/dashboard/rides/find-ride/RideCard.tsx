@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Calendar, Clock, IndianRupee, MapPin, Users } from 'lucide-react';
+import { Calendar, Clock, IndianRupee, Users } from 'lucide-react';
 
 import { RideCardProps } from '../_types/ride-page.types';
 import {
@@ -15,6 +15,7 @@ function RideCardComponent({
   onBook,
   booked = false,
   bookingLoading = false,
+  requiredSeats = 1,
 }: RideCardProps) {
   const departure = formatDeparture(ride.departureTime);
 
@@ -23,128 +24,81 @@ function RideCardComponent({
   const status = rideStatusConfig(ride.status);
 
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 transition-all duration-300 hover:border-[var(--primary)] hover:shadow-lg">
-      {/* Header */}
-
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-[var(--primary)]" />
-
-            <h3 className="truncate text-lg font-semibold text-[var(--heading)]">
+    <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-all duration-300 hover:border-[var(--primary)] hover:shadow-md">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.3fr_1.3fr_1fr_1.1fr] md:items-center">
+        {/* Route (From -> To) */}
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="relative flex flex-col justify-center items-center py-1 flex-shrink-0">
+            <div className="w-2.5 h-2.5 rounded-full border-2 border-[var(--primary)] bg-white" />
+            <div className="w-0.5 h-5 bg-[var(--border)] my-0.5" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
+          </div>
+          <div className="flex flex-col justify-between py-0.5 h-11 min-w-0">
+            <span className="text-sm font-semibold text-[var(--heading)] truncate leading-tight">
               {ride.sourceCity}
-            </h3>
-          </div>
-
-          <div className="mt-1 ml-2 h-5 w-px bg-[var(--border)]" />
-
-          <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-[var(--primary)]" />
-
-            <h3 className="truncate text-lg font-semibold text-[var(--heading)]">
+            </span>
+            <span className="text-sm font-semibold text-[var(--heading)] truncate leading-tight">
               {ride.destinationCity}
-            </h3>
+            </span>
           </div>
         </div>
 
-        <span
-          className={`rounded-full border px-3 py-1 text-xs font-semibold ${status.className} `}
-        >
-          {status.label}
-        </span>
-      </div>
-
-      {/* Ride Details */}
-
-      <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div>
-          <div className="flex items-center gap-1 text-[var(--text-light)]">
-            <Calendar size={14} />
-            <span className="text-xs">Date</span>
+        {/* Schedule & Vehicle */}
+        <div className="flex flex-col justify-center gap-1 md:border-l md:border-[var(--border)] md:pl-4 min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)] flex-wrap">
+            <Calendar size={13} className="text-[var(--primary)]" />
+            <span className="font-medium text-[var(--heading)]">{departure.date}</span>
+            <span>•</span>
+            <Clock size={13} className="text-[var(--primary)]" />
+            <span className="font-medium text-[var(--heading)]">{departure.time}</span>
           </div>
-
-          <p className="mt-1 text-sm font-medium text-[var(--heading)]">
-            {departure.date}
-          </p>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-1 text-[var(--text-light)]">
-            <Clock size={14} />
-            <span className="text-xs">Time</span>
+          <div className="flex items-center gap-2 text-xs text-[var(--text-light)] min-w-0">
+            <span className="truncate">Driver: <strong className="font-medium text-[var(--heading)]">{ride.driverName}</strong></span>
+            <span>•</span>
+            <span className="truncate">Vehicle: <strong className="font-medium text-[var(--heading)]">{ride.vehicleName}</strong></span>
           </div>
-
-          <p className="mt-1 text-sm font-medium text-[var(--heading)]">
-            {departure.time}
-          </p>
         </div>
 
-        <div>
-          <div className="flex items-center gap-1 text-[var(--text-light)]">
-            <Users size={14} />
-            <span className="text-xs">Seats Available</span>
+        {/* Seats & Price */}
+        <div className="flex flex-col justify-center gap-1 md:border-l md:border-[var(--border)] md:pl-4">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)]">
+            <Users size={13} className="text-[var(--primary)]" />
+            <span>Available:</span>
+            <span className="font-semibold text-[var(--heading)]">{availableSeats} seats</span>
           </div>
-
-          <p className="mt-1 text-sm font-medium text-[var(--heading)]">
-            {availableSeats}
-          </p>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-1 text-[var(--text-light)]">
-            <IndianRupee size={14} />
-            <span className="text-xs">Per Seat</span>
+          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)]">
+            <IndianRupee size={13} className="text-[var(--primary)]" />
+            <span>Per seat:</span>
+            <span className="font-bold text-[var(--primary)]">{formatCurrency(ride.pricePerSeat)}</span>
           </div>
-
-          <p className="mt-1 text-sm font-semibold text-[var(--primary)]">
-            {formatCurrency(ride.pricePerSeat)}
-          </p>
-        </div>
-      </div>
-
-      {/* Vehicle Info */}
-
-      <div className="mt-4 rounded-xl bg-[var(--background)] p-3">
-        <p className="text-xs text-[var(--text-light)]">Vehicle</p>
-
-        <p className="mt-1 text-sm font-medium text-[var(--heading)]">
-          {ride.vehicleName}
-        </p>
-
-        <p className="text-xs text-[var(--text-light)]">
-          {ride.vehicleLicensePlate}
-        </p>
-      </div>
-
-      {/* Footer */}
-
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs text-[var(--text-light)]">Driver</p>
-
-          <p className="text-sm font-medium text-[var(--heading)]">
-            {ride.driverName}
-          </p>
         </div>
 
-        <button
-          type="button"
-          disabled={availableSeats <= 0 || bookingLoading || booked}
-          onClick={() => onBook?.(ride.id)}
-          className={`rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all ${
-            booked
-              ? 'bg-green-600'
-              : 'bg-[var(--primary)] hover:bg-[var(--primary-hover)]'
-          } disabled:cursor-not-allowed disabled:opacity-70`}
-        >
-          {bookingLoading
-            ? 'Booking...'
-            : booked
-              ? 'Request Sent'
-              : availableSeats <= 0
-                ? 'Ride Full'
-                : 'Book Ride'}
-        </button>
+        {/* Status & Booking button */}
+        <div className="flex items-center justify-between gap-4 pt-3 border-t border-[var(--border)] md:border-t-0 md:pt-0 md:border-l md:border-[var(--border)] md:pl-4 md:flex-col md:items-end md:justify-center">
+          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold flex-shrink-0 ${status.className}`}>
+            {status.label}
+          </span>
+          <button
+            type="button"
+            disabled={availableSeats <= 0 || bookingLoading || booked}
+            onClick={() => onBook?.(ride.id)}
+            className={`w-full md:w-auto rounded-lg px-4 py-2 text-xs font-semibold text-white transition-all shadow-sm ${
+              booked
+                ? 'bg-green-600'
+                : 'bg-[var(--primary)] hover:bg-[var(--primary-hover)]'
+            } disabled:cursor-not-allowed disabled:opacity-70`}
+          >
+            {bookingLoading
+              ? 'Booking...'
+              : booked
+                ? 'Request Sent'
+                : availableSeats <= 0
+                  ? 'Full'
+                  : requiredSeats > 1
+                    ? `Book ${requiredSeats} Seats`
+                    : 'Book Ride'}
+          </button>
+        </div>
       </div>
     </article>
   );
