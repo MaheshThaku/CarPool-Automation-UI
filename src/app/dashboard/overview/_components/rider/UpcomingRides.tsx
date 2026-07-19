@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Calendar } from 'lucide-react';
 
 import DashboardCard from '../shared/DashboardCard';
@@ -12,15 +12,17 @@ import RideRow from './RideRow';
 import { RideResponse } from '@/types/ride.types';
 
 interface Props {
-  rides: RideResponse[];
+  readonly rides: RideResponse[];
+  readonly page: number;
+  readonly totalPages: number;
+  readonly totalElements: number;
+  readonly onPageChange: (page: number) => void;
+}
 
-  page: number;
-
-  totalPages: number;
-
-  totalElements: number;
-
-  onPageChange: (page: number) => void;
+function isUpcomingRide(
+  ride: RideResponse,
+): ride is RideResponse & { status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' } {
+  return ride.status !== 'STARTED';
 }
 
 function UpcomingRidesComponent({
@@ -31,33 +33,29 @@ function UpcomingRidesComponent({
   onPageChange,
 }: Props) {
   const hasPrev = page > 1;
-
   const hasNext = page < totalPages;
+
+  const upcomingRides = useMemo(() => rides.filter(isUpcomingRide), [rides]);
 
   return (
     <DashboardCard className="flex flex-col overflow-hidden p-0">
-      {/* Header */}
-
-      <div className="flex items-start justify-between border-b border-[var(--border)] px-6 py-5">
+      <div className="flex items-start justify-between border-b border-(--border) px-6 py-5">
         <div>
-          <h3 className="text-2xl font-semibold text-[var(--heading)]">
+          <h3 className="text-2xl font-semibold text-(--heading)">
             Upcoming Rides
           </h3>
-
-          <p className="mt-1 text-sm text-[var(--text-light)]">
+          <p className="mt-1 text-sm text-(--text-light)">
             Your scheduled published rides
           </p>
         </div>
 
-        <span className="rounded-full bg-[var(--primary-light)] px-3 py-1 text-sm font-semibold text-[var(--primary)]">
+        <span className="rounded-full bg-(--primary-light) px-3 py-1 text-sm font-semibold text-(--primary)">
           {totalElements} Rides
         </span>
       </div>
 
-      {/* Body */}
-
       <div className="flex-1 overflow-hidden">
-        {rides.length === 0 ? (
+        {upcomingRides.length === 0 ? (
           <div className="px-6 py-10">
             <EmptyState
               icon={Calendar}
@@ -66,8 +64,8 @@ function UpcomingRidesComponent({
             />
           </div>
         ) : (
-          <div className="divide-y divide-[var(--border)] px-6">
-            {rides.map((ride) => (
+          <div className="divide-y divide-(--border) px-6">
+            {upcomingRides.map((ride) => (
               <RideRow
                 key={ride.id}
                 id={ride.id}
@@ -83,10 +81,8 @@ function UpcomingRidesComponent({
         )}
       </div>
 
-      {/* Footer */}
-
       {totalPages > 1 && (
-        <div className="border-t border-[var(--border)] px-6 py-4">
+        <div className="border-t border-(--border) px-6 py-4">
           <Pagination
             page={page}
             totalPages={totalPages}

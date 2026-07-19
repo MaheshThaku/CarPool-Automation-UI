@@ -11,10 +11,9 @@ import {
   Car,
   Clock,
   AlertCircle,
-  ArrowLeftRight,
+  ArrowUpDown,
   Plus,
 } from 'lucide-react';
-
 
 import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
 import { vehicleService } from '@/services/vehicle.service';
@@ -24,6 +23,7 @@ import {
   offerRideSchema,
   OfferRideFormValues,
 } from '@/schemas/publish-ride.schema';
+import { LocationResult } from '@/services/photon.service';
 
 import {
   toLocalDateTime,
@@ -37,6 +37,33 @@ import SeatPicker from './SeatPicker';
 import RidePreview from './RidePreview';
 import SuccessState from './SuccessState';
 import NoVehicleState from './NoVehicleState';
+
+const QUICK_PICK_DATES = [
+  { label: 'Today', days: 0 },
+  { label: 'Tomorrow', days: 1 },
+  { label: 'In a Week', days: 7 },
+] as const;
+
+const DEFAULT_FORM_VALUES: OfferRideFormValues = {
+  vehicleId: 0,
+
+  sourceCity: "",
+  sourceAddress: "",
+  sourceLatitude: 0,
+  sourceLongitude: 0,
+
+  destinationCity: "",
+  destinationAddress: "",
+  destinationLatitude: 0,
+  destinationLongitude: 0,
+
+  totalSeats: 2,
+
+  departureDate: "",
+  departureTime: "",
+
+  pricePerSeat: "",
+};
 
 export default function OfferRideForm() {
   const vehicles$ = useAsyncData(() => vehicleService.getMyVehicles(), [], {
@@ -57,60 +84,30 @@ export default function OfferRideForm() {
   } = useForm<OfferRideFormValues>({
     resolver: zodResolver(offerRideSchema),
     mode: 'onChange',
-    defaultValues: {
-      vehicleId: 0,
-
-      sourceCity: "",
-      sourceAddress: "",
-      sourceLatitude: 0,
-      sourceLongitude: 0,
-
-      destinationCity: "",
-      destinationAddress: "",
-      destinationLatitude: 0,
-      destinationLongitude: 0,
-
-      totalSeats: 2,
-
-      departureDate: "",
-      departureTime: "",
-
-      pricePerSeat: "",
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  // useWatch (a proper hook backed by react-hook-form's subscription store)
-  // instead of calling watch() during render — watch() returns a fresh,
-  // unmemoized value on every call and isn't safe under the React Compiler.
-  // useWatch's "watch everything" overload types its result as a deep-partial,
-  // since fields can theoretically be unset; we fall back to the same
-  // defaults passed to useForm so `values` is always a complete OfferRideFormValues.
   const watchedValues = useWatch({ control });
   const values: OfferRideFormValues = {
-    vehicleId: watchedValues.vehicleId ?? 0,
+    vehicleId: watchedValues.vehicleId ?? DEFAULT_FORM_VALUES.vehicleId,
 
-    sourceCity: watchedValues.sourceCity ?? "",
-    sourceAddress: watchedValues.sourceAddress ?? "",
-    sourceLatitude: watchedValues.sourceLatitude ?? 0,
-    sourceLongitude: watchedValues.sourceLongitude ?? 0,
+    sourceCity: watchedValues.sourceCity ?? DEFAULT_FORM_VALUES.sourceCity,
+    sourceAddress: watchedValues.sourceAddress ?? DEFAULT_FORM_VALUES.sourceAddress,
+    sourceLatitude: watchedValues.sourceLatitude ?? DEFAULT_FORM_VALUES.sourceLatitude,
+    sourceLongitude: watchedValues.sourceLongitude ?? DEFAULT_FORM_VALUES.sourceLongitude,
 
-    destinationCity: watchedValues.destinationCity ?? "",
-    destinationAddress: watchedValues.destinationAddress ?? "",
-    destinationLatitude: watchedValues.destinationLatitude ?? 0,
-    destinationLongitude: watchedValues.destinationLongitude ?? 0,
+    destinationCity: watchedValues.destinationCity ?? DEFAULT_FORM_VALUES.destinationCity,
+    destinationAddress: watchedValues.destinationAddress ?? DEFAULT_FORM_VALUES.destinationAddress,
+    destinationLatitude: watchedValues.destinationLatitude ?? DEFAULT_FORM_VALUES.destinationLatitude,
+    destinationLongitude: watchedValues.destinationLongitude ?? DEFAULT_FORM_VALUES.destinationLongitude,
 
-    departureDate: watchedValues.departureDate ?? "",
-    departureTime: watchedValues.departureTime ?? "",
+    departureDate: watchedValues.departureDate ?? DEFAULT_FORM_VALUES.departureDate,
+    departureTime: watchedValues.departureTime ?? DEFAULT_FORM_VALUES.departureTime,
 
-    pricePerSeat: watchedValues.pricePerSeat ?? "",
-    totalSeats: watchedValues.totalSeats ?? 2,
+    pricePerSeat: watchedValues.pricePerSeat ?? DEFAULT_FORM_VALUES.pricePerSeat,
+    totalSeats: watchedValues.totalSeats ?? DEFAULT_FORM_VALUES.totalSeats,
   };
 
-  // A vehicle is always pre-selected so the rider never has to choose one
-  // just to publish a ride. The default is the first vehicle they added
-  // (lowest id) — same rule the Manage Vehicles page uses for its "Default"
-  // badge. With 2+ vehicles they can still change the selection from the
-  // dropdown; this just removes the forced empty first choice.
   useEffect(() => {
     if (vehicles.length > 0 && !values.vehicleId) {
       const defaultVehicle = vehicles.reduce(
@@ -126,6 +123,46 @@ export default function OfferRideForm() {
     values.departureDate,
     values.departureTime,
   );
+
+  function handlePickupSelect(location: LocationResult, onCityChange: (city: string) => void) {
+    onCityChange(location.city);
+    setValue("sourceAddress", location.address, { shouldValidate: true });
+    setValue("sourceLatitude", location.latitude, { shouldValidate: true });
+    setValue("sourceLongitude", location.longitude, { shouldValidate: true });
+  }
+
+  function handleDestinationSelect(location: LocationResult, onCityChange: (city: string) => void) {
+    onCityChange(location.city);
+    setValue("destinationAddress", location.address, { shouldValidate: true });
+    setValue("destinationLatitude", location.latitude, { shouldValidate: true });
+    setValue("destinationLongitude", location.longitude, { shouldValidate: true });
+  }
+
+  function handleSwapLocations() {
+    const source = {
+      city: values.sourceCity,
+      address: values.sourceAddress,
+      lat: values.sourceLatitude,
+      lng: values.sourceLongitude,
+    };
+
+    const destination = {
+      city: values.destinationCity,
+      address: values.destinationAddress,
+      lat: values.destinationLatitude,
+      lng: values.destinationLongitude,
+    };
+
+    setValue("sourceCity", destination.city, { shouldValidate: true });
+    setValue("sourceAddress", destination.address, { shouldValidate: true });
+    setValue("sourceLatitude", destination.lat, { shouldValidate: true });
+    setValue("sourceLongitude", destination.lng, { shouldValidate: true });
+
+    setValue("destinationCity", source.city, { shouldValidate: true });
+    setValue("destinationAddress", source.address, { shouldValidate: true });
+    setValue("destinationLatitude", source.lat, { shouldValidate: true });
+    setValue("destinationLongitude", source.lng, { shouldValidate: true });
+  }
 
   const onSubmit = async (data: OfferRideFormValues) => {
     setSubmitError('');
@@ -152,10 +189,6 @@ export default function OfferRideForm() {
       };
 
       const ride = await rideService.publishRide(publishRideRequest);
-      // A freshly published ride changes the rider's ride list, the
-      // upcoming-rides widget, and the dashboard stats — drop those cached
-      // entries so the next visit to those pages fetches current data
-      // instead of serving what was cached before this ride existed.
       invalidateAsyncCache('rider-rides-list');
       invalidateAsyncCache('rider-upcoming-rides');
       invalidateAsyncCache('rider-stats');
@@ -169,26 +202,7 @@ export default function OfferRideForm() {
   const handleOfferAnother = () => {
     setPublishedRide(null);
     setSubmitError("");
-
-    reset({
-      vehicleId: 0,
-
-      sourceCity: "",
-      sourceAddress: "",
-      sourceLatitude: 0,
-      sourceLongitude: 0,
-
-      destinationCity: "",
-      destinationAddress: "",
-      destinationLatitude: 0,
-      destinationLongitude: 0,
-
-      departureDate: "",
-      departureTime: "",
-
-      totalSeats: 2,
-      pricePerSeat: "",
-    });
+    reset(DEFAULT_FORM_VALUES);
   };
 
   if (publishedRide) {
@@ -202,171 +216,123 @@ export default function OfferRideForm() {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--heading)]">
-          Offer a Ride
-        </h2>
-        <p className="mt-1 text-sm text-[var(--text)]">
-          Fill in the details below to publish your ride. it.
-        </p>
+  let content;
+
+  if (vehicles$.loading) {
+    content = (
+      <div className="space-y-4">
+        <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
       </div>
-
-      {vehicles$.loading ? (
-        <div className="space-y-4">
-          <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
-          <div className="h-40 animate-pulse rounded-2xl bg-gray-100" />
-        </div>
-      ) : vehicles.length === 0 ? (
-        <NoVehicleState />
-      ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Vehicle */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-[var(--heading)]">
-                    Vehicle
-                  </h3>
-                  <p className="mt-0.5 text-xs text-[var(--text-light)]">
-                    Defaults to your primary vehicle — change it anytime.
-                  </p>
-                </div>
-                <Link
-                  href="/dashboard/vehicles"
-                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[var(--primary)] hover:bg-[var(--primary-light)]"
-                >
-                  <Plus size={13} /> Add vehicle
-                </Link>
+    );
+  } else if (vehicles.length === 0) {
+    content = <NoVehicleState />;
+  } else {
+    content = (
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Vehicle */}
+          <div className="rounded-2xl border border-(--border) bg-white p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-(--heading)">Vehicle</h3>
+                <p className="mt-0.5 text-xs text-(--text-light)">
+                  Defaults to your primary vehicle — change it anytime.
+                </p>
               </div>
-
-              <div className="mt-5">
-                <InputField
-                  label="Choose Vehicle"
-                  required
-                  icon={Car}
-                  error={errors.vehicleId?.message}
-                >
-                  <select
-                    {...register('vehicleId', { valueAsNumber: true })}
-                    className={inputCls(true, errors.vehicleId?.message)}
-                  >
-                    <option value={0} disabled>
-                      Select a vehicle…
-                    </option>
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.model} — {v.registrationNumber}
-                      </option>
-                    ))}
-                  </select>
-                </InputField>
-              </div>
+              <Link
+                href="/dashboard/vehicles"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-(--primary) hover:bg-(--primary-light)"
+              >
+                <Plus size={13} /> Add vehicle
+              </Link>
             </div>
 
-            {/* Route */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
-              <h3 className="font-semibold text-[var(--heading)]">
-                Route Details
-              </h3>
-              <p className="mt-0.5 text-xs text-[var(--text-light)]">
-                Where are you starting and where are you going?
-              </p>
-
-              <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <InputField
-                  label="Pickup Location"
-                  required
-                  icon={MapPin}
-                  error={errors.sourceCity?.message}
+            <div className="mt-5 max-w-lg">
+              <InputField
+                label="Choose Vehicle"
+                required
+                icon={Car}
+                error={errors.vehicleId?.message}
+              >
+                <select
+                  {...register('vehicleId', { valueAsNumber: true })}
+                  className={inputCls(true, errors.vehicleId?.message)}
                 >
-                  <Controller
-                    control={control}
-                    name="sourceCity"
-                    render={({ field }) => (
-                      <LocationAutocomplete
-                        label=""
-                        placeholder="Search pickup location..."
-                        value={values.sourceAddress}
-                        onSelect={(location) => {
-                          field.onChange(location.city);
+                  <option value={0} disabled>
+                    Select a vehicle…
+                  </option>
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.model} — {v.registrationNumber}
+                    </option>
+                  ))}
+                </select>
+              </InputField>
+            </div>
+          </div>
 
-                          setValue("sourceAddress", location.address, {
-                            shouldValidate: true,
-                          });
+          {/* Route */}
+          <div className="rounded-2xl border border-(--border) bg-white p-6">
+            <h3 className="font-semibold text-(--heading)">Route Details</h3>
+            <p className="mt-0.5 text-xs text-(--text-light)">
+              Where are you starting and where are you going?
+            </p>
 
-                          setValue("sourceLatitude", location.latitude, {
-                            shouldValidate: true,
-                          });
+            <div className="mt-5 max-w-sm">
+              <InputField
+                label="Pickup Location"
+                required
+                icon={MapPin}
+                error={errors.sourceCity?.message}
+              >
+                <Controller
+                  control={control}
+                  name="sourceCity"
+                  render={({ field }) => (
+                    <LocationAutocomplete
+                      label=""
+                      placeholder="Search pickup location..."
+                      value={values.sourceAddress}
+                      inputClassName={inputCls(
+                        true,
+                        errors.sourceCity?.message,
+                      )}
+                      onSelect={(location) =>
+                        handlePickupSelect(location, field.onChange)
+                      }
+                    />
+                  )}
+                />
+              </InputField>
 
-                          setValue("sourceLongitude", location.longitude, {
-                            shouldValidate: true,
-                          });
-                        }}
-                      />
-                    )}
-                  />
-                </InputField>
+              {/* Floating Swap Button */}
+              <div className="relative z-10 h-0 w-full">
+                <div className="absolute right-0 translate-x-1/2 sm:-right-12 sm:translate-x-0">
+                  {/* 'group' class added here to detect hover */}
+                  <div className="group relative flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={handleSwapLocations}
+                      // Native fallback for browsers/screen-readers
+                      title="Swap starting point and Destination"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:text-(--primary) active:scale-95"
+                      aria-label="Swap locations"
+                    >
+                      <ArrowUpDown size={16} strokeWidth={2.5} />
+                    </button>
 
-                {/* Swap button */}
-                <div className="hidden sm:col-span-2 sm:-my-2 sm:flex sm:justify-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const source = {
-                        city: values.sourceCity,
-                        address: values.sourceAddress,
-                        lat: values.sourceLatitude,
-                        lng: values.sourceLongitude,
-                      };
-
-                      const destination = {
-                        city: values.destinationCity,
-                        address: values.destinationAddress,
-                        lat: values.destinationLatitude,
-                        lng: values.destinationLongitude,
-                      };
-
-                      setValue("sourceAddress", destination.address, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("sourceLatitude", destination.lat, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("sourceLongitude", destination.lng, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("destinationCity", source.city, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("destinationAddress", source.address, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("destinationLatitude", source.lat, {
-                        shouldValidate: true,
-                      });
-
-                      setValue("destinationLongitude", source.lng, {
-                        shouldValidate: true,
-                      });
-                    }}
-                    className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                  >
-                    <ArrowLeftRight size={13} /> Swap
-                  </button>
+                    {/* Premium Tailwind Tooltip */}
+                    <span className="pointer-events-none absolute top-1/2 right-full z-50 mr-2 -translate-y-1/2 rounded-lg bg-gray-800 px-2.5 py-1.5 text-[11px] font-medium whitespace-nowrap text-white opacity-0 shadow-md transition-opacity duration-200 group-hover:opacity-100 sm:right-auto sm:left-full sm:mr-0 sm:ml-2">
+                      Swap Starting point and Destination point
+                    </span>
+                  </div>
                 </div>
+              </div>
 
+              <div className="mt-4">
                 <InputField
-
                   label="Drop Location"
                   required
                   icon={MapPin}
@@ -380,165 +346,169 @@ export default function OfferRideForm() {
                         label=""
                         placeholder="Search destination..."
                         value={values.destinationAddress}
-                        onSelect={(location) => {
-                          setValue("destinationCity", location.city, {
-                            shouldValidate: true,
-                          });
-
-                          field.onChange(location.city);
-
-                          setValue("destinationAddress", location.address, {
-                            shouldValidate: true,
-                          });
-
-                          setValue("destinationLatitude", location.latitude);
-
-                          setValue("destinationLongitude", location.longitude);
-                        }}
+                        inputClassName={inputCls(
+                          true,
+                          errors.destinationCity?.message,
+                        )}
+                        onSelect={(location) =>
+                          handleDestinationSelect(location, field.onChange)
+                        }
                       />
                     )}
                   />
                 </InputField>
               </div>
             </div>
+          </div>
 
-            {/* Schedule */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
-              <h3 className="font-semibold text-[var(--heading)]">Schedule</h3>
-              <p className="mt-0.5 text-xs text-[var(--text-light)]">
-                When is your departure?
-              </p>
+          {/* Schedule */}
+          <div className="rounded-2xl border border-(--border) bg-white p-6">
+            <h3 className="font-semibold text-(--heading)">Schedule</h3>
+            <p className="mt-0.5 text-xs text-(--text-light)">
+              When is your departure?
+            </p>
 
-              {/* Quick-pick date chips */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {[
-                  { label: 'Today', days: 0 },
-                  { label: 'Tomorrow', days: 1 },
-                  { label: 'In a Week', days: 7 },
-                ].map(({ label, days }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() =>
-                      setValue('departureDate', dateOffset(days), {
-                        shouldValidate: true,
-                      })
-                    }
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${values.departureDate === dateOffset(days)
-                      ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
-                      : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
-                      }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <InputField
-                  label="Departure Date"
-                  required
-                  icon={Calendar}
-                  error={errors.departureDate?.message}
-                >
-                  <input
-                    type="date"
-                    min={todayMin()}
-                    {...register('departureDate')}
-                    className={inputCls(true, errors.departureDate?.message)}
-                  />
-                </InputField>
-
-                <InputField
-                  label="Departure Time"
-                  required
-                  icon={Clock}
-                  error={errors.departureTime?.message}
-                >
-                  <input
-                    type="time"
-                    {...register('departureTime')}
-                    className={inputCls(true, errors.departureTime?.message)}
-                  />
-                </InputField>
-              </div>
-
-              {/* Live combined summary — confirms exactly what passengers will see */}
-              {departureSummary && (
-                <div className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--primary-light)] px-3 py-2.5 text-sm font-medium text-[var(--primary)]">
-                  <Clock size={14} />
-                  Departing {departureSummary.date} at {departureSummary.time}
-                </div>
-              )}
-            </div>
-
-            {/* Seats & Price */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-6">
-              <h3 className="font-semibold text-[var(--heading)]">
-                Seats & Pricing
-              </h3>
-              <p className="mt-0.5 text-xs text-[var(--text-light)]">
-                How many passengers can you take and at what price?
-              </p>
-
-              <div className="mt-5 space-y-5">
-                <SeatPicker
-                  value={values.totalSeats}
-                  onChange={(n) =>
-                    setValue('totalSeats', n, { shouldValidate: true })
+            {/* Quick-pick date chips */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {QUICK_PICK_DATES.map(({ label, days }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() =>
+                    setValue('departureDate', dateOffset(days), {
+                      shouldValidate: true,
+                    })
                   }
-                />
-
-                <InputField
-                  label="Price per Seat (₹)"
-                  required
-                  icon={IndianRupee}
-                  error={errors.pricePerSeat?.message}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                    values.departureDate === dateOffset(days)
+                      ? 'border-(--primary) bg-(--primary-light) text-(--primary)'
+                      : 'border-(--border) bg-white text-(--text) hover:border-(--primary) hover:text-(--primary)'
+                  }`}
                 >
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    placeholder="e.g. 500"
-                    {...register('pricePerSeat')}
-                    className={inputCls(true, errors.pricePerSeat?.message)}
-                  />
-                </InputField>
-              </div>
+                  {label}
+                </button>
+              ))}
             </div>
 
-            {/* Submit error */}
-            {submitError && (
-              <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-600">
-                <AlertCircle size={16} className="shrink-0" />
-                {submitError}
+            {/* Note: I added max-w-lg here too so it aligns beautifully with the Route inputs */}
+            <div className="mt-4 grid max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
+              <InputField
+                label="Departure Date"
+                required
+                icon={Calendar}
+                error={errors.departureDate?.message}
+              >
+                <input
+                  type="date"
+                  min={todayMin()}
+                  {...register('departureDate')}
+                  className={inputCls(true, errors.departureDate?.message)}
+                />
+              </InputField>
+
+              <InputField
+                label="Departure Time"
+                required
+                icon={Clock}
+                error={errors.departureTime?.message}
+              >
+                <input
+                  type="time"
+                  {...register('departureTime')}
+                  className={inputCls(true, errors.departureTime?.message)}
+                />
+              </InputField>
+            </div>
+
+            {/* Live combined summary — confirms exactly what passengers will see */}
+            {departureSummary && (
+              <div className="mt-4 flex max-w-lg items-center gap-2 rounded-xl bg-(--primary-light) px-3 py-2.5 text-sm font-medium text-(--primary)">
+                <Clock size={14} />
+                Departing {departureSummary.date} at {departureSummary.time}
               </div>
             )}
+          </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isSubmitting || !isValid}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[var(--primary-hover)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Publishing…
-                </>
-              ) : (
-                <>
-                  <Car size={16} />
-                  Publish Ride
-                </>
-              )}
-            </button>
-          </form>
+          {/* Seats & Price */}
+          <div className="rounded-2xl border border-(--border) bg-white p-6">
+            <h3 className="font-semibold text-(--heading)">Seats & Pricing</h3>
+            <p className="mt-0.5 text-xs text-(--text-light)">
+              How many passengers can you take and at what price?
+            </p>
 
-          {/* Preview */}
-          <RidePreview values={values} />
-        </div>
-      )}
+            {/* Added max-w-lg for visual consistency across the whole form */}
+            <div className="mt-5 max-w-lg space-y-5">
+              <SeatPicker
+                value={values.totalSeats}
+                onChange={(n) =>
+                  setValue('totalSeats', n, { shouldValidate: true })
+                }
+              />
+
+              <InputField
+                label="Price per Seat (₹)"
+                required
+                icon={IndianRupee}
+                error={errors.pricePerSeat?.message}
+              >
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  placeholder="e.g. 500"
+                  {...register('pricePerSeat')}
+                  className={inputCls(true, errors.pricePerSeat?.message)}
+                />
+              </InputField>
+            </div>
+          </div>
+
+          {/* Submit error */}
+          {submitError && (
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+              <AlertCircle size={16} className="shrink-0" />
+              {submitError}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--primary) py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-(--primary-hover) active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />{' '}
+                Publishing…
+              </>
+            ) : (
+              <>
+                <Car size={16} />
+                Publish Ride
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Preview */}
+        <RidePreview values={values} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold text-(--heading)">Offer a Ride</h2>
+        <p className="mt-1 text-sm text-(--text)">
+          Fill in the details below to publish your ride.
+        </p>
+      </div>
+
+      {/* Main Content Injection */}
+      {content}
     </div>
   );
 }

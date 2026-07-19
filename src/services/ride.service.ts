@@ -1,6 +1,6 @@
-import { api } from "@/lib/axios";
-import { describeApiError } from "@/lib/errors";
-import { ApiError } from "@/types/auth.types";
+import { api } from '@/lib/axios';
+import { describeApiError } from '@/lib/errors';
+import { ApiError } from '@/types/auth.types';
 import {
   CreateRideRequest,
   RidePageResponse,
@@ -8,34 +8,47 @@ import {
   RideResponse,
   RideSearchRequest,
   RideSearchResponse,
-  RideStatus,
-} from "@/types/ride.types";
+  RideStatus
+} from '@/types/ride.types';
+
+const UNAUTHORIZED_STATUS = 401;
+
+function getErrorStatus(err: unknown): number | undefined {
+  return (err as { response?: { status?: number } })?.response?.status;
+}
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
   try {
     const res = await api.get<T>(url);
     return res.data;
   } catch (err: unknown) {
-    const status = (err as { response?: { status?: number } })?.response?.status;
-    if (status === 401) throw err;
+    if (getErrorStatus(err) === UNAUTHORIZED_STATUS) throw err;
     return fallback;
   }
 }
 
 class RideService {
   private handleError(error: unknown): never {
-    if (typeof error === "object" && error !== null && "response" in error) {
-      const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const axiosError = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
       const status = axiosError.response?.status;
-      throw new ApiError(describeApiError(status, axiosError.response?.data?.message), status);
+      throw new ApiError(
+        describeApiError(status, axiosError.response?.data?.message),
+        status,
+      );
     }
-    throw new ApiError("Something went wrong.");
+    throw new ApiError('Something went wrong.');
   }
 
   /** POST /v1/rider/ride/publish */
   async publishRide(payload: CreateRideRequest): Promise<RideResponse> {
     try {
-      const { data } = await api.post<RideResponse>("/v1/rider/ride/publish", payload);
+      const { data } = await api.post<RideResponse>(
+        '/v1/rider/ride/publish',
+        payload,
+      );
       return data;
     } catch (error) {
       this.handleError(error);
@@ -97,7 +110,6 @@ getRideStats(): Promise<RiderDashboardStats> {
 
   /**
    * GET /v1/passenger/rides/search
-   * Requires PASSENGER role. Returns paginated ride results.
    * 401 is re-thrown; other errors fall back to an empty page.
    */
   async searchRides(params: RideSearchRequest): Promise<RideSearchResponse> {
@@ -111,18 +123,24 @@ getRideStats(): Promise<RiderDashboardStats> {
       last: true,
     };
     try {
-      const { data } = await api.get<RideSearchResponse>("/v1/passenger/rides/search", {
-        params: {
-          sourceCity: params.sourceCity,
-          destinationCity: params.destinationCity,
-          ...(params.departureDate ? { departureDate: params.departureDate } : {}),
-          ...(params.requiredSeats ? { requiredSeats: params.requiredSeats } : {}),
+      const { data } = await api.get<RideSearchResponse>(
+        '/v1/passenger/rides/search',
+        {
+          params: {
+            sourceCity: params.sourceCity,
+            destinationCity: params.destinationCity,
+            ...(params.departureDate
+              ? { departureDate: params.departureDate }
+              : {}),
+            ...(params.requiredSeats
+              ? { requiredSeats: params.requiredSeats }
+              : {}),
+          },
         },
-      });
+      );
       return data;
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 401) throw err;
+      if (getErrorStatus(err) === UNAUTHORIZED_STATUS) throw err;
       return EMPTY;
     }
   }
