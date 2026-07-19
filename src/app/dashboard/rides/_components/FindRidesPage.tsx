@@ -35,6 +35,7 @@ export default function FindRidesPage() {
   // Sync state with URL query parameters on mount or when URL changes
   useEffect(() => {
     if (urlSource || urlDestination || urlDate) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRoute({
         sourceCity: urlSource,
         destinationCity: urlDestination,

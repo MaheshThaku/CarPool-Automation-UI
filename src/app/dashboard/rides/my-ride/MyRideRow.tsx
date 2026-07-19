@@ -2,7 +2,14 @@
 
 import { memo, useState } from 'react';
 
-import { ArrowRight, Car, ChevronDown, ChevronUp, Users, MoreVertical } from 'lucide-react';
+import {
+  ArrowRight,
+  Car,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  MoreVertical,
+} from 'lucide-react';
 
 import { RideResponse, RideStatus } from '@/types/ride.types';
 import { rideService } from '@/services/ride.service';
@@ -66,9 +73,9 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
               <span>{ride.destinationCity}</span>
             </div>
 
-            <p className="mt-1 text-xs text-[var(--text-light)]">
+            {/* <p className="mt-1 text-xs text-[var(--text-light)]">
               Ride #{ride.id}
-            </p>
+            </p> */}
           </div>
 
           <span
@@ -120,7 +127,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
               type="button"
               onClick={() => setIsStatusDialogOpen(true)}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] px-4 py-2.5 text-sm font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] px-4 py-2.5 text-sm font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white disabled:opacity-50"
             >
               Update Ride Status
             </button>
@@ -175,9 +182,9 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
                 <span>{ride.destinationCity}</span>
               </div>
 
-              <p className="text-sm text-[var(--text-light)]">
+              {/* <p className="text-sm text-[var(--text-light)]">
                 Ride #{ride.id}
-              </p>
+              </p> */}
             </div>
           </div>
         </td>
@@ -223,7 +230,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
         {/* Bookings */}
 
         <td className="px-6 py-4 text-right">
-          <div className="flex justify-end items-center gap-2.5">
+          <div className="flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
@@ -236,7 +243,7 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
               <button
                 type="button"
                 onClick={() => setIsStatusDialogOpen(true)}
-                className="inline-flex h-9.5 w-9.5 items-center justify-center rounded-xl border border-[var(--border)] text-gray-500 transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-gray-50 active:scale-95"
+                className="inline-flex h-9.5 w-9.5 items-center justify-center rounded-xl border border-[var(--border)] text-gray-500 transition-all hover:border-[var(--primary)] hover:bg-gray-50 hover:text-[var(--primary)] active:scale-95"
                 title="Update Status"
               >
                 <MoreVertical size={16} />

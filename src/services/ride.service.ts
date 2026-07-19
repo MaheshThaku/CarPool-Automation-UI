@@ -4,6 +4,7 @@ import { ApiError } from "@/types/auth.types";
 import {
   CreateRideRequest,
   RidePageResponse,
+  RiderDashboardStats,
   RideResponse,
   RideSearchRequest,
   RideSearchResponse,
@@ -57,9 +58,19 @@ class RideService {
 getRiderRides(
   page = 0,
   size = 5,
+  status?: RideStatus,
 ): Promise<RidePageResponse> {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+
+  if (status) {
+    params.append('status', status);
+  }
+
   return safeGet<RidePageResponse>(
-    `/v1/rider/ride/my-rides?page=${page}&size=${size}`,
+    `/v1/rider/ride/my-rides?${params.toString()}`,
     {
       content: [],
       page: {
@@ -68,6 +79,18 @@ getRiderRides(
         totalElements: 0,
         totalPages: 0,
       },
+    },
+  );
+}
+
+getRideStats(): Promise<RiderDashboardStats> {
+  return safeGet<RiderDashboardStats>(
+    '/v1/rider/dashboard/stats',
+    {
+      totalRides: 0,
+      upcomingRides: 0,
+      completedRides: 0,
+      cancelledRides: 0,
     },
   );
 }

@@ -49,11 +49,11 @@ function MyRideFiltersComponent({
       label: 'Scheduled',
       count: scheduled,
     },
-    {
-      key: 'STARTED',
-      label: 'Started',
-      count: started,
-    },
+    // {
+    //   key: 'STARTED',
+    //   label: 'Started',
+    //   count: started,
+    // },
     {
       key: 'COMPLETED',
       label: 'Completed',

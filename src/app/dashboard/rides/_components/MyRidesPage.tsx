@@ -20,60 +20,54 @@ export default function MyRidesPage() {
   const [page, setPage] = useState(1);
 
   const rides$ = useAsyncData(
-    () => rideService.getRiderRides(page - 1, 5),
-    [page],
+    () =>
+      rideService.getRiderRides(
+        page - 1,
+        5,
+        activeTab === 'ALL' ? undefined : activeTab,
+      ),
+    [page, activeTab],
     {
-      cacheKey: `rider-rides-${page}`,
-      ttlMs: 60_000,
+      cacheKey: `rider-rides-${activeTab}-${page}`,
+      ttlMs: 60000,
     },
   );
+  const stats$ = useAsyncData(() => rideService.getRideStats(), [], {
+    cacheKey: 'rider-dashboard-stats',
+    ttlMs: 60000,
+  });
 
   const rides: RideResponse[] = useMemo(
     () => rides$.data?.content ?? [],
     [rides$.data?.content],
   );
 
+  const handleTabChange = (tab: FilterTab) => {
+    setPage(1);
+    setActiveTab(tab);
+  };
+  const handleSearchChange = (value: string) => {
+    setPage(1);
+    setSearch(value);
+  };
+
   const totalPages = rides$.data?.page?.totalPages ?? 1;
 
   const totalElements = rides$.data?.page?.totalElements ?? 0;
 
-  const filteredRides = useMemo(() => {
-    let result = rides;
-
-    if (activeTab !== 'ALL') {
-      result = result.filter((ride) => ride.status === activeTab);
-    }
-
+  const displayedRides = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (query) {
-      result = result.filter(
-        (ride) =>
-          ride.sourceCity.toLowerCase().includes(query) ||
-          ride.destinationCity.toLowerCase().includes(query),
-      );
+    if (!query) {
+      return rides;
     }
 
-    return result;
-  }, [rides, activeTab, search]);
-
-  const stats = useMemo(
-    () => {
-      const sCount = rides.filter((ride) => ride.status === 'SCHEDULED').length;
-      const startCount = rides.filter((ride) => ride.status === 'STARTED').length;
-      const compCount = rides.filter((ride) => ride.status === 'COMPLETED').length;
-      const cancCount = rides.filter((ride) => ride.status === 'CANCELLED').length;
-      return {
-        total: totalElements,
-        scheduled: sCount,
-        started: startCount,
-        completed: compCount,
-        cancelled: cancCount,
-        upcoming: sCount + startCount,
-      };
-    },
-    [rides, totalElements],
-  );
+    return rides.filter(
+      (ride) =>
+        ride.sourceCity.toLowerCase().includes(query) ||
+        ride.destinationCity.toLowerCase().includes(query),
+    );
+  }, [rides, search]);
 
   if (rides$.loading && rides.length === 0) {
     return (
@@ -115,35 +109,31 @@ export default function MyRidesPage() {
       </div>
 
       <MyRideStats
-        total={stats.total}
-        scheduled={stats.upcoming}
-        completed={stats.completed}
-        cancelled={stats.cancelled}
+        loading={stats$.loading}
+        total={stats$.data?.totalRides ?? 0}
+        scheduled={stats$.data?.upcomingRides ?? 0}
+        completed={stats$.data?.completedRides ?? 0}
+        cancelled={stats$.data?.cancelledRides ?? 0}
       />
 
       <MyRideFilters
         activeTab={activeTab}
         search={search}
-        total={stats.total}
-        scheduled={stats.scheduled}
-        started={stats.started}
-        completed={stats.completed}
-        cancelled={stats.cancelled}
-        onSearchChange={(value) => {
-          setSearch(value);
-        }}
-        onTabChange={(tab) => {
-          setActiveTab(tab);
-        }}
+        total={stats$.data?.totalRides ?? 0}
+        scheduled={stats$.data?.upcomingRides ?? 0}
+        started={stats$.data?.completedRides ?? 0}
+        completed={stats$.data?.completedRides ?? 0}
+        cancelled={stats$.data?.cancelledRides ?? 0}
+        onTabChange={handleTabChange}
+        onSearchChange={handleSearchChange}
       />
 
       <MyRideTable
-        rides={filteredRides}
+        rides={displayedRides}
         page={page}
         totalPages={totalPages}
         totalElements={totalElements}
         onPageChange={setPage}
-        onRefresh={rides$.refetch}
       />
     </div>
   );

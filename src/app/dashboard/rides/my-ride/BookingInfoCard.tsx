@@ -33,11 +33,6 @@ function BookingInfoCardComponent({
     minute: '2-digit',
   });
 
-  const canDelete =
-    booking.status === 'REJECTED' ||
-    booking.status === 'CANCELLED' ||
-    booking.status === 'COMPLETED';
-
   return (
     <div
       className={`rounded-2xl border bg-white px-5 py-4 transition-all duration-200 hover:shadow-sm ${
@@ -60,7 +55,7 @@ function BookingInfoCardComponent({
             </h4>
 
             <p className="text-sm text-[var(--text-light)]">
-              {booking.contactNumber ?? 'Contact unavailable'}
+              {booking.passengerContact ?? 'Contact unavailable'}
             </p>
           </div>
         </div>
@@ -115,17 +110,6 @@ function BookingInfoCardComponent({
               >
                 {status.label}
               </span>
-
-              {canDelete && (
-                <button
-                  type="button"
-                  onClick={() => onDelete(booking.bookingId)}
-                  className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600"
-                >
-                  <Trash2 size={14} />
-                  Delete
-                </button>
-              )}
             </>
           )}
         </div>
@@ -146,7 +130,7 @@ function BookingInfoCardComponent({
             </h4>
 
             <p className="truncate text-sm text-[var(--text-light)]">
-              {booking.contactNumber ?? 'Contact unavailable'}
+              {booking.passengerContact ?? 'Contact unavailable'}
             </p>
           </div>
         </div>
@@ -216,17 +200,6 @@ function BookingInfoCardComponent({
               >
                 {status.label}
               </span>
-
-              {canDelete && (
-                <button
-                  type="button"
-                  onClick={() => onDelete(booking.bookingId)}
-                  className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100"
-                >
-                  <Trash2 size={14} />
-                  Delete
-                </button>
-              )}
             </>
           )}
         </div>

@@ -1,13 +1,19 @@
 'use client';
 
 import { memo } from 'react';
+
 import { Car, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Props {
   total: number;
+
   scheduled: number;
+
   completed: number;
+
   cancelled: number;
+
+  loading?: boolean;
 }
 
 function MyRideStatsComponent({
@@ -15,6 +21,7 @@ function MyRideStatsComponent({
   scheduled,
   completed,
   cancelled,
+  loading = false,
 }: Props) {
   const stats = [
     {
@@ -72,9 +79,13 @@ function MyRideStatsComponent({
                   {item.label}
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-[var(--heading)]">
-                  {item.value}
-                </p>
+                {loading ? (
+                  <div className="mt-2 h-7 w-12 animate-pulse rounded bg-gray-200" />
+                ) : (
+                  <p className="mt-1 text-2xl font-bold text-[var(--heading)]">
+                    {item.value}
+                  </p>
+                )}
               </div>
             </div>
           );
