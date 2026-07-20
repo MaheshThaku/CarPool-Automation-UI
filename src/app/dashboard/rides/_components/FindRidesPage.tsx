@@ -125,7 +125,7 @@ export default function FindRidesPage() {
 
         await bookingService.createBooking({
           rideId,
-          seatsBooked: 1,
+          seatsBooked: searchParams?.requiredSeats || 1,
           passengerEmail: currentUser.email,
         });
 
@@ -149,14 +149,14 @@ export default function FindRidesPage() {
           | Error;
         setError(
           (error && 'response' in error && error.response?.data?.message) ||
-            (error instanceof Error ? error.message : undefined) ||
-            'Unable to create booking. Please try again.',
+          (error instanceof Error ? error.message : undefined) ||
+          'Unable to create booking. Please try again.',
         );
       } finally {
         setBookingLoadingRideId(null);
       }
     },
-    [currentUser],
+    [currentUser, searchParams],
   );
 
   /* ---------------- State ---------------- */
@@ -220,6 +220,7 @@ export default function FindRidesPage() {
         bookingLoadingRideId={bookingLoadingRideId}
         bookedRideIds={bookedRideIds}
         onBookRide={handleBookRide}
+        requiredSeats={searchParams?.requiredSeats || 1}
       />
     </div>
   );

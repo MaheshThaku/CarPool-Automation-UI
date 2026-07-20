@@ -11,6 +11,7 @@ export default function RideResults({
   bookingLoadingRideId,
   bookedRideIds,
   onBookRide,
+  requiredSeats,
 }: RideResultsProps) {
   if (loading) {
     return (
@@ -76,6 +77,7 @@ export default function RideResults({
             booked={bookedRideIds.has(ride.id)}
             bookingLoading={bookingLoadingRideId === ride.id}
             onBook={onBookRide}
+            requiredSeats={requiredSeats}
           />
         ))}
       </div>
