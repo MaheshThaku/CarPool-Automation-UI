@@ -4,6 +4,7 @@ import { ApiError } from '@/types/auth.types';
 import {
   CreateRideRequest,
   RidePageResponse,
+  RiderDashboardStats,
   RideResponse,
   RideSearchRequest,
   RideSearchResponse,
@@ -63,21 +64,49 @@ class RideService {
     }
   }
 
-  /** GET /v1/rider/ride/my-rides — paginated rides published by the current rider. */
-  getRiderRides(page = 0, size = 5): Promise<RidePageResponse> {
-    return safeGet<RidePageResponse>(
-      `/v1/rider/ride/my-rides?page=${page}&size=${size}`,
-      {
-        content: [],
-        page: {
-          size,
-          number: 0,
-          totalElements: 0,
-          totalPages: 0,
-        },
-      },
-    );
+  /** GET /v1/rider/ride/my-rides — rides published by the current rider. */
+  // getRiderRides(): Promise<RideResponse[]> {
+  //   return safeGet<RideResponse[]>("/v1/rider/ride/my-rides", []);
+  // }
+getRiderRides(
+  page = 0,
+  size = 5,
+  status?: RideStatus,
+): Promise<RidePageResponse> {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+
+  if (status) {
+    params.append('status', status);
   }
+
+  return safeGet<RidePageResponse>(
+    `/v1/rider/ride/my-rides?${params.toString()}`,
+    {
+      content: [],
+      page: {
+        size,
+        number: 0,
+        totalElements: 0,
+        totalPages: 0,
+      },
+    },
+  );
+}
+
+getRideStats(): Promise<RiderDashboardStats> {
+  return safeGet<RiderDashboardStats>(
+    '/v1/rider/dashboard/stats',
+    {
+      totalRides: 0,
+      upcomingRides: 0,
+      completedRides: 0,
+      cancelledRides: 0,
+    },
+  );
+}
 
   /**
    * GET /v1/passenger/rides/search

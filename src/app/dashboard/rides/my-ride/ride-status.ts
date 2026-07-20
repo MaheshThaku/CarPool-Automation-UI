@@ -3,7 +3,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Navigation,
+  // Navigation,
 } from 'lucide-react';
 
 import {
@@ -23,13 +23,13 @@ export function getRideStatusConfig(
         icon: Clock,
       };
 
-    case 'STARTED':
-      return {
-        label: 'Started',
-        bg: 'bg-indigo-50',
-        text: 'text-indigo-700',
-        icon: Navigation,
-      };
+    // case 'STARTED':
+    //   return {
+    //     label: 'Started',
+    //     bg: 'bg-indigo-50',
+    //     text: 'text-indigo-700',
+    //     icon: Navigation,
+    //   };
 
     case 'COMPLETED':
       return {

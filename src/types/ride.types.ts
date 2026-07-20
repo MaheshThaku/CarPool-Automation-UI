@@ -107,7 +107,7 @@ export interface RideBookingResponse {
   passengerName: string;
   passengerProfilePic?: string;
   passengerAge?: number;
-  contactNumber?: string;
+  passengerContact?: string;
 
   // Driver
 
@@ -132,4 +132,14 @@ export interface RideBookingResponse {
   status: BookingStatus;
 
   bookingTime: string;
+}
+
+export interface RiderDashboardStats {
+  totalRides: number;
+
+  upcomingRides: number;
+
+  completedRides: number;
+
+  cancelledRides: number;
 }
