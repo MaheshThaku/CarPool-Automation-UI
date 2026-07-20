@@ -32,7 +32,8 @@ export function statusConfig(status: BookingStatus) {
   }
 }
 
-export const TABS: { key: BookingStatus | "ALL"; label: string }[] = [
+export const TABS: { key: BookingStatus | "ALL" | "UPCOMING"; label: string }[] = [
+  { key: "UPCOMING", label: "Upcoming" },
   { key: "ALL", label: "All" },
   { key: "APPROVED", label: "Approved" },
   { key: "PENDING", label: "Pending" },

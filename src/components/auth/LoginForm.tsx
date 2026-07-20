@@ -155,7 +155,7 @@ export default function LoginForm() {
           </button>
         </div>
 
-        <Button disabled={!isValid} isLoading={isSubmitting}>
+        <Button isLoading={isSubmitting}>
           Continue Journey
         </Button>
 
