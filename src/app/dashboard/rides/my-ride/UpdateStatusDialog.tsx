@@ -1,5 +1,5 @@
 'use client';
-
+import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import {
   Navigation,
@@ -217,13 +217,14 @@ export default function UpdateStatusDialog({
     );
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
       <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
         {pendingStatus
           ? renderConfirmationState(pendingStatus)
           : renderInitialState()}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,8 +1,10 @@
-import { BookOpen, ArrowRight } from 'lucide-react';
+import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
 
 import { BookingListItem } from '@/types/dashboard.types';
 
 import { parseBookedOn, statusConfig } from './bookingUtils';
+import { useState } from 'react';
+import BookingDetailsModal from './BookingDetailsModal';
 
 interface BookingCardProps {
   booking: BookingListItem;
@@ -15,7 +17,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
   const StatusIcon = sc.icon;
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/40 hover:shadow-md">
+    <>
+      <div className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/40 hover:shadow-md">
       {/* Top accent bar by status */}
       <div className={`h-1 w-full ${sc.dot}`} />
 
