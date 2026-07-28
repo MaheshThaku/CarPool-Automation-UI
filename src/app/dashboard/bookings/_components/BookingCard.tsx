@@ -1,22 +1,24 @@
-import { BookOpen, ArrowRight } from 'lucide-react';
+import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
 
 import { BookingListItem } from '@/types/dashboard.types';
 
 import { parseBookedOn, statusConfig } from './bookingUtils';
+import { useState } from 'react';
+import BookingDetailsModal from './BookingDetailsModal';
 
 interface BookingCardProps {
   booking: BookingListItem;
 }
 
 export default function BookingCard({ booking }: BookingCardProps) {
-  // Note: the backend doesn't return the ride's departure time on this
-  // endpoint, only when the booking was made.
+  const [showDetails, setShowDetails] = useState(false);
   const dt = parseBookedOn(booking.bookingTime);
   const sc = statusConfig(booking.status);
   const StatusIcon = sc.icon;
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/40 hover:shadow-md">
+    <>
+      <div className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm transition-all hover:border-[var(--primary)]/40 hover:shadow-md">
       {/* Top accent bar by status */}
       <div className={`h-1 w-full ${sc.dot}`} />
 
@@ -44,6 +46,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
                 Booking #{booking.bookingId}
               </p> */}
             </div>
+            <span className={`flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sc.bg} ${sc.text}`}>
+              <StatusIcon size={11} />
+              {sc.label}
+            </span>
           </div>
           <span
             className={`flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${sc.bg} ${sc.text}`}
@@ -81,11 +87,14 @@ export default function BookingCard({ booking }: BookingCardProps) {
           </div>
         </div>
 
-        {/* Driver + actions */}
-        <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
-              {booking.driverName.charAt(0).toUpperCase()}
+          {/* Meta grid */}
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl bg-[var(--background)] p-3 border border-[var(--border)]/30 hover:bg-white transition-colors">
+              <div className="flex items-center gap-1 text-[var(--text-light)]">
+                <Calendar size={12} className="text-[var(--primary)]" />
+                <span className="text-[10px]">Booked On</span>
+              </div>
+              <p className="mt-1 text-xs font-semibold text-[var(--heading)]">{dt.date}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-[var(--heading)]">
@@ -110,6 +119,13 @@ export default function BookingCard({ booking }: BookingCardProps) {
           </div>
         </div>
       </div>
-    </div>
+
+      {showDetails && (
+        <BookingDetailsModal 
+          booking={booking} 
+          onClose={() => setShowDetails(false)} 
+        />
+      )}
+    </>
   );
 }

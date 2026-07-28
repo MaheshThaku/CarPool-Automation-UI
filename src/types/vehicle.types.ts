@@ -8,9 +8,10 @@ export const VEHICLE_TYPES = [
   "SEDAN",
   "SUV",
   "HATCHBACK",
-  "TRUCK",
+  "CROSSOVER",
+  "MINIVAN",
+  "COUPE",
   "VAN",
-  "MOTORCYCLE",
   "OTHER",
 ] as const;
 

@@ -15,6 +15,7 @@ export interface RideCardProps {
   onBook?: (rideId: number) => Promise<void>;
   bookingLoading?: boolean;
   booked?: boolean;
+  requiredSeats?: number;
 }
 
 export interface RideResultsProps {
@@ -24,6 +25,7 @@ export interface RideResultsProps {
   bookingLoadingRideId?: number | null;
   bookedRideIds: Set<number>;
   onBookRide: (rideId: number) => Promise<void>;
+  requiredSeats?: number;
 }
 
 export interface RideTableProps {
