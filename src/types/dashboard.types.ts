@@ -55,56 +55,6 @@ export interface ProfileCompletion {
 
 /* ---------- Passenger ---------- */
 
-// export interface PassengerStats {
-//   totalBookings: number;
-//   upcomingTrips: number;
-//   profileVerified: boolean;
-// }
-
-// export interface UpcomingTrip {
-//   bookingId: number;
-//   rideId: number;
-//   sourceCity: string;
-//   destinationCity: string;
-//   seatsBooked: number;
-//   totalAmount: number;
-//   status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "COMPLETED";
-//   bookingTime: string;
-//   driverName: string;
-// }
-
-// export interface RecentBooking {
-//   bookingId: number;
-//   rideId: number;
-//   passengerId: number;
-//   passengerName: string;
-//   passengerProfilePic?: string;
-//   passengerAge?: number;
-
-//   driverName: string;
-//   driverProfilePic?: string;
-//   driverAge?: number;
-
-//   vehicleModel?: string;
-//   vehicleRegistrationNumber?: string;
-
-//   sourceCity: string;
-//   destinationCity: string;
-//   seatsBooked: number;
-//   totalAmount: number;
-//   status: BookingStatus;
-//   bookingTime: string;
-// }
-
-// export interface ProfileVerification {
-//   email: string;
-//   emailVerified: boolean;
-//   contactNumber: string;
-//   contactVerified: boolean;
-// }
-
-/* ---------- Passenger ---------- */
-
 export interface PassengerStats {
   totalBookings: number;
   upcomingTrips: number;
@@ -172,15 +122,13 @@ export interface BookingListItem {
   status: BookingStatus;
 }
 
-// export interface UpcomingRide {
-//   id: number;
-//   sourceCity: string;
-//   destinationCity: string;
-//   departureTime: string;
-//   availableSeats: number;
-//   pricePerSeat: number;
-//   status:
-//     | 'SCHEDULED'
-//     | 'COMPLETED'
-//     | 'CANCELLED';
-// }
+export interface BookingPageResponse {
+  content: BookingListItem[];
+
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}
