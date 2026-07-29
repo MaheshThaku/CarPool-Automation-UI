@@ -33,6 +33,15 @@ export function useBookings() {
     },
   );
 
+  const bookingCounts$ = useAsyncData(
+    () => dashboardService.getBookingCounts(),
+    [],
+    {
+      cacheKey: 'passenger-booking-counts',
+      ttlMs: 60000,
+    },
+  );
+
   const handleTabChange = (
     tab: BookingFilter,
   ) => {
@@ -64,5 +73,10 @@ export function useBookings() {
 
     totalElements:
       bookings$.data?.page.totalElements ?? 0,
+
+    counts: bookingCounts$.data,
+
+    countsLoading: bookingCounts$.loading,
+    
   };
 }

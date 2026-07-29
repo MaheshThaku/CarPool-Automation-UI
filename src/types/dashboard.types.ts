@@ -114,12 +114,13 @@ export type BookingStatus =
 export interface BookingListItem {
   bookingId: number;
   sourceCity: string;
- destinationCity: string;
+  destinationCity: string;
   bookingTime: string;
   driverName: string;
   seatsBooked: number;
   totalAmount: number;
   status: BookingStatus;
+  vehicleModel: string;
 }
 
 export interface BookingPageResponse {
@@ -131,4 +132,15 @@ export interface BookingPageResponse {
     totalElements: number;
     totalPages: number;
   };
+}
+// added for my bookings - passanges
+// cont based on status of booking like-approved, completed and so on 
+export interface BookingCountsResponse {
+  total: number;
+  upcoming: number;
+  approved: number;
+  pending: number;
+  completed: number;
+  rejected: number;
+  cancelled: number;
 }
