@@ -23,8 +23,9 @@ export default function MyBookingsPage() {
     setActiveTab,
     totalPages,
     totalElements,
+    counts,
   } = useBookings();
-
+  console.log(counts)
   const [search, setSearch] = useState('');
 
   const all = bookings;
@@ -44,8 +45,7 @@ export default function MyBookingsPage() {
     );
   }, [all, search]);
 
-  const countOf = (status: BookingStatus) =>
-    all.filter((booking) => booking.status === status).length;
+
 
   return (
     <div className="space-y-6">
@@ -78,12 +78,13 @@ export default function MyBookingsPage() {
       <BookingFilters
         activeTab={activeTab}
         search={search}
-        total={totalElements}
-        approved={countOf('APPROVED')}
-        pending={countOf('PENDING')}
-        completed={countOf('COMPLETED')}
-        rejected={countOf('REJECTED')}
-        cancelled={countOf('CANCELLED')}
+        total={counts?.total ?? 0}
+        approved={counts?.approved ?? 0}
+        pending={counts?.pending ?? 0}
+        completed={counts?.completed ?? 0}
+        rejected={counts?.rejected ?? 0}
+        cancelled={counts?.cancelled ?? 0}
+        upcoming={counts?.upcoming ?? 0}
         onTabChange={setActiveTab}
         onSearchChange={setSearch}
       />

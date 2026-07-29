@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { BookingCountsResponse } from '@/types/dashboard.types';
 import {
   RiderStats,
   UpcomingTrip,   // keep this
@@ -163,6 +164,13 @@ getAllBookings(
         totalPages: 0,
       },
     },
+  );
+}
+
+getBookingCounts(): Promise<BookingCountsResponse | null> {
+  return safeGet<BookingCountsResponse | null>(
+    '/v1/bookings/my-bookings-counts',
+    null
   );
 }
 }
