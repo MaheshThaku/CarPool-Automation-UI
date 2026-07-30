@@ -164,98 +164,96 @@ function MyRideRowComponent({ ride, mobile = false, onRefresh }: Props) {
 
   return (
     <>
-      <tr className="border-b border-[var(--border)] transition-colors hover:bg-gray-50">
+      <tr
+        className="group border-b border-[var(--border)] transition-colors hover:bg-orange-50/30"
+      >
         {/* Route */}
-
         <td className="px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary-light)]">
-              <Car size={16} className="text-[var(--primary)]" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--primary-light)]">
+              <Car size={15} className="text-[var(--primary)]" />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 font-semibold text-[var(--heading)]">
-                <span>{ride.sourceCity}</span>
-
-                <ArrowRight size={13} />
-
-                <span>{ride.destinationCity}</span>
-              </div>
-
-              {/* <p className="text-sm text-[var(--text-light)]">
-                Ride #{ride.id}
-              </p> */}
+            <div className="flex items-center gap-1.5 font-semibold text-[var(--heading)]">
+              <span>{ride.sourceCity}</span>
+              <ArrowRight size={12} className="text-[var(--text-light)]" />
+              <span>{ride.destinationCity}</span>
             </div>
           </div>
         </td>
 
-        {/* Date */}
-
+        {/* Date & Time */}
         <td className="px-6 py-4">
           <p className="font-medium text-[var(--heading)]">{departure.date}</p>
-
-          <p className="text-sm text-[var(--text-light)]">
+          <p className="mt-0.5 text-xs text-[var(--text-light)]">
             {departure.day} · {departure.time}
           </p>
         </td>
 
-        {/* Seats */}
-
+        {/* Seats Left */}
         <td className="px-6 py-4">
-          <span className="flex items-center gap-1">
-            <Users size={14} />
-
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1 text-sm font-medium text-[var(--heading)]">
+            <Users size={13} className="text-[var(--text-light)]" />
             {ride.availableSeats}
           </span>
         </td>
 
-        {/* Price */}
-
-        <td className="px-6 py-4 font-semibold text-[var(--primary)]">
-          ₹{ride.pricePerSeat.toLocaleString('en-IN')}
+        {/* Price / Seat */}
+        <td className="px-6 py-4">
+          <span className="font-semibold text-[var(--primary)]">
+            ₹{ride.pricePerSeat.toLocaleString('en-IN')}
+          </span>
         </td>
 
         {/* Status */}
-
         <td className="px-6 py-4">
           <span
-            className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${status.bg} ${status.text} `}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${status.bg} ${status.text}`}
           >
-            <StatusIcon size={12} />
-
+            <StatusIcon size={11} />
             {status.label}
           </span>
         </td>
 
-        {/* Bookings */}
-
+        {/* Bookings — Bookings button is always at the same position.
+            A fixed-size h-8 w-8 slot sits to its right: real button for
+            non-terminal rides, invisible spacer for terminal ones. */}
         <td className="px-6 py-4 text-right">
-          <div className="flex items-center justify-end gap-2.5">
+          <div className="inline-flex items-center gap-2">
+            {/* Bookings toggle button */}
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-white px-3.5 py-1.5 text-sm font-medium text-[var(--heading)] shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
             >
               Bookings
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
             </button>
-            {!isTerminal && (
+
+            {/* Always-present h-8 w-8 slot — button or invisible spacer */}
+            {!isTerminal ? (
               <button
                 type="button"
                 onClick={() => setIsStatusDialogOpen(true)}
-                className="inline-flex h-9.5 w-9.5 items-center justify-center rounded-xl border border-[var(--border)] text-gray-500 transition-all hover:border-[var(--primary)] hover:bg-gray-50 hover:text-[var(--primary)] active:scale-95"
+                className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-gray-400 shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] active:scale-95"
                 title="Update Status"
               >
-                <MoreVertical size={16} />
+                <MoreVertical size={15} />
               </button>
+            ) : (
+              <div className="h-8 w-8 flex-shrink-0" aria-hidden="true" />
             )}
           </div>
         </td>
       </tr>
 
+      {/* Expanded bookings panel */}
       {expanded && (
         <tr>
-          <td colSpan={6} className="bg-gray-50 px-6 py-5">
+          <td
+            colSpan={6}
+            className="border-b border-[var(--border)] bg-gray-50/70 px-6 py-5"
+          >
             <RideBookingsPanel rideId={ride.id} />
           </td>
         </tr>

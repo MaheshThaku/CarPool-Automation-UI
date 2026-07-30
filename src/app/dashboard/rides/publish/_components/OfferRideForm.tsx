@@ -13,11 +13,14 @@ import {
   AlertCircle,
   ArrowUpDown,
   Plus,
+  ShieldAlert,
+  Info,
 } from 'lucide-react';
 
 import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
 import { vehicleService } from '@/services/vehicle.service';
 import { rideService } from '@/services/ride.service';
+import { dashboardService } from '@/services/dashboard.service';
 import { RideResponse, CreateRideRequest } from '@/types/ride.types';
 import {
   offerRideSchema,
@@ -37,6 +40,13 @@ import SeatPicker from './SeatPicker';
 import RidePreview from './RidePreview';
 import SuccessState from './SuccessState';
 import NoVehicleState from './NoVehicleState';
+
+const REQUIRED_DOCS = [
+  'Driving License',
+  'Vehicle RC (Registration Certificate)',
+  'Vehicle Insurance',
+  'Government ID (Aadhaar / PAN)',
+];
 
 const QUICK_PICK_DATES = [
   { label: 'Today', days: 0 },
@@ -70,6 +80,13 @@ export default function OfferRideForm() {
     cacheKey: 'my-vehicles',
   });
   const vehicles = vehicles$.data ?? [];
+
+  // Fetch rider stats to check verification status (uses cached data if already loaded)
+  const stats$ = useAsyncData(dashboardService.getRiderStats, [], {
+    cacheKey: 'rider-dashboard-stats',
+  });
+  const verificationStatus = stats$.data?.verificationStatus;
+  const isVerified = verificationStatus === 'VERIFIED';
 
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
   const [submitError, setSubmitError] = useState('');
@@ -471,6 +488,7 @@ export default function OfferRideForm() {
             </div>
           )}
 
+
           {/* Submit */}
           <button
             type="submit"
@@ -506,6 +524,42 @@ export default function OfferRideForm() {
           Fill in the details below to publish your ride.
         </p>
       </div>
+
+      {/* Verification info banner — top of page */}
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="flex items-center gap-2.5 text-sm text-amber-700">
+            <ShieldAlert size={16} className="shrink-0 text-amber-500" />
+            <span>
+              Your rider verification is pending. Complete it to publish rides.
+            </span>
+
+            {/* Tooltip with required documents */}
+            <div className="group relative">
+              <Info
+                size={14}
+                className="cursor-pointer text-amber-400 hover:text-amber-600"
+              />
+              <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 w-60 -translate-x-1/2 rounded-xl border border-amber-200 bg-white px-3.5 py-3 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <p className="mb-2 font-semibold text-gray-900">Required documents</p>
+                <ul className="space-y-1">
+                  {REQUIRED_DOCS.map((doc) => (
+                    <li key={doc} className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/documents"
+            className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100"
+          >
+            Go to Documents →
+          </Link>
+        </div>
 
       {/* Main Content Injection */}
       {content}
