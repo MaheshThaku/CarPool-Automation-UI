@@ -25,13 +25,18 @@ export default function MyBookingsPage() {
     [],
     { cacheKey: 'passenger-all-bookings' },
   );
-  const [activeTab, setActiveTab] = useState<BookingStatus | 'ALL'>('ALL');
+  const [activeTab, setActiveTab] = useState<BookingStatus | 'ALL' | 'UPCOMING'>('ALL');
   const [search, setSearch] = useState('');
 
   const all = bookings ?? [];
 
   const filtered = all.filter((b) => {
-    const matchTab = activeTab === 'ALL' || b.status === activeTab;
+    const matchTab =
+      activeTab === 'ALL'
+        ? true
+        : activeTab === 'UPCOMING'
+          ? b.status === 'APPROVED' || b.status === 'PENDING'
+          : b.status === activeTab;
     const q = search.toLowerCase();
     const matchSearch =
       !q ||
@@ -98,7 +103,11 @@ export default function MyBookingsPage() {
         <div className="flex overflow-x-auto rounded-xl border border-[var(--border)] bg-white p-1">
           {TABS.map(({ key, label }) => {
             const count =
-              key === 'ALL' ? all.length : countOf(key as BookingStatus);
+              key === 'ALL'
+                ? all.length
+                : key === 'UPCOMING'
+                  ? countOf('APPROVED') + countOf('PENDING')
+                  : countOf(key as BookingStatus);
             return (
               <button
                 key={key}

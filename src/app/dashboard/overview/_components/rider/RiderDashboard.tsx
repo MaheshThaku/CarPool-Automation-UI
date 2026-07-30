@@ -26,11 +26,6 @@ function RiderDashboardComponent({ user }: Props) {
     vehicle,
     verification,
     profileCompletion,
-    ridePage,
-    setRidePage,
-
-    totalRidePages,
-    totalRideElements,
   } = useRiderDashboard();
 
   const profileCompletionData = Array.isArray(profileCompletion)
@@ -64,10 +59,6 @@ function RiderDashboardComponent({ user }: Props) {
 
       <UpcomingRides
         rides={upcomingRides}
-        page={ridePage}
-        totalPages={totalRidePages}
-        totalElements={totalRideElements}
-        onPageChange={setRidePage}
       />
 
       {/* Verification + Vehicle */}
