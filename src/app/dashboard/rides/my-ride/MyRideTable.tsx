@@ -29,57 +29,54 @@ function MyRideTableComponent({
   }
 
   const startRecord = totalElements ? (page - 1) * rides.length + 1 : 1;
-
-  const endRecord = totalElements
-    ? startRecord + rides.length - 1
-    : rides.length;
+  const endRecord = totalElements ? startRecord + rides.length - 1 : rides.length;
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white">
-      {/* Header */}
-
-      <div className="border-b border-[var(--border)] px-5 py-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-[var(--text-light)]">
-            Showing {startRecord}-{endRecord}
-            {totalElements ? ` of ${totalElements}` : ''}
-          </p>
-
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-        </div>
+    <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+      {/* Table meta-bar: record count + pagination */}
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] bg-gray-50/60 px-6 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs font-medium text-[var(--text-light)]">
+          Showing{' '}
+          <span className="font-semibold text-[var(--heading)]">
+            {startRecord}–{endRecord}
+          </span>
+          {totalElements ? (
+            <>
+              {' '}of{' '}
+              <span className="font-semibold text-[var(--heading)]">{totalElements}</span>
+            </>
+          ) : null}
+        </p>
+        <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
       </div>
 
-      {/* Desktop */}
-
+      {/* Desktop table */}
       <div className="hidden overflow-x-auto lg:block">
-        <table className="w-full">
+        <table className="w-full border-separate border-spacing-0">
           <thead>
-            <tr className="border-b border-[var(--border)] bg-gray-50">
-              <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
+            <tr className="bg-gray-50/80">
+              {/* Route */}
+              <th className="border-b border-[var(--border)] px-6 py-3.5 text-left text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
                 Route
               </th>
-
-              <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
-                Date & Time
+              {/* Date & Time */}
+              <th className="border-b border-[var(--border)] px-6 py-3.5 text-left text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
+                Date &amp; Time
               </th>
-
-              <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
+              {/* Seats Left */}
+              <th className="border-b border-[var(--border)] px-6 py-3.5 text-left text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
                 Seats Left
               </th>
-
-              <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
+              {/* Price / Seat */}
+              <th className="border-b border-[var(--border)] px-6 py-3.5 text-left text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
                 Price / Seat
               </th>
-
-              <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
+              {/* Status */}
+              <th className="border-b border-[var(--border)] px-6 py-3.5 text-left text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
                 Status
               </th>
-
-              <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-[var(--text-light)] uppercase">
+              {/* Bookings — centred to match the button in each row */}
+              <th className="w-48 border-b border-[var(--border)] px-6 py-3.5 text-center text-[10px] font-bold tracking-widest text-[var(--text-light)] uppercase">
                 Bookings
               </th>
             </tr>
@@ -93,9 +90,8 @@ function MyRideTableComponent({
         </table>
       </div>
 
-      {/* Mobile */}
-
-      <div className="space-y-4 p-4 lg:hidden">
+      {/* Mobile card list */}
+      <div className="space-y-3 p-4 lg:hidden">
         {rides.map((ride) => (
           <MyRideRow key={ride.id} ride={ride} mobile onRefresh={onRefresh} />
         ))}

@@ -3,12 +3,13 @@
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Calendar, ArrowLeftRight, MapPin, Search, Users } from 'lucide-react';
+import { Calendar, ArrowLeftRight, Users, Search } from 'lucide-react';
 
 import {
   rideSearchSchema,
   RideSearchSchemaType,
 } from '../schemas/ride-search.schema';
+import CityAutocomplete from '@/components/ui/CityAutocomplete';
 
 interface Props {
   initialValues?: Partial<RideSearchSchemaType>;
@@ -22,7 +23,6 @@ export default function RideSearchForm({
   onSearch,
 }: Props) {
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
@@ -38,42 +38,29 @@ export default function RideSearchForm({
     },
   });
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const sourceCity = watch('sourceCity');
-
   const destinationCity = watch('destinationCity');
+  const requiredSeats = watch('requiredSeats');
+  const departureDate = watch('departureDate');
 
-  /**
-   * Autofill when user clicks Popular Route
-   */
+  // Autofill when user clicks a Popular Route chip
   useEffect(() => {
     if (!initialValues) return;
-
     reset({
       sourceCity: initialValues.sourceCity ?? '',
-
       destinationCity: initialValues.destinationCity ?? '',
-
       departureDate: initialValues.departureDate ?? '',
-
       requiredSeats: initialValues.requiredSeats ?? 1,
     });
   }, [initialValues, reset]);
 
-  /**
-   * Swap source & destination
-   */
   const handleSwap = useCallback(() => {
-    setValue('sourceCity', destinationCity ?? '', {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-
-    setValue('destinationCity', sourceCity ?? '', {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setValue('sourceCity', destinationCity ?? '', { shouldValidate: true, shouldDirty: true });
+    setValue('destinationCity', sourceCity ?? '', { shouldValidate: true, shouldDirty: true });
   }, [sourceCity, destinationCity, setValue]);
+
+  const fieldBase =
+    'h-12 w-full rounded-xl border border-[var(--border)] transition-all outline-none focus:border-[var(--primary)]';
 
   return (
     <form
@@ -81,94 +68,92 @@ export default function RideSearchForm({
       className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm"
     >
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1fr_auto_1fr_220px_120px_auto]">
-        {/* Source */}
 
+        {/* Source city */}
         <div>
           <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--heading)]">
-            <MapPin size={14} />
             From
           </label>
-
-          <input
-            {...register('sourceCity')}
+          <CityAutocomplete
+            id="search-source"
+            value={sourceCity}
+            onChange={(city) =>
+              setValue('sourceCity', city, { shouldValidate: true, shouldDirty: true })
+            }
             placeholder="Departure city"
-            className="h-12 w-full rounded-xl border border-[var(--border)] px-4 transition-all outline-none focus:border-[var(--primary)]"
+            inputClassName={`${fieldBase} px-4`}
+            dropdownDirection="down"
           />
-
           {errors.sourceCity && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.sourceCity.message}
-            </p>
+            <p className="mt-1 text-xs text-red-500">{errors.sourceCity.message}</p>
           )}
         </div>
 
-        {/* Swap */}
-
+        {/* Swap button */}
         <div className="flex items-end justify-center">
           <button
             type="button"
             onClick={handleSwap}
             className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--border)] transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
+            aria-label="Swap departure and arrival cities"
           >
             <ArrowLeftRight size={18} />
           </button>
         </div>
 
-        {/* Destination */}
-
+        {/* Destination city */}
         <div>
           <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--heading)]">
-            <MapPin size={14} />
             To
           </label>
-
-          <input
-            {...register('destinationCity')}
+          <CityAutocomplete
+            id="search-destination"
+            value={destinationCity}
+            onChange={(city) =>
+              setValue('destinationCity', city, { shouldValidate: true, shouldDirty: true })
+            }
             placeholder="Arrival city"
-            className="h-12 w-full rounded-xl border border-[var(--border)] px-4 transition-all outline-none focus:border-[var(--primary)]"
+            inputClassName={`${fieldBase} px-4`}
+            dropdownDirection="down"
           />
-
           {errors.destinationCity && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.destinationCity.message}
-            </p>
+            <p className="mt-1 text-xs text-red-500">{errors.destinationCity.message}</p>
           )}
         </div>
 
-        {/* Date */}
-
+        {/* Date (optional) */}
         <div>
           <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--heading)]">
             <Calendar size={14} />
             Date (Optional)
           </label>
-
           <input
             type="date"
-            {...register('departureDate')}
-            className="h-12 w-full rounded-xl border border-[var(--border)] px-4 transition-all outline-none focus:border-[var(--primary)]"
+            value={departureDate}
+            onChange={(e) =>
+              setValue('departureDate', e.target.value, { shouldValidate: true })
+            }
+            className={`${fieldBase} px-4`}
           />
         </div>
 
         {/* Seats */}
-
         <div>
           <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--heading)]">
             <Users size={14} />
             Seats
           </label>
-
           <div className="relative">
             <Users
               size={16}
-              className="absolute top-1/2 left-4 -translate-y-1/2 text-[var(--text-light)]"
+              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[var(--text-light)]"
             />
-
             <select
-              {...register('requiredSeats', {
-                valueAsNumber: true,
-              })}
-              className="h-12 w-full cursor-pointer appearance-none rounded-xl border border-[var(--border)] bg-white pr-4 pl-11 transition-all outline-none focus:border-[var(--primary)]"
+              value={requiredSeats}
+              onChange={(e) =>
+                setValue('requiredSeats', Number(e.target.value), { shouldValidate: true })
+              }
+              className={`${fieldBase} cursor-pointer appearance-none bg-white pr-4 pl-11`}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map((seat) => (
                 <option key={seat} value={seat}>
@@ -177,16 +162,12 @@ export default function RideSearchForm({
               ))}
             </select>
           </div>
-
           {errors.requiredSeats && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.requiredSeats.message}
-            </p>
+            <p className="mt-1 text-xs text-red-500">{errors.requiredSeats.message}</p>
           )}
         </div>
 
         {/* Search */}
-
         <div className="flex items-end">
           <button
             type="submit"
@@ -194,8 +175,7 @@ export default function RideSearchForm({
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 font-semibold text-white transition-all hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Search size={16} />
-
-            {loading ? 'Searching...' : 'Search'}
+            {loading ? 'Searching…' : 'Search'}
           </button>
         </div>
       </div>
