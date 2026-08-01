@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { BookingCountsResponse } from '@/types/dashboard.types';
 import {
   RiderStats,
   UpcomingTrip,   // keep this
@@ -11,6 +12,10 @@ import {
   BookingListItem,
   // UpcomingRide
 } from "@/types/dashboard.types";
+import {
+  BookingPageResponse,
+  BookingStatus,
+} from '@/types/dashboard.types';
 
 async function safeGet<T>(url: string, fallback: T): Promise<T> {
   try {
@@ -83,33 +88,6 @@ class DashboardService {
     return data;
   }
 
-  /* ── Passenger ────────────────────────────────────── */
-
-  /** GET /v1/passenger/dashboard/stats */
-//   getPassengerStats(): Promise<PassengerStats | null> {
-//     return safeGet<PassengerStats | null>("/v1/passenger/dashboard/stats", null);
-//   }
-
-//   /** GET /v1/passenger/booking/upcoming */
-// getUpcomingTrips(): Promise<UpcomingTrip[]> {
-//   return safeGet<UpcomingTrip[]>("/v1/passenger/booking/upcoming", []);
-// }
-//   /** GET /v1/passenger/booking/recent */
-//   getRecentBookings(): Promise<RecentBooking[]> {
-//     return safeGet<RecentBooking[]>("/v1/passenger/booking/recent", []);
-//   }
-
-//   /** GET /v1/passenger/profile/verification */
-//   getProfileVerification(): Promise<ProfileVerification | null> {
-//     return safeGet<ProfileVerification | null>("/v1/passenger/profile/verification", null);
-//   }
-
-//   /** GET /v1/passenger/booking/all */
-//   getAllBookings(): Promise<BookingListItem[]> {
-//     return safeGet<BookingListItem[]>("/v1/passenger/booking/all", []);
-//   }
-// }
-
 /* ───────────────── Passenger ───────────────── */
 
 getPassengerStats(): Promise<PassengerStats | null> {
@@ -150,15 +128,50 @@ getProfileVerification(): Promise<ProfileVerification | null> {
   );
 }
 
-async getAllBookings(): Promise<BookingListItem[]> {
-  try {
-    const res = await api.get<{ content: BookingListItem[] }>('/v1/bookings/my-bookings?size=100');
-    return res.data?.content ?? [];
-  } catch (err: unknown) {
-    const status = (err as { response?: { status?: number } })?.response?.status;
-    if (status === 401) throw err;
-    return [];
+// async getAllBookings(): Promise<BookingListItem[]> {
+//   try {
+//     const res = await api.get<{ content: BookingListItem[] }>('/v1/bookings/my-bookings?size=100');
+//     return res.data?.content ?? [];
+//   } catch (err: unknown) {
+//     const status = (err as { response?: { status?: number } })?.response?.status;
+//     if (status === 401) throw err;
+//     return [];
+//   }
+// }
+
+getAllBookings(
+  page = 0,
+  size = 5,
+  status?: BookingStatus,
+): Promise<BookingPageResponse> {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+
+  if (status) {
+    params.append('status', status);
   }
+
+  return safeGet<BookingPageResponse>(
+    `/v1/bookings/my-bookings?${params.toString()}`,
+    {
+      content: [],
+      page: {
+        size,
+        number: 0,
+        totalElements: 0,
+        totalPages: 0,
+      },
+    },
+  );
+}
+
+getBookingCounts(): Promise<BookingCountsResponse | null> {
+  return safeGet<BookingCountsResponse | null>(
+    '/v1/bookings/my-bookings-counts',
+    null
+  );
 }
 }
 

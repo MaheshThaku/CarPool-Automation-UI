@@ -20,34 +20,34 @@ export default function DashboardLayout({
 
   return (
     <NotificationProvider>
-    <div className="flex h-screen overflow-hidden bg-[var(--background)]">
-      {/* Sidebar */}
+      <div className="flex h-screen overflow-hidden bg-white">
+        {/* Sidebar */}
 
-      <DashboardSidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
+        <DashboardSidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
-      {/* Main Content */}
+        {/* Main Content */}
 
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Header */}
 
-        <DashboardHeader onOpenSidebar={() => setSidebarOpen(true)} />
+          <DashboardHeader onOpenSidebar={() => setSidebarOpen(true)} />
 
-        {/* Content Area */}
+          {/* Content Area */}
 
-        <div className="flex min-h-0 flex-1 flex-col">
-          <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-[1800px] p-4 sm:p-6">
-              {children}
-            </div>
-          </main>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <main className="flex-1 overflow-y-auto">
+              <div className="mx-auto w-full max-w-[1800px] p-4 sm:p-6">
+                {children}
+              </div>
+            </main>
 
-          <DashboardFooter />
+            <DashboardFooter />
+          </div>
         </div>
       </div>
-    </div>
     </NotificationProvider>
   );
 }
