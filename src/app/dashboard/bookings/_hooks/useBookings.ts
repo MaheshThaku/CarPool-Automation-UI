@@ -9,7 +9,7 @@ import {
   BookingListItem,
 } from '@/types/dashboard.types';
 
-export type BookingFilter = BookingStatus | 'ALL';
+export type BookingFilter = BookingStatus | 'ALL' | 'UPCOMING';
 
 export function useBookings() {
   const [page, setPage] = useState(1);
@@ -22,7 +22,7 @@ export function useBookings() {
       dashboardService.getAllBookings(
         page - 1,
         5,
-        activeTab === 'ALL'
+        activeTab === 'ALL' || activeTab === 'UPCOMING'
           ? undefined
           : activeTab,
       ),

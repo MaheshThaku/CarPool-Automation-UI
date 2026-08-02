@@ -6,9 +6,6 @@ import { memo } from 'react';
 import { Car, Hash, Palette, Calendar, Plus } from 'lucide-react';
 
 import DashboardCard from '../shared/DashboardCard';
-import Pagination from '../shared/Paginationc';
-
-import { usePagination } from '../../_hooks/usePagination';
 
 interface Vehicle {
   id: number;
@@ -34,19 +31,7 @@ function formatVehicleType(type?: string) {
 
 function VehicleInformationComponent({ vehicles }: Props) {
   const hasVehicles = vehicles.length > 0;
-
-  const {
-    paginatedItems,
-    page,
-    totalPages,
-    hasPrev,
-    hasNext,
-    prevPage,
-    nextPage,
-  } = usePagination({
-    items: vehicles,
-    pageSize: 3,
-  });
+  const displayedVehicles = vehicles.slice(0, 3);
 
   return (
     <DashboardCard className="flex h-full min-h-[420px] flex-col">
@@ -64,12 +49,6 @@ function VehicleInformationComponent({ vehicles }: Props) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* {hasVehicles && (
-            <span className="rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-semibold text-[var(--primary)]">
-              {vehicles.length}/10 Vehicles
-            </span>
-          )} */}
-
           <Link
             href="/dashboard/vehicles"
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-hover)]"
@@ -112,77 +91,59 @@ function VehicleInformationComponent({ vehicles }: Props) {
           </Link>
         </div>
       ) : (
-        <>
-          {/* Vehicle List */}
+        /* Vehicle List */
+        <div className="flex-1 space-y-3">
+          {displayedVehicles.map((vehicle) => (
+            <div
+              key={`${vehicle.id}-${vehicle.registrationNumber}`}
+              className="rounded-2xl border border-[var(--border)] bg-white p-4 transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-light)]/10"
+            >
+              <div className="flex gap-4">
+                {/* Icon */}
 
-          <div className="flex-1 space-y-3">
-            {paginatedItems.map((vehicle) => (
-              <div
-                key={`${vehicle.id}-${vehicle.registrationNumber}`}
-                className="rounded-2xl border border-[var(--border)] bg-white p-4 transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-light)]/10"
-              >
-                <div className="flex gap-4">
-                  {/* Icon */}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-light)]">
+                  <Car size={20} className="text-[var(--primary)]" />
+                </div>
 
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-light)]">
-                    <Car size={20} className="text-[var(--primary)]" />
+                {/* Content */}
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                    <h4 className="truncate text-base font-semibold text-[var(--heading)]">
+                      {vehicle.model || 'Unknown Vehicle'}
+                    </h4>
+
+                    <span className="w-fit rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-medium text-[var(--primary)]">
+                      {formatVehicleType(vehicle.vehicleType)}
+                    </span>
                   </div>
 
-                  {/* Content */}
+                  <div className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+                    <div className="flex items-center gap-2 text-[var(--text)]">
+                      <Hash size={14} className="text-[var(--primary)]" />
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                      <h4 className="truncate text-base font-semibold text-[var(--heading)]">
-                        {vehicle.model || 'Unknown Vehicle'}
-                      </h4>
-
-                      <span className="w-fit rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-medium text-[var(--primary)]">
-                        {formatVehicleType(vehicle.vehicleType)}
+                      <span className="truncate">
+                        {vehicle.registrationNumber || '--'}
                       </span>
                     </div>
 
-                    <div className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-                      <div className="flex items-center gap-2 text-[var(--text)]">
-                        <Hash size={14} className="text-[var(--primary)]" />
+                    <div className="flex items-center gap-2 text-[var(--text)]">
+                      <Palette size={14} className="text-[var(--primary)]" />
 
-                        <span className="truncate">
-                          {vehicle.registrationNumber || '--'}
-                        </span>
-                      </div>
+                      <span>{vehicle.color || '--'}</span>
+                    </div>
 
-                      <div className="flex items-center gap-2 text-[var(--text)]">
-                        <Palette size={14} className="text-[var(--primary)]" />
+                    <div className="flex items-center gap-2 text-[var(--text)]">
+                      <Calendar size={14} className="text-[var(--primary)]" />
 
-                        <span>{vehicle.color || '--'}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-[var(--text)]">
-                        <Calendar size={14} className="text-[var(--primary)]" />
-
-                        <span>{vehicle.yearOfManufacture || '--'}</span>
-                      </div>
+                      <span>{vehicle.yearOfManufacture || '--'}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-
-          {totalPages > 1 && (
-            <div className="mt-5 border-t border-[var(--border)] pt-4">
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                hasPrev={hasPrev}
-                hasNext={hasNext}
-                prevPage={prevPage}
-                nextPage={nextPage}
-              />
             </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
     </DashboardCard>
   );
