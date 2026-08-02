@@ -76,6 +76,9 @@ export interface UpcomingTrip {
   bookingTime: string;
 
   driverName: string;
+
+  departureTime: string;
+  driverContactNumber?: string;
 }
 
 export interface RecentBooking {
@@ -115,8 +118,13 @@ export interface BookingListItem {
   bookingId: number;
   sourceCity: string;
   destinationCity: string;
-  bookingTime: string;
+
+  bookingTime: string;          // Keep this
+  departureTime: string;        // Add this
+
   driverName: string;
+  driverContactNumber?: string; // Add this
+
   seatsBooked: number;
   totalAmount: number;
   status: BookingStatus;

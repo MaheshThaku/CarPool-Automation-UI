@@ -14,7 +14,8 @@ interface Trip {
   bookingId: number;
   sourceCity: string;
   destinationCity: string;
-  bookingTime: string;
+  departureTime: string;
+  driverContactNumber?: string;
   driverName?: string;
   seatsBooked?: number;
   status?: string;
@@ -65,7 +66,8 @@ function UpcomingTripsComponent({ trips }: Props) {
                 bookingId={trip.bookingId}
                 sourceCity={trip.sourceCity}
                 destinationCity={trip.destinationCity}
-                bookingTime={trip.bookingTime}
+                departureTime={trip.departureTime}
+                driverContactNumber={trip.driverContactNumber}
                 driverName={trip.driverName}
                 seatsBooked={trip.seatsBooked}
                 status={trip.status}
