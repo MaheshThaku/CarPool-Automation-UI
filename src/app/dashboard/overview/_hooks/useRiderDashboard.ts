@@ -39,25 +39,34 @@ const rides$ = useAsyncData(
   );
 
   const verification$ = useAsyncData(
-  () => dashboardService.getVerificationStatus(),
-  [],
-  {
-    cacheKey: 'rider-dashboard-verification',
-  },
-);
+    () => dashboardService.getVerificationStatus(),
+    [],
+    {
+      cacheKey: 'rider-dashboard-verification',
+    },
+  );
 
-const profileCompletion$ = useAsyncData(
-  () => dashboardService.getProfileCompletion(),
-  [],
-  {
-    cacheKey: 'rider-dashboard-profile-completion',
-  },
-);
+  const riderVerification$ = useAsyncData(
+    () => dashboardService.getRiderVerificationStatus(),
+    [],
+    {
+      cacheKey: 'rider-verification-status-overview',
+    },
+  );
+
+  const profileCompletion$ = useAsyncData(
+    () => dashboardService.getProfileCompletion(),
+    [],
+    {
+      cacheKey: 'rider-dashboard-profile-completion',
+    },
+  );
 
   const loading =
     stats$.loading ||
     rides$.loading ||
-    vehicles$.loading;
+    vehicles$.loading ||
+    riderVerification$.loading;
 
   const error =
     stats$.error ||
@@ -69,7 +78,8 @@ const profileCompletion$ = useAsyncData(
     stats$.refetch?.();
     rides$.refetch?.();
     vehicles$.refetch?.();
-  }, [stats$, rides$, vehicles$]);
+    riderVerification$.refetch?.();
+  }, [stats$, rides$, vehicles$, riderVerification$]);
 
   const vehicle =
     vehicles$.data ?? null;
@@ -84,10 +94,10 @@ const profileCompletion$ = useAsyncData(
     upcomingRides:
       rides$.data?.content ?? [],
 
-
-
     vehicle,
+    vehicles: vehicles$.data ?? [],
     verification: verification$.data ?? [],
+    riderVerification: riderVerification$.data ?? null,
     profileCompletion: profileCompletion$.data ?? [],
 
     refetch,
