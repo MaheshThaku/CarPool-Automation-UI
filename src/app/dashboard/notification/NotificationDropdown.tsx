@@ -34,18 +34,18 @@ export default function NotificationDropdown({
   useEffect(() => {
     if (!open) return;
 
-    loadNotifications();
-  }, [open]);
+    async function loadNotifications() {
+      try {
+        const data = await getNotifications();
 
-  async function loadNotifications() {
-    try {
-      const data = await getNotifications();
-
-      setNotifications(data);
-    } catch (e) {
-      console.error(e);
+        setNotifications(data);
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
+
+    loadNotifications();
+  }, [open, setNotifications]);
 
   async function handleRead(id: number) {
     try {

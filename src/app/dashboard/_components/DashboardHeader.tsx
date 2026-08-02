@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 import { Bell, Menu } from 'lucide-react';
 
@@ -20,6 +20,10 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
 
   const [open, setOpen] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const bellRef = useRef<HTMLButtonElement>(null);
+
   const profile = useUserStore((state) => state.profile);
 
   const hydrated = useUserStore((state) => state.hydrated);
@@ -31,9 +35,34 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
     (state) => state.unreadCount,
   );
 
-  const connected = useNotificationStore(
-    (state) => state.connected,
-  );
+  // Close the popup on outside click or Escape, only while it is open.
+  useEffect(() => {
+    if (!open) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        bellRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open]);
 
   if (!hydrated) {
     return (
@@ -56,14 +85,14 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-3">
-        {/* For Testing Websocket Connection only*/}
-        {/* <span className="text-xs">
-          {connected ? "🟢 Live" : "🔴 Offline"}
-        </span> */}
-
-        <div className="relative">
+        <div ref={containerRef} className="relative">
           <button
-            onClick={() => setOpen(!open)}
+            ref={bellRef}
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label="Notifications"
+            aria-haspopup="true"
+            aria-expanded={open}
             className="relative rounded-full p-2 hover:bg-gray-50"
           >
             <Bell size={20} />
