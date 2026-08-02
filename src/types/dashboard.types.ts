@@ -34,6 +34,18 @@ export interface VerificationItem {
   status: DocStatus;
 }
 
+export interface DocumentVerificationItem {
+  documentType: 'DRIVING_LICENSE' | 'VEHICLE_RC' | 'VEHICLE_INSURANCE' | 'GOVT_ID' | string;
+  verificationStatus: DocStatus;
+}
+
+export interface RiderVerificationStatusResponse {
+  overallVerificationStatus: 'VERIFIED' | 'PENDING';
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  documents?: DocumentVerificationItem[];
+}
+
 export interface VehicleInfo {
   id: number;
   model: string;

@@ -10,6 +10,7 @@ import {
   RecentBooking,
   ProfileVerification,
   BookingListItem,
+  RiderVerificationStatusResponse,
   // UpcomingRide
 } from "@/types/dashboard.types";
 import {
@@ -34,6 +35,14 @@ class DashboardService {
   /** GET /v1/rider/dashboard/stats */
   getRiderStats(): Promise<RiderStats | null> {
     return safeGet<RiderStats | null>("/v1/rider/dashboard/stats", null);
+  }
+
+  /** GET /v1/rider/document/verification/status */
+  getRiderVerificationStatus(): Promise<RiderVerificationStatusResponse | null> {
+    return safeGet<RiderVerificationStatusResponse | null>(
+      "/v1/rider/document/verification/status",
+      null,
+    );
   }
 
 //   /** GET /v1/rider/ride/my-rides */

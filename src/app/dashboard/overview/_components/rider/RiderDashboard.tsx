@@ -23,28 +23,22 @@ function RiderDashboardComponent({ user }: Props) {
   const {
     stats,
     upcomingRides,
-    vehicle,
-    verification,
-    profileCompletion,
+    vehicles,
+    riderVerification,
   } = useRiderDashboard();
-
-  const profileCompletionData = Array.isArray(profileCompletion)
-    ? undefined
-    : profileCompletion;
 
   return (
     <div className="space-y-6">
       {/* Hero */}
-
       <RiderHero greeting={getGreeting()} name={formatDisplayName(user)} />
 
+      {/* Profile Completion & Verification Readiness */}
       <ProfileCompletion
-        percentage={profileCompletionData?.percentage ?? 0}
-        steps={profileCompletionData?.steps ?? []}
+        riderVerification={riderVerification}
+        hasVehicle={(vehicles && vehicles.length > 0) || false}
       />
 
       {/* Stats */}
-
       <RiderStats
         totalRides={stats?.totalRides ?? 0}
         scheduledRides={stats?.upcomingRides ?? 0}
@@ -52,21 +46,16 @@ function RiderDashboardComponent({ user }: Props) {
       />
 
       {/* Offer Ride Banner */}
-
       <OfferRideCard />
 
       {/* Upcoming Rides */}
+      <UpcomingRides rides={upcomingRides} />
 
-      <UpcomingRides
-        rides={upcomingRides}
-      />
-
-      {/* Verification + Vehicle */}
-
+      {/* Verification Status + Vehicle Information */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <VerificationStatus items={verification} />
+        <VerificationStatus riderVerification={riderVerification} />
 
-        <VehicleInformation vehicles={vehicle || []} />
+        <VehicleInformation vehicles={vehicles || []} />
       </div>
     </div>
   );

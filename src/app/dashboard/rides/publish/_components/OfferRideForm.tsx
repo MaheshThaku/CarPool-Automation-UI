@@ -15,6 +15,7 @@ import {
   Plus,
   ShieldAlert,
   Info,
+  CheckCircle,
 } from 'lucide-react';
 
 import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
@@ -41,11 +42,13 @@ import RidePreview from './RidePreview';
 import SuccessState from './SuccessState';
 import NoVehicleState from './NoVehicleState';
 
+import UnverifiedRiderState from './UnverifiedRiderState';
+
 const REQUIRED_DOCS = [
-  'Driving License',
-  'Vehicle RC (Registration Certificate)',
-  'Vehicle Insurance',
-  'Government ID (Aadhaar / PAN)',
+  { key: 'DRIVING_LICENSE', label: 'Driving License' },
+  { key: 'VEHICLE_RC', label: 'Vehicle RC (Registration)' },
+  { key: 'VEHICLE_INSURANCE', label: 'Vehicle Insurance' },
+  { key: 'GOVT_ID', label: 'Government ID (Aadhaar/PAN)' },
 ];
 
 const QUICK_PICK_DATES = [
@@ -81,12 +84,12 @@ export default function OfferRideForm() {
   });
   const vehicles = vehicles$.data ?? [];
 
-  // Fetch rider stats to check verification status (uses cached data if already loaded)
-  const stats$ = useAsyncData(dashboardService.getRiderStats, [], {
-    cacheKey: 'rider-dashboard-stats',
+  // Fetch rider verification status
+  const verification$ = useAsyncData(dashboardService.getRiderVerificationStatus, [], {
+    cacheKey: 'rider-verification-status',
   });
-  const verificationStatus = stats$.data?.verificationStatus;
-  const isVerified = verificationStatus === 'VERIFIED';
+  const verificationData = verification$.data;
+  const isOverallVerified = verificationData?.overallVerificationStatus === 'VERIFIED';
 
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
   const [submitError, setSubmitError] = useState('');
@@ -231,6 +234,20 @@ export default function OfferRideForm() {
         />
       </div>
     );
+  }
+
+  if (verification$.loading) {
+    return (
+      <div className="space-y-4 py-6">
+        <div className="h-32 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+      </div>
+    );
+  }
+
+  // Strict check: if overall verification is incomplete, render UnverifiedRiderState instead of the form
+  if (!isOverallVerified) {
+    return <UnverifiedRiderState verificationData={verificationData} />;
   }
 
   let content;
@@ -488,7 +505,6 @@ export default function OfferRideForm() {
             </div>
           )}
 
-
           {/* Submit */}
           <button
             type="submit"
@@ -524,42 +540,6 @@ export default function OfferRideForm() {
           Fill in the details below to publish your ride.
         </p>
       </div>
-
-      {/* Verification info banner — top of page */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <div className="flex items-center gap-2.5 text-sm text-amber-700">
-            <ShieldAlert size={16} className="shrink-0 text-amber-500" />
-            <span>
-              Your rider verification is pending. Complete it to publish rides.
-            </span>
-
-            {/* Tooltip with required documents */}
-            <div className="group relative">
-              <Info
-                size={14}
-                className="cursor-pointer text-amber-400 hover:text-amber-600"
-              />
-              <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 w-60 -translate-x-1/2 rounded-xl border border-amber-200 bg-white px-3.5 py-3 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <p className="mb-2 font-semibold text-gray-900">Required documents</p>
-                <ul className="space-y-1">
-                  {REQUIRED_DOCS.map((doc) => (
-                    <li key={doc} className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                      {doc}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <Link
-            href="/dashboard/documents"
-            className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100"
-          >
-            Go to Documents →
-          </Link>
-        </div>
 
       {/* Main Content Injection */}
       {content}
