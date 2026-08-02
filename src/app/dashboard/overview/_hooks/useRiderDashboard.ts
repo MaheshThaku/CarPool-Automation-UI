@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dashboardService } from '@/services/dashboard.service';
@@ -17,17 +17,15 @@ export function useRiderDashboard() {
     },
   );
 
-const [ridePage, setRidePage] = useState(1);
-
 const rides$ = useAsyncData(
   () =>
     rideService.getRiderRides(
-      ridePage - 1,
-      5,
+      0,
+      20,
     ),
-  [ridePage],
+  [],
   {
-    cacheKey: `dashboard-rides-${ridePage}`,
+    cacheKey: 'dashboard-upcoming-rides',
     ttlMs: 60_000,
   },
 );
@@ -83,19 +81,9 @@ const profileCompletion$ = useAsyncData(
     stats:
       stats$.data ?? null,
 
-  upcomingRides:
-    rides$.data?.content ?? [],
+    upcomingRides:
+      rides$.data?.content ?? [],
 
-  ridePage,
-
-  setRidePage,
-
-  totalRidePages:
-    rides$.data?.page?.totalPages ?? 1,
-
-  totalRideElements:
-    rides$.data?.page?.totalElements ??
-    0,
 
 
     vehicle,

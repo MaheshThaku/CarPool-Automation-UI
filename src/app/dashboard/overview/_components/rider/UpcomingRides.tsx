@@ -5,37 +5,26 @@ import { Calendar } from 'lucide-react';
 
 import DashboardCard from '../shared/DashboardCard';
 import EmptyState from '../shared/EmptyState';
-import Pagination from '../shared/Paginationc';
 
 import RideRow from './RideRow';
 
 import { RideResponse } from '@/types/ride.types';
 
+const MAX_RIDES = 5;
+const ACTIVE_STATUSES = new Set<RideResponse['status']>(['SCHEDULED', 'STARTED']);
+
 interface Props {
   readonly rides: RideResponse[];
-  readonly page: number;
-  readonly totalPages: number;
-  readonly totalElements: number;
-  readonly onPageChange: (page: number) => void;
 }
 
-function isUpcomingRide(
-  ride: RideResponse,
-): ride is RideResponse & { status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' } {
-  return ride.status !== 'STARTED';
-}
-
-function UpcomingRidesComponent({
-  rides,
-  page,
-  totalPages,
-  totalElements,
-  onPageChange,
-}: Props) {
-  const hasPrev = page > 1;
-  const hasNext = page < totalPages;
-
-  const upcomingRides = useMemo(() => rides.filter(isUpcomingRide), [rides]);
+function UpcomingRidesComponent({ rides }: Props) {
+  const upcomingRides = useMemo(
+    () =>
+      rides
+        .filter((ride) => ACTIVE_STATUSES.has(ride.status))
+        .slice(0, MAX_RIDES),
+    [rides],
+  );
 
   return (
     <DashboardCard className="flex flex-col overflow-hidden p-0">
@@ -45,12 +34,12 @@ function UpcomingRidesComponent({
             Upcoming Rides
           </h3>
           <p className="mt-1 text-sm text-(--text-light)">
-            Your scheduled published rides
+            Your scheduled and active rides
           </p>
         </div>
 
         <span className="rounded-full bg-(--primary-light) px-3 py-1 text-sm font-semibold text-(--primary)">
-          {totalElements} Rides
+          {upcomingRides.length} Rides
         </span>
       </div>
 
@@ -60,7 +49,7 @@ function UpcomingRidesComponent({
             <EmptyState
               icon={Calendar}
               title="No Upcoming Rides"
-              description="Published rides will appear here."
+              description="Scheduled or active rides will appear here."
             />
           </div>
         ) : (
@@ -80,19 +69,6 @@ function UpcomingRidesComponent({
           </div>
         )}
       </div>
-
-      {totalPages > 1 && (
-        <div className="border-t border-(--border) px-6 py-4">
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            hasPrev={hasPrev}
-            hasNext={hasNext}
-            prevPage={() => onPageChange(page - 1)}
-            nextPage={() => onPageChange(page + 1)}
-          />
-        </div>
-      )}
     </DashboardCard>
   );
 }

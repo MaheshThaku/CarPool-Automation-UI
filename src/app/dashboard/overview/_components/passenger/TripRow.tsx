@@ -9,7 +9,8 @@ interface Props {
   bookingId: number;
   sourceCity: string;
   destinationCity: string;
-  bookingTime: string;
+  departureTime: string;
+  driverContactNumber?: string;
   driverName?: string;
   seatsBooked?: number;
   status?: string;
@@ -18,12 +19,13 @@ interface Props {
 function TripRowComponent({
   sourceCity,
   destinationCity,
-  bookingTime,
+  departureTime,
+  driverContactNumber,
   driverName,
   seatsBooked,
   status,
 }: Props) {
-  const departure = parseDeparture(bookingTime);
+  const departure = parseDeparture(departureTime);
 
   const statusClasses = {
     APPROVED: 'bg-green-50 text-[var(--success)]',
@@ -76,13 +78,15 @@ function TripRowComponent({
                 Driver:{' '}
                 <span className="font-medium">{driverName ?? '--'}</span>
               </p>
+              <p className="text-xs text-[var(--text)] md:text-sm">
+                Contact: <span className="font-medium">{driverContactNumber ?? '--'}</span>
+              </p>
 
               {status && (
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                    statusClasses[status as keyof typeof statusClasses] ??
+                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusClasses[status as keyof typeof statusClasses] ??
                     'bg-gray-100 text-gray-600'
-                  }`}
+                    }`}
                 >
                   {status}
                 </span>
