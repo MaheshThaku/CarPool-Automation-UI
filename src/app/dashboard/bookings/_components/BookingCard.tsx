@@ -12,7 +12,7 @@ interface BookingCardProps {
 
 export default function BookingCard({ booking }: BookingCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-  const dt = parseBookedOn(booking.bookingTime);
+  const dt = parseBookedOn(booking.departureTime);
   const sc = statusConfig(booking.status);
   const StatusIcon = sc.icon;
 
@@ -60,7 +60,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
             <div className="rounded-xl bg-[var(--background)] p-3 border border-[var(--border)]/30 hover:bg-white transition-colors">
               <div className="flex items-center gap-1 text-[var(--text-light)]">
                 <Calendar size={12} className="text-[var(--primary)]" />
-                <span className="text-[10px]">Booked On</span>
+                <span className="text-[10px]">Departure Date</span>
               </div>
               <p className="mt-1 text-xs font-semibold text-[var(--heading)]">{dt.date}</p>
             </div>
@@ -68,7 +68,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
             <div className="rounded-xl bg-[var(--background)] p-3 border border-[var(--border)]/30 hover:bg-white transition-colors">
               <div className="flex items-center gap-1 text-[var(--text-light)]">
                 <Calendar size={12} className="text-[var(--primary)]" />
-                <span className="text-[10px]">Booked At</span>
+                <span className="text-[10px]">Departure Time</span>
               </div>
               <p className="mt-1 text-xs font-semibold text-[var(--heading)]">{dt.time}</p>
             </div>
@@ -97,12 +97,18 @@ export default function BookingCard({ booking }: BookingCardProps) {
             </div>
 
             <div className="rounded-xl bg-gray-50 px-3 py-2">
+              <p className="text-[10px] text-[var(--text-light)]">Contact</p>
+              <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">
+                {booking.driverContactNumber}
+              </p>
+            </div>
+            <div className="rounded-xl bg-gray-50 px-3 py-2">
               <p className="text-[10px] text-[var(--text-light)]">Vehicle Name</p>
               <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">
                 {booking.vehicleModel}
               </p>
             </div>
-            
+
           </div>
           <div className="flex items-center gap-2">
             {(booking.status === 'PENDING' ||
