@@ -1,12 +1,12 @@
 'use client';
 
 import { memo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { LogOut, X } from 'lucide-react';
 
 import Logo from '@/components/common/navbar/Logo';
-import { deleteCookie } from '@/lib/cookies';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { authService } from '@/services/auth.service';
 
 import SidebarNav from './SidebarNav';
 
@@ -60,7 +60,6 @@ const SidebarContent = memo(function SidebarContent({
 
 function DashboardSidebarComponent({ sidebarOpen, setSidebarOpen }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
   const user = useCurrentUser();
 
   const isRider = user?.role === 'ROLE_RIDER';
@@ -68,18 +67,9 @@ function DashboardSidebarComponent({ sidebarOpen, setSidebarOpen }: Props) {
   const navItems = isRider ? RIDER_NAV : PASSENGER_NAV;
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-    } catch {
-      // ignore
-    }
-
-    deleteCookie('user');
-    deleteCookie('tokenExpiry');
-
-    router.replace('/auth/login');
+    // authService.logout() revokes the session server-side, clears every local
+    // auth state (httpOnly + readable cookies, profile store) and redirects.
+    await authService.logout();
   };
 
   return (

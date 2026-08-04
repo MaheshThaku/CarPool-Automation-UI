@@ -22,6 +22,24 @@ export interface RegisterResponse {
 }
 
 /* ===========================
+   SESSION USER (client cookie)
+=========================== */
+
+/**
+ * The safe, non-sensitive user profile we persist in the readable `user`
+ * cookie so the navbar/profile can render without an API round-trip.
+ * NEVER put tokens in here — tokens live in httpOnly cookies only.
+ */
+export interface SessionUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role?: string;
+  avatarUrl?: string;
+}
+
+/* ===========================
    LOGIN
 =========================== */
 
@@ -30,17 +48,13 @@ export interface LoginRequest {
   password: string;
 }
 
+/**
+ * Response of POST /api/auth/login (the Next.js route that proxies the
+ * backend and stores the tokens in httpOnly cookies). It returns only the
+ * non-sensitive user summary — the tokens themselves never reach JS.
+ */
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken?: string;
-
-  user?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role?: string;
-  };
+  user?: Partial<SessionUser> & { role?: string };
 }
 
 /* ===========================

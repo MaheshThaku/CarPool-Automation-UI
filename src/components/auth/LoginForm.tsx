@@ -13,44 +13,10 @@ import { loginSchema, LoginSchemaType } from '@/schemas/login.schema';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { api } from '@/lib/axios';
-import { setCookie, deleteCookie } from '@/lib/cookies';
+import { authService } from '@/services/auth.service';
 
 const SOCIAL_BUTTON_CLASS =
   'flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[var(--text)] bg-white text-sm font-medium transition-colors hover:border-[var(--primary)] text-[var(--text)]';
-
-interface StoredUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
-
-/* Normalize the /users/me response into the shape we persist in the `user`
-   cookie. This shapes an API response — it does NOT decode the JWT. */
-function normalizeUser(data: unknown, email: string, roleOverride?: string): StoredUser {
-  const obj = (data ?? {}) as Record<string, unknown>;
-
-  const role =
-    roleOverride ||
-    (Array.isArray(obj.roles) ? String(obj.roles[0]) : '') ||
-    (Array.isArray(obj.authorities)
-      ? String(
-          (obj.authorities as Array<{ authority?: string }>)[0]?.authority ??
-            obj.authorities[0],
-        )
-      : '') ||
-    String(obj.role ?? 'ROLE_PASSENGER');
-
-  return {
-    id: String(obj.id ?? obj.userId ?? ''),
-    firstName: String(obj.firstName ?? ''),
-    lastName: String(obj.lastName ?? ''),
-    email: String(obj.email ?? email),
-    role,
-  };
-}
 
 export default function LoginForm() {
   const {
@@ -69,43 +35,15 @@ export default function LoginForm() {
     try {
       setErrorMessage('');
 
-      // Clear any stale client-readable cookies before logging in.
-      deleteCookie('user');
-      deleteCookie('tokenExpiry');
-
-      // The login API route sets the httpOnly accessToken cookie for us.
-      const loginRes = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: data.email.trim(),
-          password: data.password,
-        }),
-      });
-
-      if (!loginRes.ok) {
-        const body = await loginRes.json().catch(() => null);
-        setErrorMessage(body?.message ?? 'Login failed. Please try again.');
-        return;
-      }
-
-      const loginData = await loginRes.json();
-      const role = loginData.user?.role;
-
-      // Token is httpOnly now, so fetch the user through the proxy (the proxy
-      // attaches the cookie as the Bearer token). Use the role-specific endpoint.
-      const profilePath =
-        role === 'ROLE_RIDER' ? '/v1/rider/profile' : '/v1/passenger/profile';
-
-      const profileRes = await api.get(profilePath);
-      const user = normalizeUser(profileRes.data, data.email.trim(), role);
-
-      // Persist only the safe user fields in a non-httpOnly cookie.
-      setCookie('user', JSON.stringify(user));
+      // authService.login goes through POST /api/auth/login (sets the httpOnly
+      // cookies) and then populates the readable `user` cookie via the proxy.
+      await authService.login(data.email.trim(), data.password);
 
       router.push('/dashboard/overview');
-    } catch {
-      setErrorMessage('Login failed. Please try again.');
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Login failed. Please try again.',
+      );
     }
   };
 

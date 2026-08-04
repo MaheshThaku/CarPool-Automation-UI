@@ -5,6 +5,7 @@ import { User, Mail, Phone, Calendar, CheckCircle } from 'lucide-react';
 
 import { profileService } from '@/services/profile.service';
 import { ProfileData, UpdateProfileRequest } from '@/types/profile.types';
+import { updateSessionUser } from '@/lib/auth.client';
 import Field from './Field';
 import SectionHeader from './SectionHeader';
 import SuccessBanner from './SuccessBanner';
@@ -100,24 +101,12 @@ export default function PersonalInfoSection({
 
       onSaved(freshProfile);
 
-      // sync user cookie/storage
-      const userCookie = localStorage.getItem('user');
-
-      if (userCookie) {
-        const user = JSON.parse(userCookie);
-
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            ...user,
-            firstName: freshProfile.firstName,
-            lastName: freshProfile.lastName,
-            avatarUrl: freshProfile.avatarUrl,
-          }),
-        );
-
-        window.dispatchEvent(new Event('user-updated'));
-      }
+      // Keep the readable session-user cookie in sync (navbar + other tabs).
+      updateSessionUser({
+        firstName: freshProfile.firstName,
+        lastName: freshProfile.lastName,
+        avatarUrl: freshProfile.avatarUrl,
+      });
 
       setEditing(false);
 

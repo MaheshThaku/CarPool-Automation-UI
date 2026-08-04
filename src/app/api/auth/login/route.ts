@@ -3,11 +3,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAxiosError } from "axios";
 
 import { serverApi } from "@/lib/axios";
-import { extractTokens, setAuthCookies , decodeJwt } from "@/lib/authCookies.server";
+import { extractTokens, setAuthCookies, decodeJwt } from "@/lib/authCookies.server";
 
 interface LoginBody {
   email?: string;
   password?: string;
+}
+
+// Stable-per-browser device id cookie so logout-all / session management can
+// identify this device. It is NOT a credential — a readable cookie is fine.
+const DEVICE_ID_COOKIE = "sf_device_id";
+const DEVICE_ID_MAX_AGE = 60 * 60 * 24 * 365;
+
+function getOrCreateDeviceId(req: NextRequest): string {
+  const existing = req.cookies.get(DEVICE_ID_COOKIE)?.value;
+  if (existing) return existing;
+  // Node 20+ global crypto; the ID only needs to be unique per browser.
+  return crypto.randomUUID();
 }
 
 export async function POST(
@@ -26,6 +38,8 @@ export async function POST(
     );
   }
 
+  const deviceId = getOrCreateDeviceId(req);
+
   let raw: unknown;
 
   try {
@@ -35,6 +49,8 @@ export async function POST(
         {
           email,
           password,
+          deviceId,
+          deviceName: 'web',
         },
       );
 
@@ -104,6 +120,15 @@ export async function POST(
 
   const res = NextResponse.json({ user });
   setAuthCookies(res, tokens);
+
+  // Persist the stable device id so it survives browser restarts.
+  res.cookies.set(DEVICE_ID_COOKIE, deviceId, {
+    httpOnly: false,
+    sameSite: "strict" as const,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: DEVICE_ID_MAX_AGE,
+  });
 
   return res;
 }
