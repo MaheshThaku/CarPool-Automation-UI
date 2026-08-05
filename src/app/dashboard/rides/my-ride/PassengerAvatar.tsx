@@ -22,7 +22,6 @@ function PassengerAvatarComponent({ name, photoUrl, size = 48 }: Props) {
   }, [photoUrl]);
 
   const initial = name?.charAt(0)?.toUpperCase() || 'U';
-  console.log(imageUrl);
   return (
     <div
       className="relative overflow-hidden rounded-full border border-[var(--border)]"

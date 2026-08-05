@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Calendar, Clock, Users, IndianRupee, BookOpen, ArrowRight, Landmark } from "lucide-react";
+import { X, Calendar, Clock, Users, IndianRupee, BookOpen, ArrowRight, Landmark, MapPin } from "lucide-react";
 import { BookingListItem } from "@/types/dashboard.types";
 import { parseBookedOn, statusConfig } from "./bookingUtils";
 
@@ -64,7 +64,12 @@ export default function BookingDetailsModal({ booking, onClose }: BookingDetails
             <span>{booking.destinationCity}</span>
           </h3>
 
-          <p className="mt-1 text-xs text-white/80">Booking Reference: #{booking.bookingId}</p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-white/80">
+            <MapPin size={12} className="shrink-0" />
+            <span className="truncate">{booking.sourceAddress || booking.sourceCity}</span>
+            <ArrowRight size={12} className="shrink-0 opacity-70" />
+            <span className="truncate">{booking.destinationAddress || booking.destinationCity}</span>
+          </p>
         </div>
 
         {/* Ticket Tear Dotted Separator (Premium visual style) */}

@@ -130,19 +130,36 @@ export type BookingStatus =
 
 export interface BookingListItem {
   bookingId: number;
+  rideId?: number;
+
   sourceCity: string;
   destinationCity: string;
+
+  // Precise photon-geocoded pickup/drop-off points (added by the backend later).
+  // Falls back to the city names until the API returns them.
+  sourceAddress?: string | null;
+  destinationAddress?: string | null;
 
   bookingTime: string;          // Keep this
   departureTime: string;        // Add this
 
   driverName: string;
   driverContactNumber?: string; // Add this
+  driverProfilePic?: string | null; // Relative or absolute URL; resolved against S3 base
+  driverAge?: number | null;
+
+  // The passenger (i.e. the logged-in user) is echoed back by the API.
+  passengerId?: number;
+  passengerName?: string | null;
+  passengerContact?: string | null;
+  passengerProfilePic?: string | null;
+  passengerAge?: number | null;
 
   seatsBooked: number;
   totalAmount: number;
   status: BookingStatus;
   vehicleModel: string;
+  vehicleRegistrationNumber?: string;
 }
 
 export interface BookingPageResponse {
