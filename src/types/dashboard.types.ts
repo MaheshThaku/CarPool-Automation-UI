@@ -105,6 +105,8 @@ export interface RecentBooking {
 
   bookingTime: string;
 
+  departureTime: string;
+
   status: BookingStatus;
 
   driverName: string;

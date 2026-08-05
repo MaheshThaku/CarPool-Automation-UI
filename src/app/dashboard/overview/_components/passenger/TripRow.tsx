@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Phone, User } from 'lucide-react';
 
 import { parseDeparture } from '../../_utils/overview.utils';
 
@@ -74,12 +74,13 @@ function TripRowComponent({
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-3">
-              <p className="text-xs text-[var(--text)] md:text-sm">
-                Driver:{' '}
+              <p className="flex items-center gap-1 text-xs text-[var(--text)] md:text-sm">
+                <User size={13} className="shrink-0 text-[var(--primary)]" />
                 <span className="font-medium">{driverName ?? '--'}</span>
               </p>
-              <p className="text-xs text-[var(--text)] md:text-sm">
-                Contact: <span className="font-medium">{driverContactNumber ?? '--'}</span>
+              <p className="flex items-center gap-1 text-xs text-[var(--text)] md:text-sm">
+                <Phone size={13} className="shrink-0 text-[var(--primary)]" />
+                <span className="font-medium">{driverContactNumber ?? '--'}</span>
               </p>
 
               {status && (

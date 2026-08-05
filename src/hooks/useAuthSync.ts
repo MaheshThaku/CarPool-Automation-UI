@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { AUTH_HOME_PATH } from "@/lib/auth.client";
+import { AUTH_HOME_PATH, SESSION_USER_COOKIE } from "@/lib/auth.client";
+import { getCookie } from "@/lib/cookies";
 
 /**
  * Keeps route protection correct while the user is already on a page.
@@ -27,7 +28,17 @@ export function useAuthSync(): void {
     if (typeof window === "undefined") return;
 
     const onProtectedRoute = window.location.pathname.startsWith("/dashboard");
-    if (onProtectedRoute && !user) {
+    if (!onProtectedRoute) return;
+
+    // On a hard refresh, useCurrentUser() briefly reports null on the first
+    // hydrated render because React renders with the SSR snapshot before the
+    // readable `user` cookie is read. Confirming the cookie directly stops a
+    // healthy session from being bounced to the home page. The effect still
+    // re-runs when `user` changes, so a real logout/expiry still redirects.
+    const rawSession = getCookie(SESSION_USER_COOKIE);
+    const sessionExists = !!rawSession && rawSession !== "undefined";
+
+    if (!user && !sessionExists) {
       router.replace(AUTH_HOME_PATH);
     }
   }, [user, router]);
