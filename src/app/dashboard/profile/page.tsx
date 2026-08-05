@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { ProfileData } from '@/types/profile.types';
-import { getCookie, setCookie } from '@/lib/cookies';
+import { updateSessionUser } from '@/lib/auth.client';
 
 import PersonalInfoSection from './_components/PersonalInfoSection';
 import AvatarSection from './_components/AvatarSection';
@@ -45,27 +45,13 @@ export default function ProfilePage() {
   }, [profile$.data, setProfile]);
 
   /* -------------------------------- */
-  /* Cookie sync helper               */
+  /* Session-user sync helper         */
   /* -------------------------------- */
 
   const updateUserCookie = (updates: Record<string, unknown>) => {
-    try {
-      const stored = getCookie('user');
-
-      if (!stored) return;
-
-      const user = JSON.parse(stored);
-
-      setCookie(
-        'user',
-        JSON.stringify({
-          ...user,
-          ...updates,
-        }),
-      );
-    } catch {
-      // ignore
-    }
+    // Centralized helper: updates the `user` cookie AND broadcasts the change
+    // to every tab (navbar updates live, no reload needed).
+    updateSessionUser(updates);
   };
 
   /* -------------------------------- */

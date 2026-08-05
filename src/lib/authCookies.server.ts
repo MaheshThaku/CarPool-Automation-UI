@@ -9,12 +9,23 @@ import type { NextResponse } from "next/server";
 
 const isProd = process.env.NODE_ENV === "production";
 
+// The refresh token lives for 30 days server-side (see AUTH_API.md), so the
+// cookie must outlive the browser session to give real "stay signed in".
+// The access token stays a session cookie: it's short-lived (100 s) and we
+// refresh it on demand from the refresh token.
+const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 30;
+
 // httpOnly options for the secret cookies (accessToken / refreshToken).
 const SECURE_COOKIE = {
   httpOnly: true,
   sameSite: "strict" as const,
   secure: isProd,
   path: "/",
+};
+
+const REFRESH_COOKIE = {
+  ...SECURE_COOKIE,
+  maxAge: REFRESH_TOKEN_MAX_AGE,
 };
 
 // Non-httpOnly so the client can read it for the expiry check (Issue 5).
@@ -36,7 +47,10 @@ export function decodeJwt(token: string): any {
     const segment = token.split(".")[1];
     if (!segment) return null;
     const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
-    const json = Buffer.from(normalized, "base64").toString("utf8");
+    // atob + TextDecoder work in both Node and Edge runtimes (used by proxy.ts).
+    const binary = atob(normalized);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
     return JSON.parse(json);
   } catch {
     return null;
@@ -52,6 +66,12 @@ export function decodeJwtExp(token: string): number | null {
 
   const exp = (claims as { exp?: unknown }).exp;
   return typeof exp === "number" ? exp : null;
+}
+
+/** True when the JWT's `exp` claim is in the past (or unreadable). */
+export function isJwtExpired(token: string): boolean {
+  const exp = decodeJwtExp(token);
+  return exp === null || exp * 1000 <= Date.now();
 }
 
 /** Extract the JWT from a backend response that may be a plain string or an object. */
@@ -71,7 +91,7 @@ export function setAuthCookies(res: NextResponse, tokens: BackendTokens): void {
   res.cookies.set("accessToken", tokens.token, SECURE_COOKIE);
 
   if (tokens.refreshToken) {
-    res.cookies.set("refreshToken", tokens.refreshToken, SECURE_COOKIE);
+    res.cookies.set("refreshToken", tokens.refreshToken, REFRESH_COOKIE);
   }
 
   const exp = decodeJwtExp(tokens.token);

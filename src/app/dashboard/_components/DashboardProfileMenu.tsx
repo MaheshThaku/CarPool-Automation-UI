@@ -3,16 +3,14 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-import { ChevronDown, LogOut, User } from 'lucide-react';
+import { ChevronDown, LogOut, MonitorSmartphone, User } from 'lucide-react';
 
 import { cn } from '@/lib/cn';
-import { deleteCookie } from '@/lib/cookies';
 
 import { ProfileData } from '@/types/profile.types';
 
-import { useUserStore } from '@/store/user.store';
+import { authService } from '@/services/auth.service';
 
 interface Props {
   user: ProfileData | null;
@@ -20,10 +18,6 @@ interface Props {
 }
 
 function DashboardProfileMenuComponent({ user }: Props) {
-  const router = useRouter();
-
-  const clearProfile = useUserStore((state) => state.clearProfile);
-
   const [open, setOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,21 +40,20 @@ function DashboardProfileMenuComponent({ user }: Props) {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-    } catch {
-      // ignore
+    // authService.logout() revokes the session server-side, clears every local
+    // auth state (httpOnly + readable cookies, profile store) and redirects.
+    await authService.logout();
+  };
+
+  const handleLogoutAll = async () => {
+    if (
+      !window.confirm(
+        'This will sign you out from this and every other device. Continue?',
+      )
+    ) {
+      return;
     }
-
-    clearProfile();
-
-    deleteCookie('user');
-    deleteCookie('token');
-    deleteCookie('tokenExpiry');
-
-    router.replace('/auth/login');
+    await authService.logoutAll();
   };
 
   /**
@@ -154,6 +147,19 @@ function DashboardProfileMenuComponent({ user }: Props) {
           >
             <LogOut size={15} />
             Logout
+          </button>
+
+          {/* Logout from all devices — sits immediately below Logout. */}
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              handleLogoutAll();
+            }}
+            className="flex w-full items-center gap-3 border-t border-[var(--border)] px-4 py-3 text-sm text-red-600 transition-colors hover:bg-red-50"
+          >
+            <MonitorSmartphone size={15} />
+            Logout from All Devices
           </button>
         </div>
       )}

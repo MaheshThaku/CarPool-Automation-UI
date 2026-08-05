@@ -7,6 +7,7 @@ import DashboardHeader from './_components/DashboardHeader';
 import DashboardFooter from './_components/DashboardFooter';
 
 import { useProfileBootstrap } from '@/hooks/useProfileBootstrap';
+import { useAuthSync } from '@/hooks/useAuthSync';
 import NotificationProvider from './notification/NotificationProvider';
 
 export default function DashboardLayout({
@@ -17,6 +18,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useProfileBootstrap();
+  useAuthSync();
 
   return (
     <NotificationProvider>

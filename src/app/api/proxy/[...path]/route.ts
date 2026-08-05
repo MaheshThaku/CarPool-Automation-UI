@@ -4,12 +4,31 @@ import { NextRequest, NextResponse } from "next/server";
 // so /api/proxy/v1/foo -> http://localhost:8081/api/v1/foo.
 const BACKEND_BASE = "http://localhost:8081/api";
 
+// Endpoints that MUST go through the dedicated /api/auth/* routes instead of
+// this pass-through proxy. If they were proxied directly, tokens would be
+// returned to JS (or sent without the httpOnly-cookie handshake) — bypassing
+// the secure storage layer. Block them here as defense in depth.
+const BLOCKED_AUTH_PATHS = [
+  "public/login",
+  "public/refresh-token",
+  "auth/logout",
+  "auth/logout-all",
+];
+
 interface RouteContext {
   params: Promise<{ path: string[] }>;
 }
 
 async function handler(req: NextRequest, ctx: RouteContext): Promise<NextResponse> {
   const { path } = await ctx.params;
+
+  if (BLOCKED_AUTH_PATHS.some((blocked) => path.join("/").includes(blocked))) {
+    return NextResponse.json(
+      { message: "Use the dedicated auth route for this endpoint." },
+      { status: 404 }
+    );
+  }
+
   const search = req.nextUrl.search;
   const targetUrl = `${BACKEND_BASE}/${path.join("/")}${search}`;
 

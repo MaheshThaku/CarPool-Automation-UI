@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronRight } from 'lucide-react';
 
+import {
+  searchLocations,
+  type LocationResult,
+} from '@/services/photon.service';
+
 const MIN_QUERY_LENGTH = 3;
 const SEARCH_DEBOUNCE_MS = 400;
 
@@ -28,10 +33,19 @@ export default function LocationAutocomplete({
   const [results, setResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  // The query that the last completed search was for. When it equals the
+  // current query AND results are empty, we've genuinely searched and found
+  // nothing — drives the "no results" state without any reset bookkeeping.
+  const [searchedQuery, setSearchedQuery] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  // The value the user most recently PICKED from the dropdown. While the query
+  // equals this, we skip the search that select() itself would trigger — so
+  // the dropdown never reopens right after a selection.
+  const lastPicked = useRef('');
 
   // Tracks the last external `value` we've already applied to `query`.
   // We only ever pull in a NEW external value (e.g., a form reset, or the
@@ -55,6 +69,12 @@ export default function LocationAutocomplete({
       return;
     }
 
+    // Don't re-search the value the user just picked from the dropdown —
+    // select() set the query, so searching again would reopen the dropdown.
+    if (query === lastPicked.current) {
+      return;
+    }
+
     const controller = new AbortController();
 
     const timer = setTimeout(async () => {
@@ -63,10 +83,12 @@ export default function LocationAutocomplete({
         setError(false);
         const locations = await searchLocations(query, controller.signal);
         setResults(locations);
+        setSearchedQuery(query);
       } catch (err) {
         if (controller.signal.aborted) return;
         console.error('Location search failed:', err);
         setResults([]);
+        setSearchedQuery(null);
         setError(true);
       } finally {
         if (!controller.signal.aborted) {
@@ -97,9 +119,18 @@ export default function LocationAutocomplete({
   const showDropdown = isQueryValid && results.length > 0;
   const showLoading = isQueryValid && loading;
   const showError = isQueryValid && !loading && error;
+  const showNoResults =
+    isQueryValid &&
+    searchedQuery === query &&
+    !loading &&
+    !error &&
+    results.length === 0;
 
   function selectLocation(location: LocationResult) {
     lastSyncedValue.current = location.address;
+    // Remember the pick so the search effect skips it (no reopened dropdown).
+    // searchedQuery stays null because this query never matched a search yet.
+    lastPicked.current = location.address;
     setQuery(location.address);
     setResults([]);
     onSelect(location);
@@ -149,6 +180,8 @@ export default function LocationAutocomplete({
         autoComplete="off"
         onChange={(e) => {
           const newQuery = e.target.value;
+          // Any new keystroke invalidates the last pick, so searches resume.
+          lastPicked.current = '';
           setQuery(newQuery);
           if (newQuery.length < MIN_QUERY_LENGTH) {
             setResults([]);
@@ -169,11 +202,20 @@ export default function LocationAutocomplete({
         </div>
       )}
 
+      {showNoResults && (
+        <div className="mt-1 text-sm text-gray-500" aria-live="polite">
+          No results found in India.
+        </div>
+      )}
+
       {showDropdown && (
         <ul className="absolute z-50 mt-2 max-h-80 w-full overflow-y-auto overflow-x-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
           {results.map((location, index) => (
             <li
-              key={`${location.latitude}-${location.longitude}`}
+              // Photon can return several distinct places at the SAME
+              // coordinates (different names), so the raw coordinate key would
+              // collide — append the index to keep it unique per row.
+              key={`${location.latitude}-${location.longitude}-${index}`}
               className="border-b border-gray-100 last:border-none"
             >
               <button
@@ -203,105 +245,4 @@ export default function LocationAutocomplete({
       )}
     </div>
   );
-}
-
-const PHOTON_BASE_URL = 'https://photon.komoot.io/api';
-const RESULTS_LIMIT = 5;
-const REQUEST_TIMEOUT_MS = 8000;
-
-export interface PhotonFeature {
-  geometry: {
-    coordinates: [number, number]; // [longitude, latitude]
-  };
-  properties: {
-    name?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    postcode?: string;
-    street?: string;
-    district?: string;
-  };
-}
-
-export interface PhotonResponse {
-  features: PhotonFeature[];
-}
-
-export interface LocationResult {
-  city: string;
-  address: string;
-  mainText: string;
-  subText: string;
-  latitude: number;
-  longitude: number;
-}
-
-function dedupeResults(results: LocationResult[]): LocationResult[] {
-  const seen = new Set<string>();
-  return results.filter((r) => {
-    // Deduplicate exact matches to clean up messy API returned groups
-    const key = `${r.mainText.toLowerCase()}-${r.subText.toLowerCase()}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-export async function searchLocations(
-  query: string,
-  signal?: AbortSignal,
-): Promise<LocationResult[]> {
-  const trimmed = query.trim();
-  if (!trimmed) {
-    return [];
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  signal?.addEventListener('abort', () => controller.abort());
-
-  try {
-    const response = await fetch(
-      `${PHOTON_BASE_URL}?q=${encodeURIComponent(trimmed)}&limit=${RESULTS_LIMIT}`,
-      { signal: controller.signal },
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch locations: ${response.status}`);
-    }
-
-    const data: PhotonResponse = await response.json();
-
-    const results: LocationResult[] = data.features.map((feature) => {
-      const p = feature.properties;
-
-      // Determine the primary identifier for the Location
-      const mainText = p.name || p.city || p.state || 'Unknown Location';
-
-      // Build out the contextual address (avoiding duplicates from mainText)
-      const subParts = [];
-      if (p.street && p.street !== mainText) subParts.push(p.street);
-      if (p.district && p.district !== mainText) subParts.push(p.district);
-      if (p.city && p.city !== mainText) subParts.push(p.city);
-      if (p.state && p.state !== mainText) subParts.push(p.state);
-      if (p.country && p.country !== mainText) subParts.push(p.country);
-
-      const subText = subParts.filter(Boolean).join(', ');
-      const fullAddress = subText ? `${mainText}, ${subText}` : mainText;
-
-      return {
-        city: p.city || p.name || '',
-        address: fullAddress,
-        mainText,
-        subText,
-        latitude: feature.geometry.coordinates[1],
-        longitude: feature.geometry.coordinates[0],
-      };
-    });
-
-    return dedupeResults(results);
-  } finally {
-    clearTimeout(timeoutId);
-  }
 }
