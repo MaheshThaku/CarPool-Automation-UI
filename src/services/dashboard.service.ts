@@ -29,6 +29,17 @@ async function safeGet<T>(url: string, fallback: T): Promise<T> {
   }
 }
 
+/** Milliseconds since epoch; NaN when `iso` is not a valid date string. */
+function toEpochMs(iso: string): number {
+  return new Date(iso).getTime();
+}
+
+/** True when the departure time is strictly after `now`. Invalid times → false. */
+function departsInFuture(departureTime: string, now: number): boolean {
+  const t = toEpochMs(departureTime);
+  return Number.isFinite(t) && t > now;
+}
+
 class DashboardService {
   /* ── Rider ────────────────────────────────────────── */
 
@@ -106,11 +117,13 @@ getPassengerStats(): Promise<PassengerStats | null> {
   );
 }
 
-async getUpcomingTrips(): Promise<UpcomingTrip[]> {
+/** GET /v1/bookings/my-bookings?size=100 — all of the passenger's bookings. */
+private async fetchMyBookings(): Promise<UpcomingTrip[]> {
   try {
-    const res = await api.get<{ content: UpcomingTrip[] }>('/v1/bookings/my-bookings?size=100');
-    const list = res.data?.content ?? [];
-    return list.filter(b => b.status === 'PENDING' || b.status === 'APPROVED');
+    const res = await api.get<{ content: UpcomingTrip[] }>(
+      '/v1/bookings/my-bookings?size=100',
+    );
+    return res.data?.content ?? [];
   } catch (err: unknown) {
     const status = (err as { response?: { status?: number } })?.response?.status;
     if (status === 401) throw err;
@@ -118,16 +131,31 @@ async getUpcomingTrips(): Promise<UpcomingTrip[]> {
   }
 }
 
+/**
+ * Approved rides that have not departed yet.
+ * Sorted by departure time (soonest first).
+ */
+async getUpcomingTrips(): Promise<UpcomingTrip[]> {
+  const now = Date.now();
+  const list = await this.fetchMyBookings();
+
+  return list
+    .filter((b) => b.status === 'APPROVED' && departsInFuture(b.departureTime, now))
+    .sort((a, b) => toEpochMs(a.departureTime) - toEpochMs(b.departureTime));
+}
+
+/**
+ * Everything that is not an upcoming ride: pending, completed, rejected,
+ * cancelled, and approved rides that have already departed.
+ * Sorted by booking time (newest first).
+ */
 async getRecentBookings(): Promise<RecentBooking[]> {
-  try {
-    const res = await api.get<{ content: RecentBooking[] }>('/v1/bookings/my-bookings?size=100');
-    const list = res.data?.content ?? [];
-    return list.filter(b => b.status === 'COMPLETED' || b.status === 'REJECTED' || b.status === 'CANCELLED');
-  } catch (err: unknown) {
-    const status = (err as { response?: { status?: number } })?.response?.status;
-    if (status === 401) throw err;
-    return [];
-  }
+  const now = Date.now();
+  const list = await this.fetchMyBookings();
+
+  return list
+    .filter((b) => !(b.status === 'APPROVED' && departsInFuture(b.departureTime, now)))
+    .sort((a, b) => toEpochMs(b.bookingTime) - toEpochMs(a.bookingTime));
 }
 
 getProfileVerification(): Promise<ProfileVerification | null> {
