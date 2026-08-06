@@ -1,7 +1,11 @@
 import {
   RideResponse,
   RideBookingResponse,
+  RideStatus,
 } from '@/types/ride.types';
+
+/** Shared across the My Rides stat cards, tabs, and page state. */
+export type RideFilterTab = 'ALL' | RideStatus;
 
 export interface RideSearchFormData {
   sourceCity: string;
@@ -26,6 +30,8 @@ export interface RideResultsProps {
   bookedRideIds: Set<number>;
   onBookRide: (rideId: number) => Promise<void>;
   requiredSeats?: number;
+  /** Total matching rides (page metadata). Used to surface "Showing X of Y". */
+  totalElements?: number;
 }
 
 export interface RideTableProps {

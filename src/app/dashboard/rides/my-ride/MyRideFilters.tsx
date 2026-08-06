@@ -3,12 +3,10 @@
 import { memo } from 'react';
 import { Search } from 'lucide-react';
 
-import { RideStatus } from '@/types/ride.types';
-
-type FilterTab = 'ALL' | RideStatus;
+import { RideFilterTab } from '../_types/ride-page.types';
 
 interface Props {
-  activeTab: FilterTab;
+  activeTab: RideFilterTab;
 
   search: string;
 
@@ -16,13 +14,11 @@ interface Props {
 
   scheduled: number;
 
-  started: number;
-
   completed: number;
 
   cancelled: number;
 
-  onTabChange: (tab: FilterTab) => void;
+  onTabChange: (tab: RideFilterTab) => void;
 
   onSearchChange: (value: string) => void;
 }
@@ -32,7 +28,6 @@ function MyRideFiltersComponent({
   search,
   total,
   scheduled,
-  started,
   completed,
   cancelled,
   onTabChange,
@@ -49,11 +44,6 @@ function MyRideFiltersComponent({
       label: 'Scheduled',
       count: scheduled,
     },
-    // {
-    //   key: 'STARTED',
-    //   label: 'Started',
-    //   count: started,
-    // },
     {
       key: 'COMPLETED',
       label: 'Completed',
@@ -77,6 +67,7 @@ function MyRideFiltersComponent({
           return (
             <button
               key={tab.key}
+              type="button"
               onClick={() => onTabChange(tab.key)}
               className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all duration-300 ${
                 active

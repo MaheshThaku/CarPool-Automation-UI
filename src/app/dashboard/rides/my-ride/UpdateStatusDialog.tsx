@@ -5,7 +5,6 @@ import {
   Navigation,
   XCircle,
   CheckCircle,
-  Clock,
   AlertTriangle,
   ArrowRight,
 } from 'lucide-react';
@@ -105,6 +104,7 @@ export default function UpdateStatusDialog({
 
         <div className="flex items-center gap-3 pt-2">
           <button
+            type="button"
             onClick={() => setPendingStatus(null)}
             disabled={loading}
             className="flex-1 rounded-xl border border-[var(--border)] py-2.5 text-sm font-medium text-[var(--text)] hover:bg-gray-50 disabled:opacity-50"
@@ -112,6 +112,7 @@ export default function UpdateStatusDialog({
             Go Back
           </button>
           <button
+            type="button"
             onClick={() => handleStatusChange(status)}
             disabled={loading}
             className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all disabled:opacity-60 ${btnClass}`}

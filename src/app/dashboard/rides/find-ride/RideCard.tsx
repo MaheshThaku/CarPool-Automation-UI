@@ -1,14 +1,66 @@
 'use client';
 
 import { memo } from 'react';
-import { Calendar, Clock, IndianRupee, Users } from 'lucide-react';
+import {
+  Calendar,
+  Check,
+  Clock,
+  User,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { RideCardProps } from '../_types/ride-page.types';
 import {
   formatCurrency,
   formatDeparture,
+  getDepartureLabel,
   rideStatusConfig,
 } from '../_utils/ride.utils';
+
+/** Desktop "fact" row — small icon chip + uppercase label + value. */
+function FactChip({
+  icon: Icon,
+  label,
+  value,
+  alert = false,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  alert?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+          alert ? 'bg-amber-50' : 'bg-[var(--primary-light)]'
+        }`}
+      >
+        <Icon
+          size={15}
+          className={alert ? 'text-amber-600' : 'text-[var(--primary)]'}
+        />
+      </div>
+      <div>
+        <p
+          className={`text-[10px] font-semibold tracking-wide uppercase ${
+            alert ? 'text-amber-600' : 'text-[var(--text-light)]'
+          }`}
+        >
+          {label}
+        </p>
+        <p
+          className={`text-sm font-semibold ${
+            alert ? 'text-amber-700' : 'text-[var(--heading)]'
+          }`}
+        >
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function RideCardComponent({
   ride,
@@ -18,85 +70,184 @@ function RideCardComponent({
   requiredSeats = 1,
 }: RideCardProps) {
   const departure = formatDeparture(ride.departureTime);
+  const departureLabel = getDepartureLabel(ride.departureTime);
+  // Search results don't always carry a status — only show a chip when set.
+  const status = ride.status ? rideStatusConfig(ride.status) : null;
 
   const availableSeats = ride.availableSeats;
+  const isSoldOut = availableSeats <= 0;
+  const notEnoughSeats = requiredSeats > availableSeats;
+  const isDisabled = booked || bookingLoading || isSoldOut || notEnoughSeats;
 
-  const status = rideStatusConfig(ride.status);
+  const driverInfo = [ride.driverName, ride.vehicleName]
+    .filter(Boolean)
+    .join(' · ');
+
+  const seatsText = isSoldOut
+    ? 'Sold out'
+    : notEnoughSeats
+      ? `Only ${availableSeats} seat${availableSeats !== 1 ? 's' : ''} left`
+      : `${availableSeats} seat${availableSeats !== 1 ? 's' : ''} left`;
+
+  const seatsAlert = notEnoughSeats && !isSoldOut;
+
+  const buttonLabel = bookingLoading
+    ? 'Booking…'
+    : booked
+      ? 'Request Sent'
+      : isSoldOut
+        ? 'Sold Out'
+        : notEnoughSeats
+          ? 'Not Enough Seats'
+          : requiredSeats > 1
+            ? `Book ${requiredSeats} Seats`
+            : 'Book Ride';
+
+  // Price block — shown top-right on mobile (inside the route row) and as the
+  // third column's header on desktop, via responsive visibility.
+  const priceBlock = (
+    <div className="text-right">
+      {departureLabel && (
+        <p className="mb-1 text-xs font-semibold text-[var(--primary)]">
+          {departureLabel}
+        </p>
+      )}
+
+      <div className="flex items-baseline justify-end gap-1">
+        <span className="text-xl font-bold text-[var(--heading)] lg:text-2xl">
+          {formatCurrency(ride.pricePerSeat)}
+        </span>
+        <span className="text-xs text-[var(--text-light)]">/ seat</span>
+      </div>
+
+      {!isSoldOut && !notEnoughSeats && requiredSeats > 1 && (
+        <p className="mt-1 text-[11px] text-[var(--text-light)]">
+          {formatCurrency(ride.pricePerSeat * requiredSeats)} for{' '}
+          {requiredSeats} seats
+        </p>
+      )}
+    </div>
+  );
 
   return (
-    <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-all duration-300 hover:border-[var(--primary)] hover:shadow-md">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.3fr_1.3fr_1fr_1.1fr] md:items-center">
-        {/* Route (From -> To) */}
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="relative flex flex-col justify-center items-center py-1 flex-shrink-0">
-            <div className="w-2.5 h-2.5 rounded-full border-2 border-[var(--primary)] bg-white" />
-            <div className="w-0.5 h-5 bg-[var(--border)] my-0.5" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
+    <article className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--primary)]/40 hover:shadow-lg lg:p-6">
+      {/* Premium top accent — desktop only */}
+      <div className="absolute inset-x-0 top-0 hidden h-0.5 bg-gradient-to-r from-[var(--primary)] via-[var(--primary)]/50 to-transparent lg:block" />
+
+      <div className="flex flex-col lg:grid lg:grid-cols-3 lg:items-center lg:gap-6">
+        {/* Col 1 — Route */}
+        <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            {/* Timeline */}
+            <div className="flex shrink-0 flex-col items-center pt-1.5">
+              <span className="h-2.5 w-2.5 rounded-full border-2 border-[var(--primary)] bg-white" />
+              <span className="my-1 h-5 w-px bg-[var(--border)]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
+            </div>
+
+            {/* Cities + addresses + driver */}
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-bold text-[var(--heading)]">
+                  {ride.sourceCity}
+                </p>
+                {ride.sourceAddress && (
+                  <p className="mt-0.5 truncate text-xs text-[var(--text-light)]">
+                    {ride.sourceAddress}
+                  </p>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-bold text-[var(--heading)]">
+                  {ride.destinationCity}
+                </p>
+                {ride.destinationAddress && (
+                  <p className="mt-0.5 truncate text-xs text-[var(--text-light)]">
+                    {ride.destinationAddress}
+                  </p>
+                )}
+              </div>
+
+              {driverInfo && (
+                <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)]">
+                  <User size={13} className="shrink-0 text-[var(--primary)]" />
+                  <span className="min-w-0 truncate">{driverInfo}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col justify-between py-0.5 h-11 min-w-0">
-            <span className="text-sm font-semibold text-[var(--heading)] truncate leading-tight">
-              {ride.sourceCity}
-            </span>
-            <span className="text-sm font-semibold text-[var(--heading)] truncate leading-tight">
-              {ride.destinationCity}
-            </span>
-          </div>
+
+          {/* Mobile-only price (top-right of route row) */}
+          <div className="shrink-0 lg:hidden">{priceBlock}</div>
         </div>
 
-        {/* Schedule & Vehicle */}
-        <div className="flex flex-col justify-center gap-1 md:border-l md:border-[var(--border)] md:pl-4 min-w-0">
-          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)] flex-wrap">
-            <Calendar size={13} className="text-[var(--primary)]" />
-            <span className="font-medium text-[var(--heading)]">{departure.date}</span>
-            <span>•</span>
-            <Clock size={13} className="text-[var(--primary)]" />
-            <span className="font-medium text-[var(--heading)]">{departure.time}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-[var(--text-light)] min-w-0">
-            <span className="truncate">Driver: <strong className="font-medium text-[var(--heading)]">{ride.driverName}</strong></span>
-            <span>•</span>
-            <span className="truncate">Vehicle: <strong className="font-medium text-[var(--heading)]">{ride.vehicleName}</strong></span>
-          </div>
-        </div>
-
-        {/* Seats & Price */}
-        <div className="flex flex-col justify-center gap-1 md:border-l md:border-[var(--border)] md:pl-4">
-          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)]">
-            <Users size={13} className="text-[var(--primary)]" />
-            <span>Available:</span>
-            <span className="font-semibold text-[var(--heading)]">{availableSeats} seats</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--text-light)]">
-            <IndianRupee size={13} className="text-[var(--primary)]" />
-            <span>Per seat:</span>
-            <span className="font-bold text-[var(--primary)]">{formatCurrency(ride.pricePerSeat)}</span>
-          </div>
-        </div>
-
-        {/* Status & Booking button */}
-        <div className="flex items-center justify-between gap-4 pt-3 border-t border-[var(--border)] md:border-t-0 md:pt-0 md:border-l md:border-[var(--border)] md:pl-4 md:flex-col md:items-end md:justify-center">
-          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold flex-shrink-0 ${status.className}`}>
-            {status.label}
+        {/* Col 2 — Facts (mobile: flat row / desktop: chip column) */}
+        {/* Mobile facts */}
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border)] pt-4 lg:hidden">
+          <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
+            <Calendar size={13} className="shrink-0 text-[var(--primary)]" />
+            {departure.date}
           </span>
+
+          <span className="flex items-center gap-1.5 text-xs text-[var(--text)]">
+            <Clock size={13} className="shrink-0 text-[var(--primary)]" />
+            {departure.time}
+          </span>
+
+          <span className={`flex items-center gap-1.5 text-xs ${seatsAlert ? 'font-semibold text-amber-600' : 'text-[var(--text)]'}`}>
+            <Users size={13} className="shrink-0 text-[var(--primary)]" />
+            {seatsText}
+          </span>
+
+          {status && (
+            <span
+              className={`ml-auto flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${status.className}`}
+            >
+              {status.label}
+            </span>
+          )}
+        </div>
+
+        {/* Desktop facts */}
+        <div className="hidden shrink-0 flex-col gap-3 lg:flex lg:border-l lg:border-[var(--border)] lg:pl-8">
+          <FactChip icon={Calendar} label="Date" value={departure.date} />
+          <FactChip icon={Clock} label="Time" value={departure.time} />
+          <FactChip
+            icon={Users}
+            label="Seats"
+            value={seatsText}
+            alert={seatsAlert}
+          />
+          {status && (
+            <span
+              className={`inline-flex w-fit items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${status.className}`}
+            >
+              {status.label}
+            </span>
+          )}
+        </div>
+
+        {/* Col 3 — Price + CTA */}
+        <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:shrink-0 lg:flex-col lg:items-end lg:justify-center lg:gap-4 lg:border-l lg:border-[var(--border)] lg:pl-8">
+          {/* Desktop-only price */}
+          <div className="hidden lg:block">{priceBlock}</div>
+
           <button
             type="button"
-            disabled={availableSeats <= 0 || bookingLoading || booked}
             onClick={() => onBook?.(ride.id)}
-            className={`w-full md:w-auto rounded-lg px-4 py-2 text-xs font-semibold text-white transition-all shadow-sm ${
+            disabled={isDisabled}
+            aria-disabled={isDisabled}
+            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-5 py-3 text-sm font-semibold whitespace-nowrap transition-all active:scale-[0.98] lg:w-auto lg:px-8 ${
               booked
-                ? 'bg-green-600'
-                : 'bg-[var(--primary)] hover:bg-[var(--primary-hover)]'
-            } disabled:cursor-not-allowed disabled:opacity-70`}
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : isDisabled
+                  ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                  : 'bg-[var(--primary)] text-white shadow-sm hover:bg-[var(--primary-hover)]'
+            }`}
           >
-            {bookingLoading
-              ? 'Booking...'
-              : booked
-                ? 'Request Sent'
-                : availableSeats <= 0
-                  ? 'Full'
-                  : requiredSeats > 1
-                    ? `Book ${requiredSeats} Seats`
-                    : 'Book Ride'}
+            {booked && <Check size={15} />}
+            {buttonLabel}
           </button>
         </div>
       </div>

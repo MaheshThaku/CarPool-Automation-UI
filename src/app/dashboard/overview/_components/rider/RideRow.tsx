@@ -4,6 +4,7 @@ import { memo } from 'react';
 import { Clock, Users } from 'lucide-react';
 
 import { parseDeparture } from '../../_utils/overview.utils';
+import { RideStatus } from '@/types/ride.types';
 
 interface Props {
   id: number;
@@ -14,7 +15,7 @@ interface Props {
   availableSeats: number;
   pricePerSeat: number;
 
-  status: 'SCHEDULED' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
+  status: RideStatus | null;
 }
 
 function RideRowComponent({
@@ -27,7 +28,10 @@ function RideRowComponent({
 }: Props) {
   const trip = parseDeparture(departureTime);
 
-  const statusConfig = {
+  const statusConfig: Record<
+    RideStatus,
+    { label: string; className: string }
+  > = {
     SCHEDULED: {
       label: 'Scheduled',
       className: 'bg-blue-50 text-blue-700',
@@ -48,6 +52,9 @@ function RideRowComponent({
       className: 'bg-red-50 text-red-700',
     },
   };
+
+  // Null status (passenger search results) → treat as scheduled.
+  const config = status ? statusConfig[status] : statusConfig.SCHEDULED;
 
   return (
     <div className="border-b border-[var(--border)] py-5 last:border-b-0">
@@ -99,11 +106,9 @@ function RideRowComponent({
 
             <div className="shrink-0 text-right">
               <span
-                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                  statusConfig[status].className
-                }`}
+                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${config.className}`}
               >
-                {statusConfig[status].label}
+                {config.label}
               </span>
 
               <p className="mt-2 text-xl font-bold text-[var(--primary)]">

@@ -12,8 +12,18 @@ import {
 } from '@/types/ride.types';
 
 export function getRideStatusConfig(
-  status: RideStatus,
+  status: RideStatus | null | undefined,
 ) {
+  // Search results can carry a null status — treat it as scheduled.
+  if (!status) {
+    return {
+      label: 'Scheduled',
+      bg: 'bg-blue-50',
+      text: 'text-blue-700',
+      icon: Clock,
+    };
+  }
+
   switch (status) {
     case 'SCHEDULED':
       return {

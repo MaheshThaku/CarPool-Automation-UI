@@ -42,6 +42,51 @@ export function formatCurrency(
   return `₹${amount.toLocaleString('en-IN')}`;
 }
 
+/**
+ * Short human label relative to today ("Today", "Tomorrow", "in 3 days").
+ * Returns null for dates further out (or invalid) — the absolute date is
+ * shown alongside, so this is only a friendly accent.
+ */
+export function getDepartureLabel(
+  departureTime?: string,
+): string | null {
+  if (!departureTime) {
+    return null;
+  }
+
+  const date = new Date(departureTime);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+
+  const startOfDeparture = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+
+  const diffDays = Math.round(
+    (startOfDeparture.getTime() - startOfToday.getTime()) / 86_400_000,
+  );
+
+  if (diffDays === 0) return 'Today';
+
+  if (diffDays === 1) return 'Tomorrow';
+
+  if (diffDays > 1 && diffDays <= 7) return `in ${diffDays} days`;
+
+  return null;
+}
+
 export function rideStatusConfig(
   status: RideStatus,
 ) {

@@ -33,7 +33,8 @@ export interface RideResponse {
   departureTime: string;
   availableSeats: number;
   pricePerSeat: number;
-  status: RideStatus;
+  /** `null` when the endpoint omits it (e.g. passenger ride search). */
+  status: RideStatus | null;
   vehicleName?: string;
   vehicleLicensePlate?: string;
   driverName?: string;
