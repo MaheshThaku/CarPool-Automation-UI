@@ -13,8 +13,12 @@ import RideSearchForm from '../find-ride/RideSearchForm';
 import RideResults from '../find-ride/RideResults';
 import PopularRoutes from '../find-ride/PopularRoutes';
 import HowItWorks from '../find-ride/HowItWorks';
+import BookingStatusDialog, {
+  BookingDialogState,
+} from '../find-ride/BookingStatusDialog';
 
 import { RideSearchSchemaType } from '../schemas/ride-search.schema';
+import { RideResponse } from '@/types/ride.types';
 
 export default function FindRidesPage() {
   const currentUser = useCurrentUser();
@@ -59,26 +63,24 @@ export default function FindRidesPage() {
 
   const [bookedRideIds, setBookedRideIds] = useState<Set<number>>(new Set());
 
-  const [successMessage, setSuccessMessage] = useState('');
-
-  const [error, setError] = useState('');
+  const [bookingDialog, setBookingDialog] = useState<BookingDialogState | null>(
+    null,
+  );
 
   /* ---------------- Search ---------------- */
 
-  const rides$ = useAsyncData(
+  const search$ = useAsyncData(
     async () => {
       if (!searchParams) {
-        return [];
+        return null;
       }
 
-      const response = await rideService.searchRides({
+      return rideService.searchRides({
         sourceCity: searchParams.sourceCity.trim(),
         destinationCity: searchParams.destinationCity.trim(),
         departureDate: searchParams.departureDate || undefined,
         requiredSeats: searchParams.requiredSeats,
       });
-
-      return response.content ?? [];
     },
     [searchParams],
     {
@@ -88,11 +90,17 @@ export default function FindRidesPage() {
     },
   );
 
+  const rides: RideResponse[] = useMemo(
+    () => search$.data?.content ?? [],
+    [search$.data],
+  );
+
+  const totalElements = search$.data?.totalElements ?? rides.length;
+
   /* ---------------- Search Handler ---------------- */
 
   const handleSearch = useCallback((values: RideSearchSchemaType) => {
-    setError('');
-    setSuccessMessage('');
+    setBookingDialog(null);
     setSearchParams(values);
   }, []);
 
@@ -112,11 +120,14 @@ export default function FindRidesPage() {
 
   const handleBookRide = useCallback(
     async (rideId: number) => {
-      setError('');
-      setSuccessMessage('');
+      setBookingDialog(null);
 
       if (!currentUser?.email) {
-        setError('Please login to continue booking.');
+        setBookingDialog({
+          type: 'error',
+          title: 'Login Required',
+          message: 'Please login to continue booking.',
+        });
         return;
       }
 
@@ -137,9 +148,12 @@ export default function FindRidesPage() {
           return next;
         });
 
-        setSuccessMessage(
-          'Booking request submitted successfully. Waiting for driver approval.',
-        );
+        setBookingDialog({
+          type: 'success',
+          title: 'Request Sent!',
+          message:
+            'Booking request submitted successfully. Waiting for driver approval.',
+        });
 
         invalidateAsyncCache('my-bookings');
         invalidateAsyncCache('upcoming-bookings');
@@ -147,11 +161,16 @@ export default function FindRidesPage() {
         const error = err as
           | { response?: { data?: { message?: string } }; message?: string }
           | Error;
-        setError(
+        const message =
           (error && 'response' in error && error.response?.data?.message) ||
           (error instanceof Error ? error.message : undefined) ||
-          'Unable to create booking. Please try again.',
-        );
+          'Unable to create booking. Please try again.';
+
+        setBookingDialog({
+          type: 'error',
+          title: 'Booking Failed',
+          message,
+        });
       } finally {
         setBookingLoadingRideId(null);
       }
@@ -182,7 +201,7 @@ export default function FindRidesPage() {
       <RideSearchForm
         key={`${selectedRoute.sourceCity ?? ''}-${selectedRoute.destinationCity ?? ''}`}
         initialValues={selectedRoute}
-        loading={rides$.loading}
+        loading={search$.loading}
         onSearch={handleSearch}
       />
 
@@ -195,33 +214,29 @@ export default function FindRidesPage() {
         </>
       )}
 
-      {/* Success */}
-
-      {successMessage && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
-          {successMessage}
-        </div>
-      )}
-
-      {/* Error */}
-
-      {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error}
-        </div>
-      )}
-
       {/* Results */}
 
       <RideResults
-        rides={rides$.data ?? []}
-        loading={rides$.loading}
+        rides={rides}
+        loading={search$.loading}
         hasSearched={hasSearched}
         bookingLoadingRideId={bookingLoadingRideId}
         bookedRideIds={bookedRideIds}
         onBookRide={handleBookRide}
         requiredSeats={searchParams?.requiredSeats || 1}
+        totalElements={totalElements}
       />
+
+      {/* Booking status dialog (success / error / already booked) */}
+
+      {bookingDialog && (
+        <BookingStatusDialog
+          type={bookingDialog.type}
+          title={bookingDialog.title}
+          message={bookingDialog.message}
+          onClose={() => setBookingDialog(null)}
+        />
+      )}
     </div>
   );
 }
