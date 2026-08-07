@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import Link from 'next/link';
 
@@ -14,15 +14,17 @@ import { authService } from '@/services/auth.service';
 
 interface Props {
   user: ProfileData | null;
-  isRider: boolean;
 }
 
 function DashboardProfileMenuComponent({ user }: Props) {
   const [open, setOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!open) return;
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         containerRef.current &&
@@ -32,20 +34,24 @@ function DashboardProfileMenuComponent({ user }: Props) {
       }
     };
 
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
     document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
 
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
     };
+  }, [open]);
+
+  const handleLogout = useCallback(async () => {
+    await authService.logout();
   }, []);
 
-  const handleLogout = async () => {
-    // authService.logout() revokes the session server-side, clears every local
-    // auth state (httpOnly + readable cookies, profile store) and redirects.
-    await authService.logout();
-  };
-
-  const handleLogoutAll = async () => {
+  const handleLogoutAll = useCallback(async () => {
     if (
       !window.confirm(
         'This will sign you out from this and every other device. Continue?',
@@ -54,17 +60,15 @@ function DashboardProfileMenuComponent({ user }: Props) {
       return;
     }
     await authService.logoutAll();
-  };
+  }, []);
 
   /**
-   * Prevent:
-   * Profile / Passenger flash
-   * during hydration.
+   * Prevent Profile/Passenger flash during hydration.
    */
   if (!user) {
     return (
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 animate-pulse rounded-full bg-gray-100" />
+      <div className="flex items-center gap-2.5">
+        <div className="h-9 w-9 animate-pulse rounded-full bg-gray-100" />
 
         <div className="hidden space-y-1 sm:block">
           <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
@@ -92,20 +96,20 @@ function DashboardProfileMenuComponent({ user }: Props) {
       >
         {/* Avatar */}
 
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] font-semibold text-white">
-          {avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
+        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-xs font-semibold text-white">
+          {avatar && !imgError ? (
             <img
               src={avatar}
               alt={fullName}
               className="h-full w-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             initials
           )}
         </div>
 
-        {/* User Info */}
+        {/* User Info — hidden on mobile, visible ≥ sm */}
 
         <div className="hidden min-w-0 sm:block">
           <p className="truncate text-sm font-semibold text-[var(--heading)]">
@@ -116,7 +120,7 @@ function DashboardProfileMenuComponent({ user }: Props) {
         </div>
 
         <ChevronDown
-          size={15}
+          size={14}
           className={cn(
             'hidden text-[var(--text-light)] transition-transform sm:block',
             open && 'rotate-180',
@@ -149,7 +153,6 @@ function DashboardProfileMenuComponent({ user }: Props) {
             Logout
           </button>
 
-          {/* Logout from all devices — sits immediately below Logout. */}
           <button
             type="button"
             onClick={() => {
