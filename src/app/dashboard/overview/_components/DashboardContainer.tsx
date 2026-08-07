@@ -11,8 +11,6 @@ import DashboardLoader from './DashboardLoader';
 function DashboardContainerComponent() {
   const user = useCurrentUser();
 
-  console.log('Current User:', user);
-
   if (!user) {
     return <DashboardLoader />;
   }

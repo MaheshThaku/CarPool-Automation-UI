@@ -16,13 +16,13 @@ export default function Logo({
       src="/images/logo/FLogo.png"
       alt="ShareFare Logo"
       width={400}
-      height={200}
+      height={190}
       priority
       className={cn(
         'w-auto object-contain',
         size === 'sm' && 'h-10',
         size === 'md' && 'h-14',
-        size === 'lg' && 'h-35'
+        size === 'lg' && 'h-30'
       )}
     />
   );

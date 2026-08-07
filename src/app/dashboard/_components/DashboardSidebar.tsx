@@ -2,11 +2,10 @@
 
 import { memo } from 'react';
 import { usePathname } from 'next/navigation';
-import { LogOut, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import Logo from '@/components/common/navbar/Logo';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { authService } from '@/services/auth.service';
 
 import SidebarNav from './SidebarNav';
 
@@ -21,20 +20,18 @@ interface SidebarContentProps {
   navItems: NavItem[];
   pathname: string;
   onLinkClick: () => void;
-  onLogout: () => void;
 }
 
 const SidebarContent = memo(function SidebarContent({
   navItems,
   pathname,
   onLinkClick,
-  onLogout,
 }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Logo */}
-      <div className="flex h-19 items-center border-b border-[var(--border)]">
-        <Logo clickable={false} size="lg" />
+      <div className="flex h-17 shrink-0 items-center border-b border-[var(--border)] px-5">
+        <Logo clickable={true} size="lg" />
       </div>
 
       {/* Navigation */}
@@ -43,17 +40,6 @@ const SidebarContent = memo(function SidebarContent({
         pathname={pathname}
         onLinkClick={onLinkClick}
       />
-
-      {/* Logout */}
-      <div className="border-t border-[var(--border)] p-2">
-        <button
-          onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 transition-all hover:bg-red-50"
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
-      </div>
     </div>
   );
 });
@@ -66,12 +52,6 @@ function DashboardSidebarComponent({ sidebarOpen, setSidebarOpen }: Props) {
 
   const navItems = isRider ? RIDER_NAV : PASSENGER_NAV;
 
-  const handleLogout = async () => {
-    // authService.logout() revokes the session server-side, clears every local
-    // auth state (httpOnly + readable cookies, profile store) and redirects.
-    await authService.logout();
-  };
-
   return (
     <>
       {/* Desktop Sidebar */}
@@ -80,7 +60,6 @@ function DashboardSidebarComponent({ sidebarOpen, setSidebarOpen }: Props) {
           navItems={navItems}
           pathname={pathname}
           onLinkClick={() => {}}
-          onLogout={handleLogout}
         />
       </aside>
 
@@ -97,7 +76,6 @@ function DashboardSidebarComponent({ sidebarOpen, setSidebarOpen }: Props) {
               navItems={navItems}
               pathname={pathname}
               onLinkClick={() => setSidebarOpen(false)}
-              onLogout={handleLogout}
             />
           </aside>
 

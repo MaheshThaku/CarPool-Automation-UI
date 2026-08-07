@@ -4,6 +4,8 @@ import { memo, useEffect, useRef, useState } from 'react';
 
 import { Bell, Menu } from 'lucide-react';
 
+import Logo from '@/components/common/navbar/Logo';
+
 import { useUserStore } from '@/store/user.store';
 
 import DashboardProfileMenu from './DashboardProfileMenu';
@@ -28,9 +30,6 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
 
   const hydrated = useUserStore((state) => state.hydrated);
 
-  const isRider = profile?.role === 'ROLE_RIDER';
-
-  // const notifCount = isRider ? 3 : 2;
   const unreadCount = useNotificationStore(
     (state) => state.unreadCount,
   );
@@ -66,10 +65,18 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
 
   if (!hydrated) {
     return (
-      <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-4">
+      <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-3 lg:hidden">
+          <div className="h-6 w-6 animate-pulse rounded bg-gray-100" />
+          <div className="h-6 w-20 animate-pulse rounded bg-gray-100" />
+        </div>
+
         <div className="flex-1" />
 
-        <div className="h-10 w-36 animate-pulse rounded-xl bg-gray-100" />
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 animate-pulse rounded-full bg-gray-100" />
+          <div className="hidden h-9 w-9 animate-pulse rounded-full bg-gray-100 sm:block" />
+        </div>
       </header>
     );
   }
@@ -77,10 +84,15 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
 
 
   return (
-    <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-6 py-4">
-      <button onClick={onOpenSidebar} className="lg:hidden">
-        <Menu size={24} className="text-[var(--heading)]" />
-      </button>
+    <header className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3 sm:px-6">
+      {/* Left: mobile logo + hamburger */}
+      <div className="flex items-center gap-3 lg:hidden">
+        <button onClick={onOpenSidebar} aria-label="Open menu">
+          <Menu size={22} className="text-[var(--heading)]" />
+        </button>
+
+        {/* <Logo clickable={true} size="sm" /> */}
+      </div>
 
       <div className="flex-1" />
 
@@ -93,9 +105,9 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
             aria-label="Notifications"
             aria-haspopup="true"
             aria-expanded={open}
-            className="relative rounded-full p-2 hover:bg-gray-50"
+            className="relative rounded-full p-2 transition-colors hover:bg-gray-50"
           >
-            <Bell size={20} />
+            <Bell size={20} className="text-[var(--text)]" />
 
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-white">
@@ -107,10 +119,7 @@ function DashboardHeaderComponent({ onOpenSidebar }: Props) {
           <NotificationDropdown open={open} />
         </div>
 
-        <DashboardProfileMenu
-          user={profile}
-          isRider={isRider}
-        />
+        <DashboardProfileMenu user={profile} />
       </div>
     </header>
   );
