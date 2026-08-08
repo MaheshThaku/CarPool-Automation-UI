@@ -12,9 +12,12 @@ import {
   MapPin,
   Phone,
   Users,
+  XCircle,
 } from 'lucide-react';
 
 import { BookingListItem } from '@/types/dashboard.types';
+import { dashboardService } from '@/services/dashboard.service';
+import { invalidateAsyncCache } from '@/hooks/useAsyncData';
 
 import { parseBookedOn, statusConfig } from './bookingUtils';
 import BookingDetailsModal from './BookingDetailsModal';
@@ -42,6 +45,31 @@ function daysFromNow(iso: string): string {
 
 export default function BookingCard({ booking }: BookingCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const canCancel = booking.status === 'PENDING' || booking.status === 'APPROVED';
+
+  async function handleCancel() {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    setCancelling(true);
+    try {
+      await dashboardService.cancelBooking(booking.bookingId);
+      invalidateAsyncCache('passenger-bookings-UPCOMING-1');
+      invalidateAsyncCache('passenger-bookings-ALL-1');
+      invalidateAsyncCache('passenger-bookings-PENDING-1');
+      invalidateAsyncCache('passenger-bookings-APPROVED-1');
+      invalidateAsyncCache('passenger-booking-counts');
+      // Force a full page reload to reflect the updated status
+      window.location.reload();
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Failed to cancel booking. Please try again.';
+      window.alert(message);
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   const dt = parseBookedOn(booking.departureTime);
   const sc = statusConfig(booking.status);
@@ -181,14 +209,27 @@ export default function BookingCard({ booking }: BookingCardProps) {
           {/* Footer actions */}
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">
             <span className="truncate text-[11px] text-[var(--text-light)]">{footerSummary}</span>
-            <button
-              type="button"
-              onClick={() => setShowDetails(true)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs font-medium text-[var(--text)] transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
-            >
-              View Details
-              <ChevronRight size={14} />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {canCancel && (
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-50 hover:border-red-300 disabled:opacity-50"
+                >
+                  <XCircle size={13} />
+                  {cancelling ? 'Cancelling…' : 'Cancel'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowDetails(true)}
+                className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs font-medium text-[var(--text)] transition-all hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              >
+                View Details
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
       </article>

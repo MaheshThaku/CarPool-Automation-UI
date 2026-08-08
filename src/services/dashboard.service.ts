@@ -210,6 +210,14 @@ getBookingCounts(): Promise<BookingCountsResponse | null> {
     null
   );
 }
+
+/** PUT /v1/bookings/passenger/cancel/{bookingId} — cancel a pending or approved booking. */
+async cancelBooking(bookingId: number): Promise<void> {
+  const res = await api.put(`/v1/bookings/passenger/cancel/${bookingId}`);
+  if (res.status !== 200) {
+    throw new Error('Failed to cancel booking');
+  }
+}
 }
 
 export const dashboardService = new DashboardService();
