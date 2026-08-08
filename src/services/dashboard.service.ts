@@ -179,7 +179,7 @@ getProfileVerification(): Promise<ProfileVerification | null> {
 getAllBookings(
   page = 0,
   size = 5,
-  status?: BookingStatus,
+  status?: BookingStatus | 'UPCOMING',
 ): Promise<BookingPageResponse> {
   const params = new URLSearchParams({
     page: String(page),
