@@ -1,5 +1,18 @@
 'use client';
 
+/**
+ * VerificationStatus
+ *
+ * Dashboard card that shows the real-time status of each of the rider's four
+ * required documents.  Reads from the shared verification store so no
+ * additional fetch is needed here.
+ *
+ * Key fix: status is now derived using `getDocStatus()` from
+ * `verification.utils.ts` rather than the old inverted `!item` check that
+ * incorrectly reported all documents as "Not Uploaded" for riders whose
+ * documents were PENDING or VERIFIED.
+ */
+
 import Link from 'next/link';
 import { memo } from 'react';
 import {
@@ -12,14 +25,15 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
-import { RiderVerificationStatusResponse, DocStatus } from '@/types/dashboard.types';
+import { DocStatus, RiderVerificationStatusResponse } from '@/types/dashboard.types';
+import { getDocStatus, REQUIRED_DOCUMENT_TYPES } from '@/lib/verification.utils';
 import DashboardCard from '../shared/DashboardCard';
 
 interface Props {
   riderVerification: RiderVerificationStatusResponse | null;
 }
 
-const REQUIRED_DOCUMENTS = [
+const DOCUMENT_META = [
   { key: 'DRIVING_LICENSE', label: 'Driving License', desc: 'Valid Driver License' },
   { key: 'VEHICLE_RC', label: 'Vehicle RC', desc: 'Registration Certificate' },
   { key: 'VEHICLE_INSURANCE', label: 'Vehicle Insurance', desc: 'Comprehensive Insurance Policy' },
@@ -64,20 +78,14 @@ function getStatusBadgeConfig(status: DocStatus) {
 }
 
 function VerificationStatusComponent({ riderVerification }: Props) {
-  const isOverallVerified = riderVerification?.overallVerificationStatus === 'VERIFIED';
+  const isOverallVerified =
+    riderVerification?.overallVerificationStatus === 'VERIFIED';
 
-  const docStatuses = REQUIRED_DOCUMENTS.map((doc) => {
-    if (isOverallVerified) {
-      return { ...doc, status: 'VERIFIED' as DocStatus };
-    }
-    const pendingItem = riderVerification?.documents?.find(
-      (d) => d.documentType === doc.key,
-    );
-    return {
-      ...doc,
-      status: (pendingItem?.verificationStatus ?? 'VERIFIED') as DocStatus,
-    };
-  });
+  // Build the display list using the corrected getDocStatus() helper.
+  const docStatuses = DOCUMENT_META.map((doc) => ({
+    ...doc,
+    status: getDocStatus(riderVerification, doc.key),
+  }));
 
   const verifiedCount = docStatuses.filter((d) => d.status === 'VERIFIED').length;
 
@@ -101,13 +109,13 @@ function VerificationStatusComponent({ riderVerification }: Props) {
             </span>
           ) : (
             <span className="rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-semibold text-[var(--primary)]">
-              {verifiedCount} of 4 Verified
+              {verifiedCount} of {REQUIRED_DOCUMENT_TYPES.length} Verified
             </span>
           )}
         </div>
       </div>
 
-      {/* Required Document List */}
+      {/* Document List */}
       <div className="flex-1 space-y-3">
         {docStatuses.map((item) => {
           const config = getStatusBadgeConfig(item.status);

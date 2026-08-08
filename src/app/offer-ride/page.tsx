@@ -1,7 +1,19 @@
+/**
+ * OfferRidePage  (/offer-ride)
+ *
+ * Public pre-auth marketing page.  Shows what ShareFare offers to riders and
+ * includes a small "What you need" (ℹ) tooltip near the section header so
+ * visitors know the six verification requirements before signing up.
+ *
+ * NOTE: This page is a Server Component — the tooltip is implemented as a
+ * pure CSS :hover popover so no 'use client' directive is needed.
+ */
+
 import type { Metadata } from 'next';
 
 import PreAuthLayout from '@/components/pre-auth/PreAuthLayout';
 import Navbar from '@/components/common/navbar/Navbar';
+import OfferRideInfoTooltip from './_components/OfferRideInfoTooltip';
 
 export const metadata: Metadata = {
   title: 'Offer Ride | ShareFare - Share Empty Seats & Earn',
@@ -51,6 +63,10 @@ export default function OfferRidePage() {
   return (
     <main>
       <Navbar />
+
+      {/* Requirements info tooltip — floats above the main content */}
+      <OfferRideInfoTooltip />
+
       <PreAuthLayout
         title={offerRideData.title}
         subtitle={offerRideData.subtitle}

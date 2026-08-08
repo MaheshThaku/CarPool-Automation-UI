@@ -1,105 +1,69 @@
 'use client';
 
+/**
+ * useRiderDashboard
+ *
+ * Aggregates all data needed by the rider overview page.
+ *
+ * Verification status is now read from `verification.store` (loaded once by
+ * `useVerificationBootstrap` in the layout) instead of being fetched here —
+ * this eliminates a duplicate API call on every dashboard visit.
+ */
+
 import { useCallback } from 'react';
 
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dashboardService } from '@/services/dashboard.service';
-import { vehicleService  } from '@/services/vehicle.service';
+import { vehicleService } from '@/services/vehicle.service';
 import { rideService } from '@/services/ride.service';
 
+import { useVerificationStore } from '@/store/verification.store';
 
 export function useRiderDashboard() {
-  const stats$ = useAsyncData(
-    dashboardService.getRiderStats,
+  const stats$ = useAsyncData(dashboardService.getRiderStats, [], {
+    cacheKey: 'rider-dashboard-stats',
+  });
+
+  const rides$ = useAsyncData(
+    () => rideService.getRiderRides(0, 20),
     [],
     {
-      cacheKey: 'rider-dashboard-stats',
+      cacheKey: 'dashboard-upcoming-rides',
+      ttlMs: 60_000,
     },
   );
 
-const rides$ = useAsyncData(
-  () =>
-    rideService.getRiderRides(
-      0,
-      20,
-    ),
-  [],
-  {
-    cacheKey: 'dashboard-upcoming-rides',
-    ttlMs: 60_000,
-  },
-);
+  const vehicles$ = useAsyncData(vehicleService.getMyVehicles, [], {
+    cacheKey: 'rider-dashboard-vehicles',
+  });
 
-  const vehicles$ = useAsyncData(
-    vehicleService.getMyVehicles,
-    [],
-    {
-      cacheKey: 'rider-dashboard-vehicles',
-    },
-  );
-
-  const verification$ = useAsyncData(
-    () => dashboardService.getVerificationStatus(),
-    [],
-    {
-      cacheKey: 'rider-dashboard-verification',
-    },
-  );
-
-  const riderVerification$ = useAsyncData(
-    () => dashboardService.getRiderVerificationStatus(),
-    [],
-    {
-      cacheKey: 'rider-verification-status-overview',
-    },
-  );
-
-  const profileCompletion$ = useAsyncData(
-    () => dashboardService.getProfileCompletion(),
-    [],
-    {
-      cacheKey: 'rider-dashboard-profile-completion',
-    },
-  );
+  // ── Verification data comes from the shared store (no fetch here) ─────────
+  const riderVerification = useVerificationStore((s) => s.verificationStatus);
+  const verificationLoading = useVerificationStore((s) => s.isLoading);
 
   const loading =
-    stats$.loading ||
-    rides$.loading ||
-    vehicles$.loading ||
-    riderVerification$.loading;
+    stats$.loading || rides$.loading || vehicles$.loading || verificationLoading;
 
-  const error =
-    stats$.error ||
-    rides$.error ||
-    vehicles$.error ||
-    '';
+  const error = stats$.error || rides$.error || vehicles$.error || '';
 
   const refetch = useCallback(() => {
     stats$.refetch?.();
     rides$.refetch?.();
     vehicles$.refetch?.();
-    riderVerification$.refetch?.();
-  }, [stats$, rides$, vehicles$, riderVerification$]);
-
-  const vehicle =
-    vehicles$.data ?? null;
+  }, [stats$, rides$, vehicles$]);
 
   return {
     loading,
     error,
 
-    stats:
-      stats$.data ?? null,
+    stats: stats$.data ?? null,
 
-    upcomingRides:
-      rides$.data?.content ?? [],
+    upcomingRides: rides$.data?.content ?? [],
 
-    vehicle,
     vehicles: vehicles$.data ?? [],
-    verification: verification$.data ?? [],
-    riderVerification: riderVerification$.data ?? null,
-    profileCompletion: profileCompletion$.data ?? [],
+    vehicle: vehicles$.data ?? null,
 
-    refetch,
+    /** Full verification status from the shared store. */
+    riderVerification,
   };
 }

@@ -8,6 +8,7 @@ import DashboardFooter from './_components/DashboardFooter';
 
 import { useProfileBootstrap } from '@/hooks/useProfileBootstrap';
 import { useAuthSync } from '@/hooks/useAuthSync';
+import { useVerificationBootstrap } from '@/hooks/useVerificationBootstrap';
 import NotificationProvider from './notification/NotificationProvider';
 
 export default function DashboardLayout({
@@ -19,6 +20,7 @@ export default function DashboardLayout({
 
   useProfileBootstrap();
   useAuthSync();
+  useVerificationBootstrap();
 
   return (
     <NotificationProvider>

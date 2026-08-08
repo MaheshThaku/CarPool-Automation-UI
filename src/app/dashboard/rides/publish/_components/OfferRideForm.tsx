@@ -22,6 +22,7 @@ import { useAsyncData, invalidateAsyncCache } from '@/hooks/useAsyncData';
 import { vehicleService } from '@/services/vehicle.service';
 import { rideService } from '@/services/ride.service';
 import { dashboardService } from '@/services/dashboard.service';
+import { useVerificationStore } from '@/store/verification.store';
 import { RideResponse, CreateRideRequest } from '@/types/ride.types';
 import {
   offerRideSchema,
@@ -84,11 +85,10 @@ export default function OfferRideForm() {
   });
   const vehicles = vehicles$.data ?? [];
 
-  // Fetch rider verification status
-  const verification$ = useAsyncData(dashboardService.getRiderVerificationStatus, [], {
-    cacheKey: 'rider-verification-status',
-  });
-  const verificationData = verification$.data;
+  // Read rider verification status from the shared store (fetched once by the
+  // layout's useVerificationBootstrap — no duplicate network call here).
+  const verificationData = useVerificationStore((s) => s.verificationStatus);
+  const verificationLoading = useVerificationStore((s) => s.isLoading);
   const isOverallVerified = verificationData?.overallVerificationStatus === 'VERIFIED';
 
   const [publishedRide, setPublishedRide] = useState<RideResponse | null>(null);
@@ -236,7 +236,7 @@ export default function OfferRideForm() {
     );
   }
 
-  if (verification$.loading) {
+  if (verificationLoading) {
     return (
       <div className="space-y-4 py-6">
         <div className="h-32 animate-pulse rounded-2xl bg-gray-100" />

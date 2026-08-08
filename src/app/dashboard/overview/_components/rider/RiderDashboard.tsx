@@ -38,11 +38,10 @@ function RiderDashboardComponent({ user }: Props) {
         hasVehicle={(vehicles && vehicles.length > 0) || false}
       />
 
-      {/* Stats */}
       <RiderStats
         totalRides={stats?.totalRides ?? 0}
         scheduledRides={stats?.upcomingRides ?? 0}
-        verificationStatus={stats?.verificationStatus}
+        overallVerificationStatus={riderVerification?.overallVerificationStatus ?? null}
       />
 
       {/* Offer Ride Banner */}

@@ -1,5 +1,16 @@
 'use client';
 
+/**
+ * ProfileCompletion
+ *
+ * Shows a rider's overall verification readiness — a progress bar, percentage,
+ * and four interactive "criteria" cards (Email, Phone, Identity Docs, Vehicle
+ * Docs).
+ *
+ * Key fix: uses `getVerificationSummary()` and `isDocVerified()` from
+ * `verification.utils.ts` instead of the old inverted `!item` check.
+ */
+
 import { memo } from 'react';
 import Link from 'next/link';
 import {
@@ -15,44 +26,31 @@ import {
 
 import DashboardCard from '../shared/DashboardCard';
 import { RiderVerificationStatusResponse } from '@/types/dashboard.types';
+import {
+  isDocVerified,
+  getVerificationSummary,
+} from '@/lib/verification.utils';
 
 interface Props {
   riderVerification: RiderVerificationStatusResponse | null;
   hasVehicle: boolean;
 }
 
-function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
-  const isOverallVerified = riderVerification?.overallVerificationStatus === 'VERIFIED';
-  const emailVerified = riderVerification?.emailVerified ?? false;
-  const phoneVerified = riderVerification?.phoneVerified ?? false;
+function ProfileCompletionComponent({ riderVerification, hasVehicle: _hasVehicle }: Props) {
+  const {
+    isOverallVerified,
+    emailVerified,
+    phoneVerified,
+    completedCount,
+    totalCount,
+    percentage,
+  } = getVerificationSummary(riderVerification);
 
-  // Helper to determine if a specific document type is verified
-  const isDocVerified = (docType: string): boolean => {
-    if (isOverallVerified) return true;
-    if (!riderVerification) return false;
-    const pendingItem = riderVerification.documents?.find(
-      (d) => d.documentType === docType,
-    );
-    return !pendingItem;
-  };
-
-  const licenseVerified = isDocVerified('DRIVING_LICENSE');
-  const rcVerified = isDocVerified('VEHICLE_RC');
-  const insuranceVerified = isDocVerified('VEHICLE_INSURANCE');
-  const govtIdVerified = isDocVerified('GOVT_ID');
-
-  const verifiedDocsCount = [
-    licenseVerified,
-    rcVerified,
-    insuranceVerified,
-    govtIdVerified,
-  ].filter(Boolean).length;
-
-  // 6 Total Verification Criteria: Email (1) + Phone (1) + 4 Documents (4)
-  const completedTasksCount =
-    (emailVerified ? 1 : 0) + (phoneVerified ? 1 : 0) + verifiedDocsCount;
-  const totalTasks = 6;
-  const percentage = Math.round((completedTasksCount / totalTasks) * 100);
+  // Individual document checks for the two grouped criteria cards.
+  const licenseVerified = isDocVerified(riderVerification, 'DRIVING_LICENSE');
+  const rcVerified = isDocVerified(riderVerification, 'VEHICLE_RC');
+  const insuranceVerified = isDocVerified(riderVerification, 'VEHICLE_INSURANCE');
+  const govtIdVerified = isDocVerified(riderVerification, 'GOVT_ID');
 
   const identityVerified = licenseVerified && govtIdVerified;
   const vehicleDocVerified = rcVerified && insuranceVerified;
@@ -78,14 +76,14 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
               )}
             </div>
             <p className="text-xs text-[var(--text-light)]">
-              Complete your account & document verification requirements to publish rides.
+              Complete your account &amp; document verification requirements to publish rides.
             </p>
           </div>
 
           {/* Badge & Percentage */}
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-[var(--primary-light)] px-3.5 py-1.5 text-xs font-semibold text-[var(--primary)]">
-              {completedTasksCount} of {totalTasks} criteria verified
+              {completedCount} of {totalCount} criteria verified
             </div>
             <div className="text-right">
               <p className="text-3xl font-extrabold text-[var(--heading)]">
@@ -98,7 +96,7 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
           </div>
         </div>
 
-        {/* Dynamic Progress Bar */}
+        {/* Progress Bar */}
         <div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
             <div
@@ -108,7 +106,7 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
           </div>
         </div>
 
-        {/* Interactive Steps Grid */}
+        {/* Criteria Grid */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {/* Criterion 1: Email Address */}
           <div
@@ -146,7 +144,7 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
             </div>
             <div className="mt-3 pt-2 border-t border-gray-100 text-[11px]">
               {emailVerified ? (
-                <span className="text-emerald-800 font-medium">✓ Registered & Active</span>
+                <span className="text-emerald-800 font-medium">✓ Registered &amp; Active</span>
               ) : (
                 <span className="text-amber-800 font-medium">Action Required</span>
               )}
@@ -235,10 +233,10 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
               )}
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-2 text-[11px]">
-              <span className="text-gray-500 font-medium">License & Govt ID</span>
+              <span className="text-gray-500 font-medium">License &amp; Govt ID</span>
               <Link
                 href="/dashboard/documents"
-                className="flex items-center gap-1 font-semibold text-(--primary) hover:underline"
+                className="flex items-center gap-1 font-semibold text-[var(--primary)] hover:underline"
               >
                 Upload <ArrowRight size={11} />
               </Link>
@@ -284,10 +282,10 @@ function ProfileCompletionComponent({ riderVerification, hasVehicle }: Props) {
               )}
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-2 text-[11px]">
-              <span className="text-gray-500 font-medium">RC & Insurance</span>
+              <span className="text-gray-500 font-medium">RC &amp; Insurance</span>
               <Link
                 href="/dashboard/documents"
-                className="flex items-center gap-1 font-semibold text-(--primary) hover:underline"
+                className="flex items-center gap-1 font-semibold text-[var(--primary)] hover:underline"
               >
                 Upload <ArrowRight size={11} />
               </Link>
