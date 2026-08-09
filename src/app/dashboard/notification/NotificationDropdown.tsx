@@ -70,7 +70,7 @@ export default function NotificationDropdown({
   if (!open) return null;
 
   return (
-    <div className="absolute right-0 top-12 z-50 w-[380px] overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-xl">
+    <div className="fixed left-4 right-4 top-16 z-50 max-w-[380px] overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-xl sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[380px]">
 
       {/* Header */}
 
@@ -100,7 +100,7 @@ export default function NotificationDropdown({
 
       {/* List */}
 
-      <div className="max-h-[450px] overflow-y-auto">
+      <div className="max-h-[50vh] sm:max-h-[450px] overflow-y-auto">
 
         {notifications.length === 0 && (
           <div className="py-12 text-center text-sm text-gray-500">
