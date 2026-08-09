@@ -1,6 +1,6 @@
 'use client';
-import { Controller, useForm, useWatch } from "react-hook-form";
-import LocationAutocomplete from "./LocationAutocomplete";
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import LocationAutocomplete from './LocationAutocomplete';
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -61,22 +61,22 @@ const QUICK_PICK_DATES = [
 const DEFAULT_FORM_VALUES: OfferRideFormValues = {
   vehicleId: 0,
 
-  sourceCity: "",
-  sourceAddress: "",
+  sourceCity: '',
+  sourceAddress: '',
   sourceLatitude: 0,
   sourceLongitude: 0,
 
-  destinationCity: "",
-  destinationAddress: "",
+  destinationCity: '',
+  destinationAddress: '',
   destinationLatitude: 0,
   destinationLongitude: 0,
 
   totalSeats: 2,
 
-  departureDate: "",
-  departureTime: "",
+  departureDate: '',
+  departureTime: '',
 
-  pricePerSeat: "",
+  pricePerSeat: '',
 };
 
 export default function OfferRideForm() {
@@ -112,19 +112,32 @@ export default function OfferRideForm() {
     vehicleId: watchedValues.vehicleId ?? DEFAULT_FORM_VALUES.vehicleId,
 
     sourceCity: watchedValues.sourceCity ?? DEFAULT_FORM_VALUES.sourceCity,
-    sourceAddress: watchedValues.sourceAddress ?? DEFAULT_FORM_VALUES.sourceAddress,
-    sourceLatitude: watchedValues.sourceLatitude ?? DEFAULT_FORM_VALUES.sourceLatitude,
-    sourceLongitude: watchedValues.sourceLongitude ?? DEFAULT_FORM_VALUES.sourceLongitude,
+    sourceAddress:
+      watchedValues.sourceAddress ?? DEFAULT_FORM_VALUES.sourceAddress,
+    sourceLatitude:
+      watchedValues.sourceLatitude ?? DEFAULT_FORM_VALUES.sourceLatitude,
+    sourceLongitude:
+      watchedValues.sourceLongitude ?? DEFAULT_FORM_VALUES.sourceLongitude,
 
-    destinationCity: watchedValues.destinationCity ?? DEFAULT_FORM_VALUES.destinationCity,
-    destinationAddress: watchedValues.destinationAddress ?? DEFAULT_FORM_VALUES.destinationAddress,
-    destinationLatitude: watchedValues.destinationLatitude ?? DEFAULT_FORM_VALUES.destinationLatitude,
-    destinationLongitude: watchedValues.destinationLongitude ?? DEFAULT_FORM_VALUES.destinationLongitude,
+    destinationCity:
+      watchedValues.destinationCity ?? DEFAULT_FORM_VALUES.destinationCity,
+    destinationAddress:
+      watchedValues.destinationAddress ??
+      DEFAULT_FORM_VALUES.destinationAddress,
+    destinationLatitude:
+      watchedValues.destinationLatitude ??
+      DEFAULT_FORM_VALUES.destinationLatitude,
+    destinationLongitude:
+      watchedValues.destinationLongitude ??
+      DEFAULT_FORM_VALUES.destinationLongitude,
 
-    departureDate: watchedValues.departureDate ?? DEFAULT_FORM_VALUES.departureDate,
-    departureTime: watchedValues.departureTime ?? DEFAULT_FORM_VALUES.departureTime,
+    departureDate:
+      watchedValues.departureDate ?? DEFAULT_FORM_VALUES.departureDate,
+    departureTime:
+      watchedValues.departureTime ?? DEFAULT_FORM_VALUES.departureTime,
 
-    pricePerSeat: watchedValues.pricePerSeat ?? DEFAULT_FORM_VALUES.pricePerSeat,
+    pricePerSeat:
+      watchedValues.pricePerSeat ?? DEFAULT_FORM_VALUES.pricePerSeat,
     totalSeats: watchedValues.totalSeats ?? DEFAULT_FORM_VALUES.totalSeats,
   };
 
@@ -144,18 +157,28 @@ export default function OfferRideForm() {
     values.departureTime,
   );
 
-  function handlePickupSelect(location: LocationResult, onCityChange: (city: string) => void) {
+  function handlePickupSelect(
+    location: LocationResult,
+    onCityChange: (city: string) => void,
+  ) {
     onCityChange(location.city);
-    setValue("sourceAddress", location.address, { shouldValidate: true });
-    setValue("sourceLatitude", location.latitude, { shouldValidate: true });
-    setValue("sourceLongitude", location.longitude, { shouldValidate: true });
+    setValue('sourceAddress', location.address, { shouldValidate: true });
+    setValue('sourceLatitude', location.latitude, { shouldValidate: true });
+    setValue('sourceLongitude', location.longitude, { shouldValidate: true });
   }
 
-  function handleDestinationSelect(location: LocationResult, onCityChange: (city: string) => void) {
+  function handleDestinationSelect(
+    location: LocationResult,
+    onCityChange: (city: string) => void,
+  ) {
     onCityChange(location.city);
-    setValue("destinationAddress", location.address, { shouldValidate: true });
-    setValue("destinationLatitude", location.latitude, { shouldValidate: true });
-    setValue("destinationLongitude", location.longitude, { shouldValidate: true });
+    setValue('destinationAddress', location.address, { shouldValidate: true });
+    setValue('destinationLatitude', location.latitude, {
+      shouldValidate: true,
+    });
+    setValue('destinationLongitude', location.longitude, {
+      shouldValidate: true,
+    });
   }
 
   function handleSwapLocations() {
@@ -173,15 +196,15 @@ export default function OfferRideForm() {
       lng: values.destinationLongitude,
     };
 
-    setValue("sourceCity", destination.city, { shouldValidate: true });
-    setValue("sourceAddress", destination.address, { shouldValidate: true });
-    setValue("sourceLatitude", destination.lat, { shouldValidate: true });
-    setValue("sourceLongitude", destination.lng, { shouldValidate: true });
+    setValue('sourceCity', destination.city, { shouldValidate: true });
+    setValue('sourceAddress', destination.address, { shouldValidate: true });
+    setValue('sourceLatitude', destination.lat, { shouldValidate: true });
+    setValue('sourceLongitude', destination.lng, { shouldValidate: true });
 
-    setValue("destinationCity", source.city, { shouldValidate: true });
-    setValue("destinationAddress", source.address, { shouldValidate: true });
-    setValue("destinationLatitude", source.lat, { shouldValidate: true });
-    setValue("destinationLongitude", source.lng, { shouldValidate: true });
+    setValue('destinationCity', source.city, { shouldValidate: true });
+    setValue('destinationAddress', source.address, { shouldValidate: true });
+    setValue('destinationLatitude', source.lat, { shouldValidate: true });
+    setValue('destinationLongitude', source.lng, { shouldValidate: true });
   }
 
   const onSubmit = async (data: OfferRideFormValues) => {
@@ -198,10 +221,7 @@ export default function OfferRideForm() {
         destinationLatitude: data.destinationLatitude,
         destinationLongitude: data.destinationLongitude,
 
-        departureTime: toLocalDateTime(
-          data.departureDate,
-          data.departureTime
-        ),
+        departureTime: toLocalDateTime(data.departureDate, data.departureTime),
 
         pricePerSeat: Number(data.pricePerSeat),
         totalSeats: data.totalSeats,
@@ -221,7 +241,7 @@ export default function OfferRideForm() {
 
   const handleOfferAnother = () => {
     setPublishedRide(null);
-    setSubmitError("");
+    setSubmitError('');
     reset(DEFAULT_FORM_VALUES);
   };
 
@@ -539,6 +559,7 @@ export default function OfferRideForm() {
         <p className="mt-1 text-sm text-(--text)">
           Fill in the details below to publish your ride.
         </p>
+      </div>
       </div>
 
       {/* Main Content Injection */}
