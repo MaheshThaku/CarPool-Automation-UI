@@ -1,5 +1,4 @@
 import { api } from "@/lib/axios";
-import { BookingCountsResponse } from '@/types/dashboard.types';
 import {
   RiderStats,
   UpcomingTrip,   // keep this

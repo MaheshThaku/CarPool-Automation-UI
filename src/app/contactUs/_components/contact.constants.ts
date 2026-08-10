@@ -1,5 +1,5 @@
 export const CONTACT_DETAILS = {
-  whatsapp: '919368250428',
+  whatsapp: '919812085112',
   email: 'team@sharefare.in',
 
   responseTime: 'Within 24 Hours',

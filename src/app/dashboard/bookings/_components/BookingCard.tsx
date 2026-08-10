@@ -47,10 +47,12 @@ export default function BookingCard({ booking }: BookingCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
-  const canCancel = booking.status === 'PENDING' || booking.status === 'APPROVED';
+  const canCancel =
+    booking.status === 'PENDING' || booking.status === 'APPROVED';
 
   async function handleCancel() {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    if (!window.confirm('Are you sure you want to cancel this booking?'))
+      return;
     setCancelling(true);
     try {
       await dashboardService.cancelBooking(booking.bookingId);
@@ -63,8 +65,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
       window.location.reload();
     } catch (err: unknown) {
       const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Failed to cancel booking. Please try again.';
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? 'Failed to cancel booking. Please try again.';
       window.alert(message);
     } finally {
       setCancelling(false);
@@ -110,11 +112,17 @@ export default function BookingCard({ booking }: BookingCardProps) {
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--heading)]">
                   <span className="truncate">{booking.sourceCity}</span>
-                  <ArrowRight size={13} className="shrink-0 text-[var(--text-light)]" />
+                  <ArrowRight
+                    size={13}
+                    className="shrink-0 text-[var(--text-light)]"
+                  />
                   <span className="truncate">{booking.destinationCity}</span>
                 </div>
                 <p className="mt-0.5 flex items-center gap-1 text-[11px] text-[var(--text-light)]">
-                  <MapPin size={11} className="shrink-0 text-[var(--primary)]" />
+                  <MapPin
+                    size={11}
+                    className="shrink-0 text-[var(--primary)]"
+                  />
                   <span className="truncate">{startPoint}</span>
                   <span className="shrink-0">→</span>
                   <span className="truncate">{endPoint}</span>
@@ -135,31 +143,45 @@ export default function BookingCard({ booking }: BookingCardProps) {
             <div className="rounded-lg border border-[var(--border)]/40 bg-[var(--background)] px-2.5 py-2">
               <div className="flex items-center gap-1 text-[var(--text-light)]">
                 <Calendar size={12} className="text-[var(--primary)]" />
-                <span className="text-[10px] font-medium uppercase tracking-wide">Date</span>
+                <span className="text-[10px] font-medium tracking-wide uppercase">
+                  Date
+                </span>
               </div>
-              <p className="mt-0.5 truncate text-xs font-semibold text-[var(--heading)]">{dt.date}</p>
+              <p className="mt-0.5 truncate text-xs font-semibold text-[var(--heading)]">
+                {dt.date}
+              </p>
             </div>
 
             <div className="rounded-lg border border-[var(--border)]/40 bg-[var(--background)] px-2.5 py-2">
               <div className="flex items-center gap-1 text-[var(--text-light)]">
                 <Clock size={12} className="text-[var(--primary)]" />
-                <span className="text-[10px] font-medium uppercase tracking-wide">Time</span>
+                <span className="text-[10px] font-medium tracking-wide uppercase">
+                  Time
+                </span>
               </div>
-              <p className="mt-0.5 truncate text-xs font-semibold text-[var(--heading)]">{dt.time}</p>
+              <p className="mt-0.5 truncate text-xs font-semibold text-[var(--heading)]">
+                {dt.time}
+              </p>
             </div>
 
             <div className="rounded-lg border border-[var(--border)]/40 bg-[var(--background)] px-2.5 py-2">
               <div className="flex items-center gap-1 text-[var(--text-light)]">
                 <Users size={12} className="text-[var(--primary)]" />
-                <span className="text-[10px] font-medium uppercase tracking-wide">Seats</span>
+                <span className="text-[10px] font-medium tracking-wide uppercase">
+                  Seats
+                </span>
               </div>
-              <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">{booking.seatsBooked}</p>
+              <p className="mt-0.5 text-xs font-semibold text-[var(--heading)]">
+                {booking.seatsBooked}
+              </p>
             </div>
 
             <div className="rounded-lg border border-[var(--primary)]/15 bg-[var(--primary-light)] px-2.5 py-2">
               <div className="flex items-center gap-1 text-[var(--primary)]">
                 <IndianRupee size={12} />
-                <span className="text-[10px] font-medium uppercase tracking-wide">Paid</span>
+                <span className="text-[10px] font-medium tracking-wide uppercase">
+                  Paid
+                </span>
               </div>
               <p className="mt-0.5 truncate text-xs font-bold text-[var(--primary)]">
                 ₹{amount.toLocaleString('en-IN')}
@@ -180,8 +202,13 @@ export default function BookingCard({ booking }: BookingCardProps) {
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
-                  <p className="truncate text-sm font-semibold text-[var(--heading)]">{driverName}</p>
-                  <BadgeCheck size={14} className="shrink-0 text-[var(--primary)]" />
+                  <p className="truncate text-sm font-semibold text-[var(--heading)]">
+                    {driverName}
+                  </p>
+                  <BadgeCheck
+                    size={14}
+                    className="shrink-0 text-[var(--primary)]"
+                  />
                 </div>
                 {contact ? (
                   <a
@@ -192,30 +219,38 @@ export default function BookingCard({ booking }: BookingCardProps) {
                     {contact}
                   </a>
                 ) : (
-                  <p className="mt-0.5 text-xs text-[var(--text-light)]">Contact unavailable</p>
+                  <p className="mt-0.5 text-xs text-[var(--text-light)]">
+                    Contact unavailable
+                  </p>
                 )}
               </div>
             </div>
 
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5">
               <Car size={13} className="text-[var(--primary)]" />
-              <span className="text-xs font-semibold text-[var(--heading)]">{model}</span>
+              <span className="text-xs font-semibold text-[var(--heading)]">
+                {model}
+              </span>
               {regNumber && (
-                <span className="text-[11px] font-medium text-[var(--text-light)]">· {regNumber}</span>
+                <span className="text-[11px] font-medium text-[var(--text-light)]">
+                  · {regNumber}
+                </span>
               )}
             </span>
           </div>
 
           {/* Footer actions */}
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">
-            <span className="truncate text-[11px] text-[var(--text-light)]">{footerSummary}</span>
+            <span className="truncate text-[11px] text-[var(--text-light)]">
+              {footerSummary}
+            </span>
             <div className="flex shrink-0 items-center gap-2">
               {canCancel && (
                 <button
                   type="button"
                   onClick={handleCancel}
                   disabled={cancelling}
-                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-50 hover:border-red-300 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
                 >
                   <XCircle size={13} />
                   {cancelling ? 'Cancelling…' : 'Cancel'}

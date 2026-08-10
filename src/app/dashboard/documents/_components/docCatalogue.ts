@@ -46,7 +46,7 @@ export const DOC_CATALOGUE: DocConfig[] = [
     label: "Government ID",
     description: "Aadhaar card, PAN card, or passport for identity verification.",
     icon: FileText,
-    required: false,
+    required: true,
     acceptedFormats: "JPG, PNG, PDF",
     maxSizeMB: 5,
   },
