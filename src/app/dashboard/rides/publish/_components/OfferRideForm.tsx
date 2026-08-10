@@ -560,7 +560,6 @@ export default function OfferRideForm() {
           Fill in the details below to publish your ride.
         </p>
       </div>
-      </div>
 
       {/* Main Content Injection */}
       {content}

@@ -3,6 +3,7 @@ import Container from '@/components/ui/Container';
 import FooterBrand from './FooterBrand';
 import FooterCTA from './FooterCTA';
 import FooterLinks from './FooterLinks';
+import FooterProductLinks from './FooterProductLinks';
 
 import { Route } from 'lucide-react';
 
@@ -35,7 +36,7 @@ export default function Footer() {
         <div className="relative z-10 grid gap-12 border-b border-[var(--border)] pb-14 lg:grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
           <FooterBrand />
 
-          <FooterLinks title="Product" links={footerLinks.product} />
+          <FooterProductLinks />
 
           <FooterLinks title="Company" links={footerLinks.company} />
 

@@ -1,6 +1,10 @@
-import Link from 'next/link';
+'use client';
+
+import { useRideActions } from '@/hooks/useRideActions';
 
 export default function FooterCTA() {
+  const { handleFindRide, handleOfferRide } = useRideActions();
+
   return (
     <div className="relative overflow-hidden rounded-[32px] bg-[var(--primary)] px-6 py-10 shadow-[0_20px_60px_rgba(216,154,51,0.25)] lg:px-12 lg:py-12">
       <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10" />
@@ -20,19 +24,21 @@ export default function FooterCTA() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <Link
-            href="/find-ride"
-            className="rounded-xl bg-white px-6 py-3 font-semibold text-[var(--heading)] transition-all duration-300 hover:scale-105"
+          <button
+            type="button"
+            onClick={handleFindRide}
+            className="cursor-pointer rounded-xl bg-white px-6 py-3 font-semibold text-[var(--heading)] transition-all duration-300 hover:scale-105"
           >
             Find Ride
-          </Link>
+          </button>
 
-          <Link
-            href="/offer-ride"
-            className="rounded-xl border border-white px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-white hover:text-[var(--heading)]"
+          <button
+            type="button"
+            onClick={handleOfferRide}
+            className="cursor-pointer rounded-xl border border-white px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-white hover:text-[var(--heading)]"
           >
             Offer Ride
-          </Link>
+          </button>
         </div>
       </div>
     </div>

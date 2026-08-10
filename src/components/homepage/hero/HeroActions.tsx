@@ -1,37 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { ArrowRight, Car } from 'lucide-react';
-import { toast } from 'sonner';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+
+import { useRideActions } from '@/hooks/useRideActions';
 
 export default function HeroActions() {
-  const router = useRouter();
-  const user = useCurrentUser();
-
-  const handleFindRide = () => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    if (user.role === 'ROLE_PASSENGER') {
-      router.push('/dashboard/rides');
-      return;
-    }
-    toast.error("You don't have permission to access this resource.");
-  };
-
-  const handleOfferRide = () => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    if (user.role === 'ROLE_RIDER') {
-      router.push('/dashboard/rides/publish');
-      return;
-    }
-    toast.error("You don't have permission to access this resource.");
-  };
+  const { handleFindRide, handleOfferRide } = useRideActions();
 
   return (
     <div className="mt-10 flex flex-col gap-4 sm:flex-row">
