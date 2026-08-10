@@ -15,6 +15,8 @@ import {
   XCircle,
 } from 'lucide-react';
 
+import { toast } from 'sonner';
+
 import { BookingListItem } from '@/types/dashboard.types';
 import { dashboardService } from '@/services/dashboard.service';
 import { invalidateAsyncCache } from '@/hooks/useAsyncData';
@@ -27,19 +29,24 @@ interface BookingCardProps {
   booking: BookingListItem;
 }
 
-/** Human-friendly "departs in X" label for an upcoming ride ('' when unknown/past). */
-function daysFromNow(iso: string): string {
+/**
+ * Departure-time label for the card footer.
+ * Future ride → "Departs today / tomorrow / in N days".
+ * Already departed → "Completed" (with `past: true` so the caller can style it).
+ * Unknown date → { label: '' }.
+ */
+function daysFromNow(iso: string): { label: string; past: boolean } {
   try {
     const target = new Date(iso).getTime();
-    if (!Number.isFinite(target)) return '';
+    if (!Number.isFinite(target)) return { label: '', past: false };
     const diff = target - Date.now();
+    if (diff < 0) return { label: 'Completed', past: true };
     const days = Math.round(diff / (1000 * 60 * 60 * 24));
-    if (days < 0) return '';
-    if (days === 0) return 'Departs today';
-    if (days === 1) return 'Departs tomorrow';
-    return `Departs in ${days} days`;
+    if (days === 0) return { label: 'Departs today', past: false };
+    if (days === 1) return { label: 'Departs tomorrow', past: false };
+    return { label: `Departs in ${days} days`, past: false };
   } catch {
-    return '';
+    return { label: '', past: false };
   }
 }
 
@@ -50,9 +57,24 @@ export default function BookingCard({ booking }: BookingCardProps) {
   const canCancel =
     booking.status === 'PENDING' || booking.status === 'APPROVED';
 
-  async function handleCancel() {
-    if (!window.confirm('Are you sure you want to cancel this booking?'))
-      return;
+  function handleCancel() {
+    // Custom confirmation toast instead of the native window.confirm.
+    toast('Cancel this booking?', {
+      description: 'Your seat will be freed and the driver will be notified.',
+      action: {
+        label: 'Yes, cancel',
+        onClick: () => {
+          void performCancel();
+        },
+      },
+      cancel: {
+        label: 'Keep booking',
+        onClick: () => {},
+      },
+    });
+  }
+
+  async function performCancel() {
     setCancelling(true);
     try {
       await dashboardService.cancelBooking(booking.bookingId);
@@ -61,13 +83,14 @@ export default function BookingCard({ booking }: BookingCardProps) {
       invalidateAsyncCache('passenger-bookings-PENDING-1');
       invalidateAsyncCache('passenger-bookings-APPROVED-1');
       invalidateAsyncCache('passenger-booking-counts');
-      // Force a full page reload to reflect the updated status
-      window.location.reload();
+      toast.success('Booking cancelled successfully');
+      // Let the success toast show before refreshing the list.
+      setTimeout(() => window.location.reload(), 1200);
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message ?? 'Failed to cancel booking. Please try again.';
-      window.alert(message);
+      toast.error(message);
     } finally {
       setCancelling(false);
     }
@@ -76,7 +99,14 @@ export default function BookingCard({ booking }: BookingCardProps) {
   const dt = parseBookedOn(booking.departureTime);
   const sc = statusConfig(booking.status);
   const StatusIcon = sc.icon;
-  const relative = daysFromNow(booking.departureTime);
+  const dep = daysFromNow(booking.departureTime);
+  // A ride that already happened is "Completed". Rejected/cancelled bookings
+  // shouldn't say that — their status badge already covers it.
+  const relative =
+    dep.past &&
+    (booking.status === 'REJECTED' || booking.status === 'CANCELLED')
+      ? ''
+      : dep.label;
 
   const driverName = booking.driverName || 'Driver';
   const contact = booking.driverContactNumber || null;
@@ -87,14 +117,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
   // Precise photon points once the API provides them; city names for now.
   const startPoint = booking.sourceAddress || booking.sourceCity;
   const endPoint = booking.destinationAddress || booking.destinationCity;
-
-  const footerSummary = [
-    `${booking.seatsBooked} seat${booking.seatsBooked === 1 ? '' : 's'}`,
-    dt.day,
-    relative,
-  ]
-    .filter(Boolean)
-    .join(' · ');
 
   return (
     <>
@@ -242,7 +264,19 @@ export default function BookingCard({ booking }: BookingCardProps) {
           {/* Footer actions */}
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">
             <span className="truncate text-[11px] text-[var(--text-light)]">
-              {footerSummary}
+              {`${booking.seatsBooked} seat${booking.seatsBooked === 1 ? '' : 's'} · ${dt.day}`}
+              {relative && (
+                <>
+                  {' · '}
+                  {/* "Departs in X" is long — hide on mobile to save space;
+                      "Completed" is short, so keep it on all screen sizes. */}
+                  {dep.past ? (
+                    <span className="font-semibold">{relative}</span>
+                  ) : (
+                    <span className="hidden sm:inline">{relative}</span>
+                  )}
+                </>
+              )}
             </span>
             <div className="flex shrink-0 items-center gap-2">
               {canCancel && (

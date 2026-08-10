@@ -13,6 +13,7 @@ import {
   // UpcomingRide
 } from "@/types/dashboard.types";
 import {
+  BookingCountsResponse,
   BookingPageResponse,
   BookingStatus,
 } from '@/types/dashboard.types';
