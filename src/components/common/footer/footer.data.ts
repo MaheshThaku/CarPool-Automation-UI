@@ -33,11 +33,11 @@ export const footerLinks = {
   product: [
     {
       label: "Find Ride",
-      href: "/find-ride",
+      href: "/dashboard/rides",
     },
     {
       label: "Offer Ride",
-      href: "/offer-ride",
+      href: "/dashboard/rides/publish",
     },
     // {
     //   label: "Popular Routes",

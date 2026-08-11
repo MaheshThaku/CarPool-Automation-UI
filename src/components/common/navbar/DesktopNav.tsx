@@ -2,12 +2,18 @@
 
 import Link from 'next/link';
 
-import { navLinks } from './navbar.data';
+import { CurrentUser } from '@/hooks/useCurrentUser';
 
-export default function DesktopNav() {
+import { getVisibleNavLinks } from './navbar.data';
+
+interface Props {
+  user: CurrentUser | null;
+}
+
+export default function DesktopNav({ user }: Props) {
   return (
     <div className="hidden items-center gap-10 lg:flex">
-      {navLinks.map((item) => (
+      {getVisibleNavLinks(user?.role).map((item) => (
         <Link
           key={item.label}
           href={item.href}

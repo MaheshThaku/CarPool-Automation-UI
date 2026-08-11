@@ -31,7 +31,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
 
-          <DesktopNav />
+          <DesktopNav user={user} />
 
           {/* Desktop Actions */}
 

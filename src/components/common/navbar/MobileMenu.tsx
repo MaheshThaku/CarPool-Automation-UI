@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { CurrentUser } from '@/hooks/useCurrentUser';
 
-import { navLinks } from './navbar.data';
+import { getVisibleNavLinks } from './navbar.data';
 
 interface Props {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export default function MobileMenu({ isOpen, onClose, user }: Props) {
         {/* Navigation */}
 
         <div className="space-y-1">
-          {navLinks.map((item) => (
+          {getVisibleNavLinks(user?.role).map((item) => (
             <Link
               key={item.label}
               href={item.href}
