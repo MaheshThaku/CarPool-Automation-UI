@@ -6,40 +6,9 @@ import { X } from "lucide-react";
 
 import Container from "@/components/ui/Container";
 
+import { navLinks } from "@/components/common/navbar/navbar.data";
+
 import { useState } from "react";
-
-
-const navLinks = [
-  {
-    label: "Find Ride",
-    href: "#",
-  },
-  {
-    label: "Offer Ride",
-    href: "#",
-  },
-  {
-    label: "Routes",
-    href: "#",
-  },
-  {
-    label: "How It Works",
-    href: "#",
-  },
-  {
-    label: "Safety",
-    href: "#",
-  },
-  {
-    label: "About Us",
-    href: "#",
-  },
-  {
-    label: "Blog",
-    href: "#",
-  },
-];
-
 
 
 export default function Navbar() {
@@ -89,7 +58,7 @@ export default function Navbar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="relative text-sm font-medium text-white transition-colors duration-300 hover:text-[var(--primary)]"
+                className="group relative text-sm font-medium text-white transition-colors duration-300 hover:text-[var(--primary)]"
               >
                 {item.label}
 

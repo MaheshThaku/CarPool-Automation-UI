@@ -55,14 +55,14 @@ export default function AboutHero() {
 
           <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
-              href="/find-ride"
+              href="/dashboard/rides"
               className="rounded-2xl bg-[var(--primary)] px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-[var(--primary-hover)] hover:shadow-lg"
             >
               Find Ride
             </Link>
 
             <Link
-              href="/offer-ride"
+              href="/dashboard/rides/publish"
               className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-8 py-4 font-semibold text-[var(--heading)] transition-all duration-300 hover:border-[var(--primary)] hover:shadow-lg"
             >
               Offer Ride
